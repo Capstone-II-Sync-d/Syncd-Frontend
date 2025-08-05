@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { API_URL } from "../shared";
 import EventCard from "./EventCard";
+import "./ExploreStyles.css";
 
 const Explore = () => {
   const [loading, setLoading] = useState(true);
