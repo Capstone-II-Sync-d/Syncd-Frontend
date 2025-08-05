@@ -4,6 +4,7 @@ import { API_URL } from "../shared";
 import EventCard from "./EventCard";
 
 const Explore = () => {
+  const [loading, setLoading] = useState(true);
   const [viewToggle, setViewToggle] = useState(true);
   const [events, setEvents] = useState([]);
   const [businesses, setBusinesses] = useState([]);
@@ -16,6 +17,8 @@ const Explore = () => {
     } catch (error) {
       console.error("Error getting events:", error);
     }
+
+    setLoading(false);
   };
 
   const getBusinesses = async () => {
@@ -26,6 +29,9 @@ const Explore = () => {
     getEvents();
   }, []);
 
+  if (loading)
+    return <p>Loading...</p>
+
   return (
     <div className="explore-container">
       <h1>Explore</h1>
@@ -34,7 +40,7 @@ const Explore = () => {
         {/* Explore Events */}
         { viewToggle && 
           events.length > 0 ? (
-            events.map((event) => (<EventCard event={event} />))
+            events.map((event) => (<EventCard key={event.id} event={event} />))
           ) : (
             <p> No events found </p>
           )
