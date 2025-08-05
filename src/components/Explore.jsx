@@ -1,8 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { API_URL } from "../shared";
+import EventCard from "./EventCard";
 
 const Explore = () => {
+  const [viewToggle, setViewToggle] = useState(true);
   const [events, setEvents] = useState([]);
   const [businesses, setBusinesses] = useState([]);
 
@@ -26,7 +28,18 @@ const Explore = () => {
 
   return (
     <div className="explore-container">
-      <p>Explore page</p>
+      <h1>Explore</h1>
+
+      <div className="explore-list">
+        {/* Explore Events */}
+        { viewToggle && 
+          events.length > 0 ? (
+            events.map((event) => (<EventCard event={event} />))
+          ) : (
+            <p> No events found </p>
+          )
+        }
+      </div>
     </div>
   );
 };
