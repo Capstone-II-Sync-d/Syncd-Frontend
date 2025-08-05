@@ -11,3 +11,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
+
+.explore-container label {
+  font-weight: bold;
+}
