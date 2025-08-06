@@ -9,6 +9,7 @@ import Signup from "./components/Signup";
 import Home from "./components/Home";
 import NotFound from "./components/NotFound";
 import UserProfile from "./components/UserProfile";
+import BusinessProfile from "./components/BusinessProfile";
 import { API_URL, SOCKETS_URL, NODE_ENV } from "./shared";
 import { io } from "socket.io-client";
 
@@ -66,7 +67,14 @@ const App = () => {
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route exact path="/" element={<Home />} />
-          <Route path="/user/profile" element={<UserProfile user={user} />} />
+          <Route
+            path="/user/profile/:id"
+            element={<UserProfile user={user} />}
+          />
+          <Route
+            path="/business/profile/:id"
+            element={<BusinessProfile user={user} />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
