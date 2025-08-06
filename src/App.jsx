@@ -68,11 +68,11 @@ const App = () => {
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route exact path="/" element={<Home />} />
           <Route
-            path="/user/profile/:id"
+            path="/user/profile/:ownerId"
             element={<UserProfile user={user} />}
           />
           <Route
-            path="/business/profile/:id"
+            path="/business/profile/:businessId"
             element={<BusinessProfile user={user} />}
           />
           <Route path="*" element={<NotFound />} />

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import "./AuthStyles.css";
 import { API_URL } from "../shared";
+import BusinessCard from "./BusinessCard";
 
-const UserProfile = async (user) => {
-  const ownerProfile = useParams(); //get the id of the profile of the specfiic user
+const UserProfile = ({ user }) => {
+  const { ownerId } = useParams();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
@@ -13,79 +14,108 @@ const UserProfile = async (user) => {
   const [bio, setBio] = useState("");
   const [profilePicture, setProfilePicture] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [businesses, setBusinesses] = useState([]);
 
-  const owner = await axios.get(
-    `${API_URL}/api/profiles/user/${ownerProfile}`,
-    {
-      withCredentials: true,
+  const profileInfo = async () => {
+    try {
+      const owner = await axios.get(`${API_URL}/api/profiles/user/${ownerId}`, {
+        withCredentials: true,
+      });
+
+      const businessesRes = await axios.get(
+        `${API_URL}/api/profiles/me/businesses`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      setFirstName(owner.data.firstName || "");
+      setLastName(owner.data.lastName || "");
+      setUsername(owner.data.username || "");
+      setEmail(owner.data.email || "");
+      setBio(owner.data.bio || "");
+      setProfilePicture(owner.data.profilePicture || "");
+      setBusinesses(businessesRes.data || []);
+    } catch (error) {
+      console.error("Error fetching profile info:", error);
     }
-  );
-
-  //Update state of the user information
-  const userInfo = () => {
-    setFirstName(owner.firstName);
-    setLastName(owner.lastName);
-    setUsername(owner.username);
-    setEmail(owner.email);
-    setBio(owner.bio);
-    setProfilePicture(user.profilePicture);
   };
 
-  //On change of the user.id, it will run the userinfo function
   useEffect(() => {
-    userInfo();
+    profileInfo();
     setIsEditing(false);
   }, [user.id]);
 
-  //Check if the user is the owner of the account, if so, the profile page will show this
-  if (ownerProfile === user.id) {
+  const isOwner = ownerId === user.id.toString();
+
+  if (isOwner) {
     if (isEditing) {
       return (
-        <form>
-          <input
-            name="username"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => {
-              setUsername(e.target.value);
-            }}
-          />
-          <input
-            name="firstName"
-            placeholder="First Name:"
-            value={firstName}
-            onChange={(e) => {
-              setFirstName(e.target.value);
-            }}
-          />
-          <input
-            name="lastName"
-            placeholder="Last Name"
-            value={lastName}
-            onChange={(e) => {
-              setLastName(e.target.value);
-            }}
-          />
-          <input
-            name="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
-          />
-          <input
-            name="bio"
-            placeholder="Bio"
-            value={bio}
-            onChange={(e) => {
-              setBio(e.target.value);
-            }}
-          />
-        </form>
+        <>
+          <form className="profileEditForm">
+            <label>
+              Username:
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </label>
+
+            <label>
+              First Name:
+              <input
+                type="text"
+                name="firstName"
+                placeholder="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </label>
+
+            <label>
+              Last Name:
+              <input
+                type="text"
+                name="lastName"
+                placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </label>
+
+            <label>
+              Email:
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </label>
+
+            <label>
+              Bio:
+              <input
+                type="text"
+                name="bio"
+                placeholder="Bio"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+              />
+            </label>
+            <button type="button" onClick={() => setIsEditing(false)}>
+              Save
+            </button>
+          </form>
+        </>
       );
     }
-    //Owner view of profile not in editing mode
+
+    // Owner view
     return (
       <div className="profileCard">
         <div className="profileHeader">
@@ -111,14 +141,22 @@ const UserProfile = async (user) => {
           className="editProfileBtn"
           onClick={() => {
             setIsEditing(true);
+            console.log("Hi");
           }}
         >
           Edit Profile
         </button>
+        <div className="businessSection">
+          <h2>Your Businesses</h2>
+          {businesses.map((business) => (
+            <BusinessCard key={business.id} business={business} />
+          ))}
+        </div>
       </div>
     );
   }
-  //Non owner view profile page
+
+  // Non-owner view
   return (
     <div className="profileCard">
       <div className="profileHeader">
@@ -131,16 +169,22 @@ const UserProfile = async (user) => {
         </div>
       </div>
       <div className="profileDetails">
-        {owner.email && (
+        {email && (
           <p>
-            <strong>Email:</strong> {owner.email}
+            <strong>Email:</strong> {email}
           </p>
         )}
-        {owner.bio && (
+        {bio && (
           <p>
-            <strong>Bio:</strong> {owner.bio}
+            <strong>Bio:</strong> {bio}
           </p>
         )}
+      </div>
+      <div className="businessSection">
+        <h2>Businesses</h2>
+        {businesses.map((business) => (
+          <BusinessCard key={business.id} business={business} />
+        ))}
       </div>
     </div>
   );
