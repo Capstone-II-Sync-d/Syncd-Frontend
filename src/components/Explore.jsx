@@ -72,7 +72,7 @@ const Explore = () => {
 
   return (
     <div className="explore-container">
-      <h1>Explore</h1>
+      <h1>Explore {viewToggle ? "Events" : "Businesses"}</h1>
 
       <div className="search">
         <div className="search-bar">
