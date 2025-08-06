@@ -4,7 +4,7 @@ import axios from "axios";
 import { API_URL } from "../shared";
 import "./AuthStyles.css";
 
-const Login = ({ setUser }) => {
+const Login = ({ socket, setUser }) => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -47,6 +47,7 @@ const Login = ({ setUser }) => {
 
       setUser(response.data.user);
       navigate("/");
+      socket.emit("userConnected", response.data.user);
     } catch (error) {
       if (error.response?.data?.error) {
         setErrors({ general: error.response.data.error });
