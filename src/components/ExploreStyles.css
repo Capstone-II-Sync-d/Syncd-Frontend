@@ -6,10 +6,27 @@
   gap: 2rem
 }
 
+.explore-container .search {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.explore-container .toggle {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+
 .explore-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+}
+
+.explore-list .business-card {
+  max-width: 450;
 }
 
 .explore-container label {
