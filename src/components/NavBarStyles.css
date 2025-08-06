@@ -10,6 +10,13 @@
   border-bottom: 1px solid #e9ecef;
 }
 
+.profile-picture {
+  height: 50px;
+  width: 50px;
+  border-radius: 70%;
+  object-fit: cover;
+}
+
 .nav-brand a {
   font-size: 1.5rem;
   font-weight: bold;
