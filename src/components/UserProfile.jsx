@@ -3,8 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import "./AuthStyles.css";
 import { API_URL } from "../shared";
+import BusinessCard from "./BusinessCard";
 
-const UserProfile = (socket, user) => {
+const UserProfile = ({ socket, user }) => {
   const { profileId } = useParams();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -15,6 +16,7 @@ const UserProfile = (socket, user) => {
   const [isEditing, setIsEditing] = useState(false);
   const [friendship, setFriendship] = useState(null);
   const [friendLoading, setFriendLoading] = useState(true);
+  const [businesses, setBusinesses] = useState([]);
 
   useEffect(() => {
     const fetchProfileAndFriendship = async () => {
@@ -41,7 +43,6 @@ const UserProfile = (socket, user) => {
           `${API_URL}/api/profiles/me/friends`,
           { withCredentials: true }
         );
-        console.log(friendShips);
 
         // filter out the friendship record with the profile they are veiwin, if there is any
         const friendship = await friendShips.data.filter((friendShip) => {
@@ -51,6 +52,16 @@ const UserProfile = (socket, user) => {
       } catch (error) {
         //If  cannot find the friendship record, setFriendships to null
         setFriendship(null);
+      }
+      // Fetch businesses owned by this profile
+      try {
+        const businessesRes = await axios.get(
+          `${API_URL}/api/profiles/user/${profileId}/businesses`,
+          { withCredentials: true }
+        );
+        setBusinesses(businessesRes.data || []);
+      } catch (error) {
+        setBusinesses([]);
       }
       setFriendLoading(false);
     };
@@ -132,6 +143,15 @@ const UserProfile = (socket, user) => {
         <button className="editProfileBtn" onClick={() => setIsEditing(true)}>
           Edit Profile
         </button>
+        {/* Businesses owned by this user */}
+        {businesses.length > 0 && (
+          <div className="businesses-list">
+            <h3>Businesses</h3>
+            {businesses.map((business) => (
+              <BusinessCard key={business.id} business={business} />
+            ))}
+          </div>
+        )}
       </div>
     );
   }
@@ -178,6 +198,15 @@ const UserProfile = (socket, user) => {
               Add Friend
             </button>
           )}
+        </div>
+      )}
+      {/* Businesses owned by this user */}
+      {businesses.length > 0 && (
+        <div className="businesses-list">
+          <h3>Businesses</h3>
+          {businesses.map((business) => (
+            <BusinessCard key={business.id} business={business} />
+          ))}
         </div>
       )}
     </div>

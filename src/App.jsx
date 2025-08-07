@@ -70,7 +70,7 @@ const App = () => {
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route exact path="/" element={<Home />} />
           <Route
-            path="/user/profile/:ownerId"
+            path="/user/profile/:profileId"
             element={<UserProfile socket={socket} user={user} />}
           />
           <Route
