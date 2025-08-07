@@ -8,7 +8,8 @@ import BusinessCard from "./BusinessCard";
 const Explore = () => {
   const [loading, setLoading] = useState(true);
   const [viewToggle, setViewToggle] = useState(true);
-  
+  const [query, setQuery] = useState("");
+
   const [events, setEvents] = useState([]);
   const [viewPastEvents, setViewPastEvents] = useState(false);
   const [filteredEvents, setFilteredEvents] = useState([]);
@@ -18,9 +19,12 @@ const Explore = () => {
 
   const getEvents = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/calendarItems/events/future`);
+      const response = await axios.get(`${API_URL}/api/calendarItems/events`);
       setEvents(response.data);
-      setFilteredEvents(response.data);
+      const now = new Date();
+      setFilteredEvents(response.data.filter((event) => (
+        Date.parse(event.endTime) > now
+      )));
       console.log(`Successfully retrieved ${response.data.length} events`);
     } catch (error) {
       console.error("Error getting events:", error);
@@ -29,15 +33,23 @@ const Explore = () => {
     setLoading(false);
   };
 
-  const filterEvents = async (e) => {
-    const search = e.target.value.toLowerCase();
+  const filterEvents = () => {
+    if (events.length === 0)
+      return
+
+    const now = new Date();
     setFilteredEvents(
       events.filter((event) => (
-        event.title.toLowerCase().includes(search) ||
-        event.description.toLowerCase().includes(search) ||
-        (event.business ?
-        event.business.toLowerCase().includes(search) :
-        event.creatorUsername.toLowerCase().includes(search))
+        // Query filter
+        ( event.title.toLowerCase().includes(query) ||
+        event.description.toLowerCase().includes(query) ||
+        ( event.business ?
+          event.business.toLowerCase().includes(query) :
+          event.creatorUsername.toLowerCase().includes(query)
+        ))
+        &&
+        // Past Events filter
+        ( viewPastEvents ? true : Date.parse(event.endTime) > now )
       ))
     );
   };
@@ -53,22 +65,33 @@ const Explore = () => {
     }
   };
 
-  const filterBusinesses = async (e) => {
-    const search = e.target.value.toLowerCase();
+  const filterBusinesses = () => {
     setFilteredBusinesses(
       businesses.filter((business) => (
-        business.name.toLowerCase().includes(search) ||
-        business.bio.toLowerCase().includes(search) ||
-        business.owner.toLowerCase().includes(search) ||
-        (business.category && business.category.toLowerCase().includes(search))
+        business.name.toLowerCase().includes(query) ||
+        business.bio.toLowerCase().includes(query) ||
+        business.owner.toLowerCase().includes(query) ||
+        (business.category && business.category.toLowerCase().includes(query))
       ))
     );
   };
 
+  // Get all events and businesses on load
   useEffect(() => {
     getEvents();
     getBusinesses();
   }, []);
+
+  // Filter events and businesses whenever the query changes
+  useEffect(() => {
+    filterEvents();
+    filterBusinesses();
+  }, [query]);
+
+  // Filter events whenever the view past toggle changes
+  useEffect(() => {
+    filterEvents();
+  }, [viewPastEvents]);
 
   if (loading)
     return <p>Loading...</p>
@@ -83,7 +106,8 @@ const Explore = () => {
           <input 
             type="text"
             id="search-bar"
-            onChange={(e) => { filterEvents(e); filterBusinesses(e); }}
+            value={query}
+            onChange={(e) => { setQuery(e.target.value) }}
           />
         </div>
 
