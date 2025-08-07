@@ -6,12 +6,11 @@ import NavBar from "./components/NavBar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import Home from "./components/Home";
 import NotFound from "./components/NotFound";
 // import Main from "./components/Main";
 import { API_URL, SOCKETS_URL, NODE_ENV } from "./shared";
 import { io } from "socket.io-client";
-import Test from "./components/calendar/Test";
+import Home from "./components/calendar/Home";
 
 const socket = io(SOCKETS_URL, {
   withCredentials: NODE_ENV === "production",
@@ -67,7 +66,7 @@ const App = () => {
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route exact path="/" element={<Home />} />
-          <Route path="/main" element={<Test />} /> 
+          <Route path="/main" element={<Home />} /> 
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
