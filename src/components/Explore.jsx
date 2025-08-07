@@ -110,16 +110,30 @@ const Explore = () => {
   return (
     <div className="explore-container">
       <div className="sidebar">
+        <div className="header">
+          <h2>Explore</h2>
+        </div>
         <div className="selectors">
-          <h3 className="selector" onClick={() => {setView("Users")}}>Users</h3>
-          <h3 className="selector" onClick={() => {setView("Events")}}>Events</h3>
-          <h3 className="selector" onClick={() => {setView("Businesses")}}>Businesses</h3>
+          <h3
+            className={`selector ${view === "Users" ? "active" : ""}`}
+            onClick={() => {setView("Users")}}
+          > Users</h3>
+          <h3
+            className={`selector ${view === "Events" ? "active" : ""}`}
+            onClick={() => {setView("Events")}}
+          > Events</h3>
+          <h3
+            className={`selector ${view === "Businesses" ? "active" : ""}`}
+            onClick={() => {setView("Businesses")}}
+          > Businesses</h3>
+        </div>
+        
+        <div className="header">
+          <h2>Search</h2>
         </div>
       </div>
 
       <div className="content">
-        <h1>Explore {view}</h1>
-
         <div className="search">
           <div className="search-bar">
             <label htmlFor="search-bar">Search: </label>

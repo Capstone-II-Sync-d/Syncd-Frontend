@@ -112,6 +112,13 @@ input:checked + .slider:before {
   box-shadow: 5px 0 10px rgba(0, 0, 0, 0.2);
 }
 
+.sidebar .header {
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
 .sidebar .selectors {
   display: flex;
   flex-direction: column;
