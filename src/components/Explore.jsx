@@ -140,23 +140,25 @@ const Explore = () => {
             />
         </div>
 
-      </div>
-
-      <div className="content">
-        <div className="search">
+        <div className="header">
+          <h2>Filter</h2>
+        </div>
+        <div className="filter">
           { view === "Events" &&
-            <div>
-              <label htmlFor="view-past">View Past Events</label>
+            <div className="filter-option">
               <input
                 type="checkbox"
                 id="view-past"
                 value={viewPastEvents}
                 onChange={() => {setViewPastEvents(!viewPastEvents)}}
                 />
+              <label htmlFor="view-past"> View Past Events</label>
             </div>
           }
         </div>
+      </div>
 
+      <div className="content">
         <div className="explore-list">
           {renderList()}
         </div>

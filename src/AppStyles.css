@@ -141,3 +141,12 @@ input:checked + .slider:before {
 .sidebar .search input {
   width: 100%;
 }
+
+.sidebar .filter {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .filter-option {
+  padding: 0.5rem;
+}
