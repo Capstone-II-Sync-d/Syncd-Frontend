@@ -7,7 +7,7 @@ import BusinessList from "./BusinessList";
 
 const Explore = () => {
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState("users");
+  const [view, setView] = useState("Users");
   const [query, setQuery] = useState("");
 
   const [events, setEvents] = useState([]);
@@ -78,11 +78,11 @@ const Explore = () => {
 
   const renderList = () => {
     switch(view) {
-      case "users":
+      case "Users":
         return <p>User List not implemented yet!</p>
-      case "events":
+      case "Events":
         return <EventList events={filterEvents} />
-      case "businesses":
+      case "Businesses":
         return <BusinessList businesses={filteredBusinesses} />
     }
   }
@@ -111,9 +111,9 @@ const Explore = () => {
     <div className="explore-container">
       <div className="sidebar">
         <div className="selectors">
-          <h3 className="selector" onClick={() => {setView("users")}}>Users</h3>
-          <h3 className="selector" onClick={() => {setView("events")}}>Events</h3>
-          <h3 className="selector" onClick={() => {setView("businesses")}}>Businesses</h3>
+          <h3 className="selector" onClick={() => {setView("Users")}}>Users</h3>
+          <h3 className="selector" onClick={() => {setView("Events")}}>Events</h3>
+          <h3 className="selector" onClick={() => {setView("Businesses")}}>Businesses</h3>
         </div>
       </div>
 
