@@ -81,7 +81,7 @@ const Explore = () => {
       case "Users":
         return <p>User List not implemented yet!</p>
       case "Events":
-        return <EventList events={filterEvents} />
+        return <EventList events={filteredEvents} />
       case "Businesses":
         return <BusinessList businesses={filteredBusinesses} />
     }
