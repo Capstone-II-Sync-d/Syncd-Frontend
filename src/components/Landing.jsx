@@ -1,9 +1,10 @@
 import React from "react";
+import "./global.css";    // Theme colors & shared styles
+import "./Landing.css";   // Landing page specific styles
 
 const Landing = () => {
   return (
     <div className="landingpage">
-
       {/* Hero Section */}
       <section className = "hero">
         {/* Container - centers content and sets max width */}

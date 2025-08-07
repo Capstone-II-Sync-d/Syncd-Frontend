@@ -1,0 +1,203 @@
+/* ===========================
+      GLOBAL THEME VARIABLES
+   ========================== */
+
+:root {
+  /* === COLOR PALETTE === */
+  /* Primary Colors - (Easy to change later) */
+  --primary-color: #6b73ff; /* Soft purple-blue */
+  --primary-hover: #5a63e8; /* Darker shade for hovers */
+  --primary-light: #e8eaff; /* Very light version */
+
+  /* Secondary Colors */
+  --secondary-color: #4ecdc4; /* Soft teal */
+  --secondary-hover: #45b8b0; /* Darker teal */
+  --secondary-light: #e6f9f7; /* Very light teal */
+
+  /* Neutral Colors */
+  --text-primary: #2d3748; /* Dark gray for main text */
+  --text-secondary: #718096; /* Medium gray for subtitles */
+  --text-muted: #a0aec0; /* Light gray for less important text */
+
+  /* Background Colors */
+  --bg-primary: #ffffff; /* Pure white */
+  --bg-secondary: #f7fafc; /* Very light gray */
+  --bg-tertiary: #edf2f7; /* Slightly darker light gray */
+  --bg-gradient: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+
+  /* Accent Colors */
+  --success-color: #48bb78; /* Green for success states */
+  --warning-color: #ed8936; /* Orange for warnings */
+  --error-color: #f56565; /* Red for errors */
+
+  /* === TYPOGRAPHY === */
+  --font-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* === SPACING === */
+  --spacing-xs: 0.25rem; /* 4px */
+  --spacing-sm: 0.5rem; /* 8px */
+  --spacing-md: 1rem; /* 16px */
+  --spacing-lg: 1.5rem; /* 24px */
+  --spacing-xl: 2rem; /* 32px */
+  --spacing-2xl: 3rem; /* 48px */
+  --spacing-3xl: 4rem; /* 64px */
+  --spacing-4xl: 5rem; /* 80px */
+
+  /* === BORDERS & SHADOWS === */
+  --border-radius-sm: 0.375rem; /* 6px */
+  --border-radius-md: 0.5rem; /* 8px */
+  --border-radius-lg: 0.75rem; /* 12px */
+  --border-radius-xl: 1rem; /* 16px */
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+
+  /* === LAYOUT === */
+  --container-max-width: 1200px;
+  --section-padding: var(--spacing-4xl) var(--spacing-lg);
+}
+
+/* ===========================
+   GLOBAL RESET & BASE STYLES
+   ========================== */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden; /* Prevents horizontal scroll */
+}
+
+#root {
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-primary);
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+}
+
+/* ===========================
+      GLOBAL UTILITY CLASSES
+   ========================== */
+
+.container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+/* Button Styles - Used across all pages */
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--primary-color);
+  padding: var(--spacing-md) var(--spacing-xl);
+  border: 2px solid var(--primary-color);
+  border-radius: var(--border-radius-md);
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn-primary.large {
+  font-size: 1.2rem;
+  padding: var(--spacing-lg) var(--spacing-2xl);
+}
+
+/* Text Utilities */
+.text-center {
+  text-align: center;
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* Spacing Utilities */
+.mt-sm {
+  margin-top: var(--spacing-sm);
+}
+.mt-md {
+  margin-top: var(--spacing-md);
+}
+.mt-lg {
+  margin-top: var(--spacing-lg);
+}
+.mt-xl {
+  margin-top: var(--spacing-xl);
+}
+
+.mb-sm {
+  margin-bottom: var(--spacing-sm);
+}
+.mb-md {
+  margin-bottom: var(--spacing-md);
+}
+.mb-lg {
+  margin-bottom: var(--spacing-lg);
+}
+.mb-xl {
+  margin-bottom: var(--spacing-xl);
+}
