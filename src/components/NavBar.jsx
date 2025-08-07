@@ -13,6 +13,9 @@ const NavBar = ({ user, onLogout }) => {
         {user ? (
           <div className="user-section">
             <span className="username">Welcome, {user.username}!</span>
+            <Link to={`/user/profile/${user.id}`} className="nav-link">
+              <img className="profile-picture" src={user.profilePicture} />
+            </Link>
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>

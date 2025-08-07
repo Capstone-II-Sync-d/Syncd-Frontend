@@ -9,6 +9,7 @@ import Signup from "./components/Signup";
 import Home from "./components/Home";
 import NotFound from "./components/NotFound";
 import UserProfile from "./components/UserProfile";
+import BusinessProfile from "./components/BusinessProfile";
 import { API_URL, SOCKETS_URL, NODE_ENV } from "./shared";
 import { io } from "socket.io-client";
 const socket = io(SOCKETS_URL, {
@@ -17,6 +18,7 @@ const socket = io(SOCKETS_URL, {
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [friends, setFriends] = useState([]);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -40,6 +42,12 @@ const App = () => {
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    socket.on("friend-request", () => {
+      setFriends(friends);
+    });
+  });
 
   const handleLogout = async () => {
     try {
@@ -67,8 +75,15 @@ const App = () => {
             element={<Login setUser={setUser} socket={socket} />}
           />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
-          <Route path="/userProfile" element={<UserProfile user={user} />} />
           <Route exact path="/" element={<Home />} />
+          <Route
+            path="/user/profile/:ownerId"
+            element={<UserProfile socket={socket} user={user} />}
+          />
+          <Route
+            path="/business/profile/:businessId"
+            element={<BusinessProfile user={user} />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
