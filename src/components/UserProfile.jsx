@@ -17,6 +17,7 @@ const UserProfile = ({ socket, user }) => {
   const [friendship, setFriendship] = useState(null);
   const [friendLoading, setFriendLoading] = useState(true);
   const [businesses, setBusinesses] = useState([]);
+  const [friendsAmount, setFriendsAmount] = useState(0);
 
   useEffect(() => {
     const fetchProfileAndFriendship = async () => {
@@ -38,19 +39,36 @@ const UserProfile = ({ socket, user }) => {
         // handle error
       }
       try {
-        //Look for all of the friendships the user viewing the profile has
-        const friendShips = await axios.get(
+        //|---------------------------------------------------------------------------|
+        // Gets the amount of friends that the profile that is being viewed has
+        //|---------------------------------------------------------------------------|
+        const friendShipsOfProfile = await axios.get(
+          `${API_URL}/api/profiles/user/${profileId} friends`,
+          { withCredentials: true }
+        );
+        // Get all accepted friendShips to count total friends of profile that is being viewed
+        const friends = friendShipsOfProfile.data.filter(
+          (friendShip) => friendShip.status === "accepted"
+        );
+        setFriendsAmount(friends.length);
+
+        //|----------------------------------------------------------------------------|
+        // Get the relationship status of the viewer and the profile for the friend request button
+        //|----------------------------------------------------------------------------|
+        //Look for all of the friendShipsOfViewer the user viewing the profile has
+        const friendShipsOfViewer = await axios.get(
           `${API_URL}/api/profiles/me/friends`,
           { withCredentials: true }
         );
-
-        // filter out the friendship record with the profile they are veiwin, if there is any
-        const friendship = await friendShips.data.filter((friendShip) => {
-          friendShip.user1 === profileId || friendShip.user2 === profileId;
-        });
-        setFriendship(friendship);
+        // Find the friendship between the current user and the profile being viewed
+        const friendshipStatus = friendShipsOfViewer.data.find(
+          (friendShip) =>
+            friendShip.user1 === profileId || friendShip.user2 === profileId
+        );
+        setFriendship(friendshipStatus || null);
+        //|-----------------------------------------------------------------------------|
       } catch (error) {
-        //If  cannot find the friendship record, setFriendships to null
+        //If  cannot find the friendship record, setfriendShipsOfViewer to null
         setFriendship(null);
       }
       // Fetch businesses owned by this profile
@@ -134,6 +152,10 @@ const UserProfile = ({ socket, user }) => {
           <p>
             <strong>Email:</strong> {email}
           </p>
+          <div>
+            <p>{friendsAmount}</p>
+            <h5>Friends</h5>
+          </div>
           {bio && (
             <p>
               <strong>Bio:</strong> {bio}
