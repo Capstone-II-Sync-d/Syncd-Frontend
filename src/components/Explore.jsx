@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { API_URL } from "../shared";
-import BusinessCard from "./BusinessCard";
 import EventList from "./EventList";
 import "./ExploreStyles.css";
 import BusinessList from "./BusinessList";
@@ -99,57 +98,67 @@ const Explore = () => {
 
   return (
     <div className="explore-container">
-      <h1>Explore {viewToggle ? "Events" : "Businesses"}</h1>
-
-      <div className="search">
-        <div className="search-bar">
-          <label htmlFor="search-bar">Search: </label>
-          <input 
-            type="text"
-            id="search-bar"
-            value={query}
-            onChange={(e) => { setQuery(e.target.value) }}
-          />
+      <div className="sidebar">
+        <div className="selectors">
+          <h3>Users</h3>
+          <h3>Events</h3>
+          <h3>Businesses</h3>
         </div>
-
-        <div className="search-toggle">
-          <label className="toggle">
-            Events
-            <label className="switch">
-              <input
-                type="checkbox"
-                value={viewToggle}
-                onChange={() => {setViewToggle(!viewToggle)}}
-              />
-              <span className="slider round"></span>
-            </label>
-            Businesses
-          </label>
-        </div>
-
-        { viewToggle &&
-          <div>
-            <label htmlFor="view-past">View Past Events</label>
-            <input
-              type="checkbox"
-              id="view-past"
-              value={viewPastEvents}
-              onChange={() => {setViewPastEvents(!viewPastEvents)}}
-            />
-          </div>
-        }
       </div>
 
-      <div className="explore-list">
-        { 
-          viewToggle ? (
-            /* Explore Events */
-            <EventList events={filteredEvents} />
-          ) : (
-            /* Explore Businesses */
-            <BusinessList businesses={filteredBusinesses} />
-          )
-        }
+      <div className="content">
+        <h1>Explore {viewToggle ? "Events" : "Businesses"}</h1>
+
+        <div className="search">
+          <div className="search-bar">
+            <label htmlFor="search-bar">Search: </label>
+            <input 
+              type="text"
+              id="search-bar"
+              value={query}
+              onChange={(e) => { setQuery(e.target.value) }}
+              />
+          </div>
+
+          <div className="search-toggle">
+            <label className="toggle">
+              Events
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  value={viewToggle}
+                  onChange={() => {setViewToggle(!viewToggle)}}
+                  />
+                <span className="slider round"></span>
+              </label>
+              Businesses
+            </label>
+          </div>
+
+          { viewToggle &&
+            <div>
+              <label htmlFor="view-past">View Past Events</label>
+              <input
+                type="checkbox"
+                id="view-past"
+                value={viewPastEvents}
+                onChange={() => {setViewPastEvents(!viewPastEvents)}}
+                />
+            </div>
+          }
+        </div>
+
+        <div className="explore-list">
+          { 
+            viewToggle ? (
+              /* Explore Events */
+              <EventList events={filteredEvents} />
+            ) : (
+              /* Explore Businesses */
+              <BusinessList businesses={filteredBusinesses} />
+            )
+          }
+        </div>
       </div>
     </div>
   );

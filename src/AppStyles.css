@@ -100,3 +100,20 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 /* End Toggle Slider Styles */
+
+.sidebar {
+  background-color: #f8f9fa;
+  border-right: 1px solid #e9ecef;
+  margin-top: -1rem;
+  padding: 1rem 0.5rem;
+  width: 200px;
+  height: 100%;
+  position: fixed;
+  box-shadow: 5px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar .selectors {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem
+}

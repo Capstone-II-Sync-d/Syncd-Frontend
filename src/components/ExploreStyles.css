@@ -1,9 +1,14 @@
 .explore-container {
-  padding: 0 1rem;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2rem
+  flex-direction: row;
+  height: 100%;
+
+  border: 1px solid red;
+}
+
+.explore-container .content {
+  margin-left: 200px;
+  padding: 0 1rem;
 }
 
 .explore-container .search {
