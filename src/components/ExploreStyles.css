@@ -2,26 +2,11 @@
   display: flex;
   flex-direction: row;
   height: 100%;
-
-  border: 1px solid red;
 }
 
 .explore-container .content {
   margin-left: 200px;
   padding: 0 1rem;
-}
-
-.explore-container .search {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.explore-container .toggle {
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
 }
 
 .explore-list {
@@ -32,8 +17,4 @@
 
 .explore-list .business-card {
   max-width: 450px;
-}
-
-.explore-container label {
-  font-weight: bold;
 }
