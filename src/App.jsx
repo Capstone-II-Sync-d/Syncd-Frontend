@@ -18,7 +18,6 @@ const socket = io(SOCKETS_URL, {
 
 const App = () => {
   const [user, setUser] = useState(null);
-  const [friends, setFriends] = useState([]);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -42,12 +41,6 @@ const App = () => {
   useEffect(() => {
     checkAuth();
   }, []);
-
-  useEffect(() => {
-    socket.on("friend-request", () => {
-      setFriends(friends);
-    });
-  });
 
   const handleLogout = async () => {
     try {
