@@ -7,7 +7,7 @@ import BusinessList from "./BusinessList";
 
 const Explore = () => {
   const [loading, setLoading] = useState(true);
-  const [viewToggle, setViewToggle] = useState(true);
+  const [view, setView] = useState("users");
   const [query, setQuery] = useState("");
 
   const [events, setEvents] = useState([]);
@@ -76,6 +76,17 @@ const Explore = () => {
     );
   };
 
+  const renderList = () => {
+    switch(view) {
+      case "users":
+        return <p>User List not implemented yet!</p>
+      case "events":
+        return <EventList events={filterEvents} />
+      case "businesses":
+        return <BusinessList businesses={filteredBusinesses} />
+    }
+  }
+
   // Get all events and businesses on load
   useEffect(() => {
     getEvents();
@@ -100,14 +111,14 @@ const Explore = () => {
     <div className="explore-container">
       <div className="sidebar">
         <div className="selectors">
-          <h3>Users</h3>
-          <h3>Events</h3>
-          <h3>Businesses</h3>
+          <h3 className="selector" onClick={() => {setView("users")}}>Users</h3>
+          <h3 className="selector" onClick={() => {setView("events")}}>Events</h3>
+          <h3 className="selector" onClick={() => {setView("businesses")}}>Businesses</h3>
         </div>
       </div>
 
       <div className="content">
-        <h1>Explore {viewToggle ? "Events" : "Businesses"}</h1>
+        <h1>Explore {view}</h1>
 
         <div className="search">
           <div className="search-bar">
@@ -120,22 +131,7 @@ const Explore = () => {
               />
           </div>
 
-          <div className="search-toggle">
-            <label className="toggle">
-              Events
-              <label className="switch">
-                <input
-                  type="checkbox"
-                  value={viewToggle}
-                  onChange={() => {setViewToggle(!viewToggle)}}
-                  />
-                <span className="slider round"></span>
-              </label>
-              Businesses
-            </label>
-          </div>
-
-          { viewToggle &&
+          { view === "events" &&
             <div>
               <label htmlFor="view-past">View Past Events</label>
               <input
@@ -149,15 +145,7 @@ const Explore = () => {
         </div>
 
         <div className="explore-list">
-          { 
-            viewToggle ? (
-              /* Explore Events */
-              <EventList events={filteredEvents} />
-            ) : (
-              /* Explore Businesses */
-              <BusinessList businesses={filteredBusinesses} />
-            )
-          }
+          {renderList()}
         </div>
       </div>
     </div>

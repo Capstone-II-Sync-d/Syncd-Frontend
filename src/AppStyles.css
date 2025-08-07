@@ -105,9 +105,9 @@ input:checked + .slider:before {
   background-color: #f8f9fa;
   border-right: 1px solid #e9ecef;
   margin-top: -1rem;
-  padding: 1rem 0.5rem;
   width: 200px;
   height: 100%;
+  left: 0;
   position: fixed;
   box-shadow: 5px 0 10px rgba(0, 0, 0, 0.2);
 }
@@ -115,5 +115,14 @@ input:checked + .slider:before {
 .sidebar .selectors {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem
+}
+
+.sidebar .selector {
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.sidebar .selector:hover,
+.sidebar .selector.active {
+  background-color: lightgrey;
 }
