@@ -133,3 +133,11 @@ input:checked + .slider:before {
 .sidebar .selector.active {
   background-color: lightgrey;
 }
+
+.sidebar .search {
+  padding: 1rem;
+}
+
+.sidebar .search input {
+  width: 100%;
+}

@@ -131,21 +131,20 @@ const Explore = () => {
         <div className="header">
           <h2>Search</h2>
         </div>
+        <div className="search">
+          <input 
+            type="text"
+            id="search-bar"
+            value={query}
+            onChange={(e) => { setQuery(e.target.value) }}
+            />
+        </div>
+
       </div>
 
       <div className="content">
         <div className="search">
-          <div className="search-bar">
-            <label htmlFor="search-bar">Search: </label>
-            <input 
-              type="text"
-              id="search-bar"
-              value={query}
-              onChange={(e) => { setQuery(e.target.value) }}
-              />
-          </div>
-
-          { view === "events" &&
+          { view === "Events" &&
             <div>
               <label htmlFor="view-past">View Past Events</label>
               <input
