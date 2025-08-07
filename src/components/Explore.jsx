@@ -1,9 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { API_URL } from "../shared";
-import EventCard from "./EventCard";
-import "./ExploreStyles.css";
 import BusinessCard from "./BusinessCard";
+import EventList from "./EventList";
+import "./ExploreStyles.css";
+import BusinessList from "./BusinessList";
 
 const Explore = () => {
   const [loading, setLoading] = useState(true);
@@ -143,18 +144,10 @@ const Explore = () => {
         { 
           viewToggle ? (
             /* Explore Events */
-            filteredEvents.length > 0 ? (
-              filteredEvents.map((event) => (<EventCard key={event.id} event={event} />))
-            ) : (
-              <p> No events found </p>
-            )
+            <EventList events={filteredEvents} />
           ) : (
             /* Explore Businesses */
-            filteredBusinesses.length > 0 ? (
-              filteredBusinesses.map((business) => (<BusinessCard key={business.id} business={business}/>))
-            ) : (
-              <p> No businesses found </p>
-            )
+            <BusinessList businesses={filteredBusinesses} />
           )
         }
       </div>
