@@ -8,8 +8,11 @@ import BusinessCard from "./BusinessCard";
 const Explore = () => {
   const [loading, setLoading] = useState(true);
   const [viewToggle, setViewToggle] = useState(true);
+  
   const [events, setEvents] = useState([]);
+  const [viewPastEvents, setViewPastEvents] = useState(false);
   const [filteredEvents, setFilteredEvents] = useState([]);
+  
   const [businesses, setBusinesses] = useState([]);
   const [filteredBusinesses, setFilteredBusinesses] = useState([]);
 
@@ -98,6 +101,18 @@ const Explore = () => {
             Businesses
           </label>
         </div>
+
+        { viewToggle &&
+          <div>
+            <label htmlFor="view-past">View Past Events</label>
+            <input
+              type="checkbox"
+              id="view-past"
+              value={viewPastEvents}
+              onChange={() => {setViewPastEvents(!viewPastEvents)}}
+            />
+          </div>
+        }
       </div>
 
       <div className="explore-list">
