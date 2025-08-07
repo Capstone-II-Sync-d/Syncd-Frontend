@@ -15,7 +15,7 @@ const Explore = () => {
 
   const getEvents = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/calendarItems/events`);
+      const response = await axios.get(`${API_URL}/api/calendarItems/events/future`);
       setEvents(response.data);
       setFilteredEvents(response.data);
       console.log(`Successfully retrieved ${response.data.length} events`);
