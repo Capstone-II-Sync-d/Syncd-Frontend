@@ -10,6 +10,9 @@ const Explore = () => {
   const [view, setView] = useState("Users");
   const [query, setQuery] = useState("");
 
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+
   const [events, setEvents] = useState([]);
   const [viewPastEvents, setViewPastEvents] = useState(false);
   const [filteredEvents, setFilteredEvents] = useState([]);
@@ -17,6 +20,18 @@ const Explore = () => {
   const [businesses, setBusinesses] = useState([]);
   const [filteredBusinesses, setFilteredBusinesses] = useState([]);
 
+  const getUsers = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/profiles/users`);
+      const users = response.data.users;
+      setUsers(users);
+      setFilteredUsers(users);
+      console.log(`Successfully retrieved ${users.length} users`)
+    } catch (error) {
+      console.error("Error getting users:", error);
+    }
+  }
+    setFilteredUsers(users.filter((user) => (
   const getEvents = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/calendarItems/events`);
