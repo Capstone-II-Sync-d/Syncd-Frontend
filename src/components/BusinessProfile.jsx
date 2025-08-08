@@ -1,143 +1,229 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import "./AuthStyles.css";
 import { API_URL } from "../shared";
 
-const BusinessProfile = ({ user }) => {
+const BusinessProfile = ({ socket, user }) => {
   const { businessId } = useParams();
-  const [owner, setOwner] = useState();
-  const [business, setBusiness] = useState(null);
+
+  // -------------------- State --------------------
+  // Business info
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [bio, setBio] = useState("");
+  const [category, setCategory] = useState("");
+  const [pictureUrl, setPictureUrl] = useState("");
+  const [owner, setOwner] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  // Edit states
-  const [editName, setEditName] = useState("");
-  const [editEmail, setEditEmail] = useState("");
-  const [editBio, setEditBio] = useState("");
-  const [editCategory, setEditCategory] = useState("");
-  const [editPictureUrl, setEditPictureUrl] = useState("");
+
+  // Follow info
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(true);
+  const [followersAmount, setFollowersAmount] = useState(0);
+
+  // -------------------- Socket: live followers count --------------------
+  useEffect(() => {
+    if (!socket) return;
+    socket.emit("join-business-room", businessId);
+  }, [socket, businessId]);
 
   useEffect(() => {
-    const fetchBusiness = async () => {
+    if (!socket) return;
+    const handleFollowersAmount = (amount) => setFollowersAmount(amount);
+    socket.on("followers/amount", handleFollowersAmount);
+    return () => socket.off("followers/amount", handleFollowersAmount);
+  }, [socket]);
+
+  // -------------------- Fetch business data --------------------
+  useEffect(() => {
+    const fetchBusinessData = async () => {
+      // Fetch business info
       try {
         const res = await axios.get(
           `${API_URL}/api/profiles/business/${businessId}`,
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
-        setBusiness(res.data);
-        setOwner(res.data.user);
-        setIsEditing(false);
+        setName(res.data.name || "");
+        setEmail(res.data.email || "");
+        setBio(res.data.bio || "");
+        setCategory(res.data.category || "");
+        setPictureUrl(res.data.pictureUrl || "");
+        setOwner(res.data.user || null);
       } catch (error) {
-        console.error("Failed to fetch business profile:", error);
-        setBusiness(null);
+        console.log("Failed to fetch business information", error);
       }
+
+      // Fetch follow status and followers count
+      try {
+        // Check if current user follows this business
+        const followRes = await axios.get(
+          `${API_URL}/api/profiles/me/following`,
+          { withCredentials: true }
+        );
+        setIsFollowing(
+          followRes.data.some(
+            (f) => String(f.businessId) === String(businessId)
+          )
+        );
+
+        // Get followers count
+        const followersRes = await axios.get(
+          `${API_URL}/api/profiles/business/${businessId}/followers`,
+          { withCredentials: true }
+        );
+        setFollowersAmount(followersRes.data.length);
+      } catch (error) {
+        setIsFollowing(false);
+      }
+      setFollowLoading(false);
     };
-    fetchBusiness();
-  }, [businessId]);
-
-  // When entering edit mode, initialize edit states
-  useEffect(() => {
-    if (isEditing && business) {
-      setEditName(business.name || "");
-      setEditEmail(business.email || "");
-      setEditBio(business.bio || "");
-      setEditCategory(business.category || "");
-      setEditPictureUrl(business.pictureUrl || "");
-    }
-  }, [isEditing, business]);
-
-  if (!business) return <div>Loading...</div>;
-
-  const isOwner = user && String(user.id) === String(business.ownerId);
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-    const payload = {
-      name: editName,
-      email: editEmail,
-      bio: editBio,
-      category: editCategory,
-      pictureUrl: editPictureUrl,
-    };
-    await axios.patch(`${API_URL}/business/${businessId}`, payload, {
-      withCredentials: true,
-    });
+    fetchBusinessData();
     setIsEditing(false);
-    setBusiness({ ...business, ...payload });
+  }, [user?.id, businessId]);
+
+  // -------------------- Logic --------------------
+  const isOwner = user && owner && String(user.id) === String(owner.id);
+
+  const handleFollow = () => {
+    socket.emit("business-follow", {
+      businessId,
+      userId: user.id,
+      action: isFollowing ? "unfollow" : "follow",
+    });
   };
 
-  if (isOwner && isEditing) {
+  const handleBusinessSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.patch(
+        `${API_URL}/api/profiles/business/${businessId}`,
+        { name, email, bio, category, pictureUrl },
+        { withCredentials: true }
+      );
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to update business", error);
+    }
+  };
+
+  // -------------------- Render helpers --------------------
+  const renderEditForm = () => {
+    const isFormValid = name.trim() && email.trim() && category.trim();
+
     return (
-      <form onSubmit={handleSave}>
+      <form onSubmit={handleBusinessSubmit}>
         <input
-          value={editName}
-          onChange={(e) => setEditName(e.target.value)}
+          name="name"
           placeholder="Business Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
         <input
-          value={editEmail}
-          onChange={(e) => setEditEmail(e.target.value)}
+          name="email"
           placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <input
-          value={editBio}
-          onChange={(e) => setEditBio(e.target.value)}
+          name="bio"
           placeholder="Bio"
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
         />
         <input
-          value={editCategory}
-          onChange={(e) => setEditCategory(e.target.value)}
+          name="category"
           placeholder="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
         />
         <input
-          value={editPictureUrl}
-          onChange={(e) => setEditPictureUrl(e.target.value)}
+          name="pictureUrl"
           placeholder="Picture URL"
+          value={pictureUrl}
+          onChange={(e) => setPictureUrl(e.target.value)}
         />
-        <button type="button" onClick={() => setIsEditing(false)}>
-          Save
+        <button type="submit" disabled={!isFormValid}>
+          Save Business
         </button>
       </form>
     );
-  }
+  };
 
-  // Show only public info for non-owners (e.g., name, pictureUrl)
-  return (
-    <div className="profileCard">
-      <div className="profileHeader">
-        <img src={business.pictureUrl} className="profilePic" />
-        <div>
-          <h1>{business.name}</h1>
+  const renderFollowersCount = () => (
+    <Link to={`/business/followers/${businessId}`}>
+      <div className="followers">
+        <p>{followersAmount}</p>
+        <h5>Followers</h5>
+      </div>
+    </Link>
+  );
+
+  const renderFollowButton = () =>
+    !followLoading &&
+    !isOwner && (
+      <button
+        className={`follow-button ${isFollowing ? "unfollow" : "follow"}`}
+        onClick={handleFollow}
+      >
+        {isFollowing ? "Unfollow" : "Follow"}
+      </button>
+    );
+
+  // Owner view
+  if (isOwner) {
+    if (isEditing) return renderEditForm();
+    return (
+      <div className="profileCard">
+        <div className="profileHeader">
+          <img src={pictureUrl} className="profilePic" alt={name} />
+          <div>
+            <h1>{name}</h1>
+            <p className="category">{category}</p>
+          </div>
         </div>
-      </div>
-      <div className="profileDetails">
-        <img src={owner.profilePicture} className="profilePic" />
-        <h4>
-          {" "}
-          Owner: {owner.firstName} {owner.lastName}
-        </h4>
-        {isOwner && business.email && (
+        <div className="profileDetails">
           <p>
-            <strong>Email:</strong> {business.email}
+            <strong>Email:</strong> {email}
           </p>
-        )}
-        {isOwner && business.bio && (
-          <p>
-            <strong>Bio:</strong> {business.bio}
-          </p>
-        )}
-        {isOwner && business.category && (
-          <p>
-            <strong>Category:</strong> {business.category}
-          </p>
-        )}
-      </div>
-      {isOwner && (
+          {renderFollowersCount()}
+          {bio && (
+            <p>
+              <strong>Bio:</strong> {bio}
+            </p>
+          )}
+        </div>
         <button className="editProfileBtn" onClick={() => setIsEditing(true)}>
           Edit Business
         </button>
-      )}
+      </div>
+    );
+  }
+
+  // Non-owner view
+  return (
+    <div className="profileCard">
+      <div className="profileHeader">
+        <img src={pictureUrl} className="profilePic" alt={name} />
+        <div>
+          <h1>{name}</h1>
+          <p className="category">{category}</p>
+        </div>
+      </div>
+      <div className="profileDetails">
+        {email && (
+          <p>
+            <strong>Email:</strong> {email}
+          </p>
+        )}
+        {bio && (
+          <p>
+            <strong>Bio:</strong> {bio}
+          </p>
+        )}
+        {renderFollowersCount()}
+      </div>
+      {renderFollowButton()}
     </div>
   );
 };
