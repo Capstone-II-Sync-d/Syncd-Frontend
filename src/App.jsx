@@ -10,6 +10,7 @@ import Home from "./components/Home";
 import NotFound from "./components/NotFound";
 import UserProfile from "./components/UserProfile";
 import BusinessProfile from "./components/BusinessProfile";
+import FriendsList from "./components/FriendsList";
 import { API_URL, SOCKETS_URL, NODE_ENV } from "./shared";
 import { io } from "socket.io-client";
 const socket = io(SOCKETS_URL, {
@@ -72,6 +73,10 @@ const App = () => {
           <Route
             path="/user/profile/:profileId"
             element={<UserProfile socket={socket} user={user} />}
+          />
+          <Route
+            path="/user/friendsList/:profileId"
+            element={<FriendsList socket={socket} user={user} />}
           />
           <Route
             path="/business/profile/:businessId"
