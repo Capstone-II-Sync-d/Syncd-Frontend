@@ -4,6 +4,7 @@ import { API_URL } from "../shared";
 import EventList from "./EventList";
 import "./ExploreStyles.css";
 import BusinessList from "./BusinessList";
+import UserList from "./UserList";
 
 const Explore = () => {
   const [loading, setLoading] = useState(true);
@@ -31,7 +32,18 @@ const Explore = () => {
       console.error("Error getting users:", error);
     }
   }
+
+  const filterUsers = () => {
+    if (users.length === 0) {
+      setFilteredUsers([]);
+      return;
+    }
+
     setFilteredUsers(users.filter((user) => (
+      user.username.toLowerCase().includes(query)
+    )));
+  }
+
   const getEvents = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/calendarItems/events`);
@@ -94,7 +106,7 @@ const Explore = () => {
   const renderList = () => {
     switch(view) {
       case "Users":
-        return <p>User List not implemented yet!</p>
+        return <UserList users={filteredUsers} />
       case "Events":
         return <EventList events={filteredEvents} />
       case "Businesses":
@@ -104,12 +116,14 @@ const Explore = () => {
 
   // Get all events and businesses on load
   useEffect(() => {
+    getUsers();
     getEvents();
     getBusinesses();
   }, []);
 
   // Filter events and businesses whenever the query changes
   useEffect(() => {
+    filterUsers();
     filterEvents();
     filterBusinesses();
   }, [query]);
@@ -174,7 +188,7 @@ const Explore = () => {
       </div>
 
       <div className="content">
-        <div className="explore-list">
+        <div className={`explore-list ${view === "Users" ? "user-list" : ""}`}>
           {renderList()}
         </div>
       </div>
