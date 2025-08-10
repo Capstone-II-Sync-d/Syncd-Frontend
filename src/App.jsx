@@ -6,35 +6,45 @@ import NavBar from "./components/NavBar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import Home from "./components/Home";
 import NotFound from "./components/NotFound";
-import UserProfile from "./components/UserProfile";
-import BusinessProfile from "./components/BusinessProfile";
-import FriendsList from "./components/FriendsList";
+// import Main from "./components/Main";
 import { API_URL, SOCKETS_URL, NODE_ENV } from "./shared";
 import { io } from "socket.io-client";
+import Home from "./components/calendar/Home";
+
 const socket = io(SOCKETS_URL, {
   withCredentials: NODE_ENV === "production",
 });
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     socket.on("connect", () => {
       console.log("🔗 Connected to socket");
     });
+
+    // Cleanup socket on unmount
+    return () => {
+      socket.off("connect");
+    };
   }, []);
 
   const checkAuth = async () => {
     try {
+      setLoading(true);
+      console.log("Checking authentication...");
       const response = await axios.get(`${API_URL}/auth/me`, {
         withCredentials: true,
       });
+      console.log("Authentication successful: ", response.data);
       setUser(response.data.user);
-    } catch {
-      console.log("Not authenticated");
+    } catch (error) {
+      console.log("Not authenticated: ", error.message);
       setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,6 +55,7 @@ const App = () => {
 
   const handleLogout = async () => {
     try {
+      console.log("Logging out...");
       // Logout from our backend
       await axios.post(
         `${API_URL}/auth/logout`,
@@ -54,6 +65,7 @@ const App = () => {
         }
       );
       setUser(null);
+      console.log("Logout successful");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -64,24 +76,10 @@ const App = () => {
       <NavBar user={user} onLogout={handleLogout} />
       <div className="app">
         <Routes>
-          <Route
-            path="/login"
-            element={<Login setUser={setUser} socket={socket} />}
-          />
+          <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
-          <Route exact path="/" element={<Home />} />
-          <Route
-            path="/user/profile/:profileId"
-            element={<UserProfile socket={socket} user={user} />}
-          />
-          <Route
-            path="/user/friendsList/:profileId"
-            element={<FriendsList socket={socket} user={user} />}
-          />
-          <Route
-            path="/business/profile/:businessId"
-            element={<BusinessProfile user={user} />}
-          />
+          <Route exact path="/" element={<Home user={user} />} />
+          <Route path="/main" element={<Home user={user} />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
