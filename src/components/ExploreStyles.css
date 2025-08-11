@@ -1,0 +1,26 @@
+.explore-container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+}
+
+.explore-container .content {
+  margin-left: 200px;
+  padding: 0 1rem;
+  width: 100%;
+}
+
+.explore-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.explore-list.user-list {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.explore-list .business-card {
+  max-width: 450px;
+}

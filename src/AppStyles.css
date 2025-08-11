@@ -21,8 +21,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   min-height: 100vh;
+  margin-top: 1rem;
 }
 
 @keyframes spin {
@@ -38,4 +38,115 @@ body {
   width: 100px;
   height: 100px;
   animation: spin 15s linear infinite;
+}
+
+/* Toggle Slider From W3 Schools */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 2rem;
+  height: 1rem;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 0.75rem;
+  width: 0.75rem;
+  left: 0.11rem;
+  bottom: 0.11rem;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(1rem);
+  -ms-transform: translateX(1rem);
+  transform: translateX(1rem);
+}
+
+.slider.round {
+  border-radius: 0.5rem;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+/* End Toggle Slider Styles */
+
+.sidebar {
+  background-color: #f8f9fa;
+  border-right: 1px solid #e9ecef;
+  margin-top: -1rem;
+  width: 200px;
+  height: 100%;
+  left: 0;
+  position: fixed;
+  box-shadow: 5px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar .header {
+  border-top: 1px solid #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.sidebar .selectors {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .selector {
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.sidebar .selector:hover,
+.sidebar .selector.active {
+  background-color: lightgrey;
+}
+
+.sidebar .search {
+  padding: 1rem;
+}
+
+.sidebar .search input {
+  width: 100%;
+}
+
+.sidebar .filter {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .filter-option {
+  padding: 0.5rem;
 }

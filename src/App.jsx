@@ -11,6 +11,8 @@ import NotFound from "./components/NotFound";
 import UserProfile from "./components/UserProfile";
 import { API_URL, SOCKETS_URL, NODE_ENV } from "./shared";
 import { io } from "socket.io-client";
+import Explore from "./components/Explore";
+
 const socket = io(SOCKETS_URL, {
   withCredentials: NODE_ENV === "production",
 });
@@ -67,8 +69,10 @@ const App = () => {
             element={<Login setUser={setUser} socket={socket} />}
           />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
+          <Route path="/explore" element={<Explore />} />
           <Route path="/userProfile" element={<UserProfile user={user} />} />
           <Route exact path="/" element={<Home />} />
+          <Route path="/user/profile" element={<UserProfile user={user} />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
