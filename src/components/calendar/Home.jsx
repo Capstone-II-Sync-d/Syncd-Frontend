@@ -141,8 +141,8 @@ const Home = () => {
 
   // Create new calendar item/event
   const handleCreateEvent = async (eventData) => {
-    console.log("Creating event with data:", eventData); 
-    console.log("Published value:", eventData.published); 
+    console.log("Creating event with data:", eventData);
+    console.log("Published value:", eventData.published);
     try {
       console.log("Creating event with data:", eventData);
 
@@ -153,7 +153,7 @@ const Home = () => {
         location: eventData.location,
         start: eventData.start,
         end: eventData.end,
-        public: eventData.isEvent ? true : eventData.public, // Events are always public
+        public: eventData.public, // Both calendar items and events can be public/private
       });
 
       console.log("Created calendar item:", newCalendarItem);
@@ -163,7 +163,7 @@ const Home = () => {
         const eventRecord = await eventsAPI.createEvent({
           itemId: newCalendarItem.id,
           businessId: null,
-          published: eventData.published !== undefined ? eventData.published : false,
+          published: eventData.published || false,
         });
         console.log("Created event record:", eventRecord);
       }
