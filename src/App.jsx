@@ -70,9 +70,8 @@ const App = () => {
           />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route path="/explore" element={<Explore />} />
-          <Route path="/userProfile" element={<UserProfile user={user} />} />
-          <Route exact path="/" element={<Home />} />
           <Route path="/user/profile" element={<UserProfile user={user} />} />
+          <Route exact path="/" element={<Home />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
