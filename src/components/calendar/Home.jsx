@@ -141,6 +141,8 @@ const Home = () => {
 
   // Create new calendar item/event
   const handleCreateEvent = async (eventData) => {
+    console.log("Creating event with data:", eventData); 
+    console.log("Published value:", eventData.published); 
     try {
       console.log("Creating event with data:", eventData);
 
