@@ -32,41 +32,34 @@ const UserProfile = ({ socket, user }) => {
     if (!socket || !user?.id) return;
     setRoom(profileId);
 
-    // Join user room and profile room
-    socket.emit("userConnected", { id: user.id }); // joins 'user:user.id'
-    socket.emit("join-profile-room", profileId); // joins 'profile:profileId'
+    // Join profile room in userProfile namespace
+    socket.emit("join-profile-room", profileId);
 
-    // Rejoin on reconnect
+    // Handle reconnection
     const handleReconnect = () => {
-      socket.emit("userConnected", { id: user.id });
       socket.emit("join-profile-room", profileId);
     };
     socket.on("connect", handleReconnect);
 
-    // Listen for friendship updates - update if involved or profile matches
+    // Listen for friendship updates
     socket.on("friendship-update", (data) => {
-      console.log("Data Update:", data);
       const usersInvolved = [data.user1, data.user2];
-      if (
-        usersInvolved.includes(Number(user.id)) // or current logged-in user is involved
-      ) {
+      if (usersInvolved.includes(Number(user.id))) {
         setFriendship(data.status === "none" ? null : data.friendship);
-        // If friendsCount sent, update count here (optional)
         if (data.friendsCount !== undefined) {
           setFriendsAmount(data.friendsCount);
         }
       }
     });
 
-    // Listen for live friend count updates
-    socket.on("friends/amount", (count) => {
-      setFriendsAmount(count);
-    });
+    // Listen for friend count updates
+    socket.on("friends/amount", setFriendsAmount);
 
     return () => {
       socket.off("connect", handleReconnect);
       socket.off("friendship-update");
       socket.off("friends/amount");
+      // Don't disconnect - let parent component manage connection
     };
   }, [socket, profileId, user?.id]);
 

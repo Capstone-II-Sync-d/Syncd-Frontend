@@ -4,7 +4,8 @@ import axios from "axios";
 import { API_URL } from "../../shared";
 
 const BusinessProfile = ({ socket, user }) => {
-  const { businessId } = useParams();
+  let { businessId } = useParams();
+  businessId = Number(businessId);
 
   // -------------------- State --------------------
   // Business info
@@ -24,9 +25,12 @@ const BusinessProfile = ({ socket, user }) => {
   // -------------------- Socket: live followers count --------------------
   useEffect(() => {
     if (!socket || !businessId) return;
-
-    // Join business room for live updates
     socket.emit("join-business-room", businessId);
+    const handleReconnect = () => {
+      // Join business room for live updates
+      socket.emit("join-business-room", businessId);
+    };
+    socket.on("connect", handleReconnect);
 
     const handleFollowersAmount = (amount) => setFollowersAmount(amount);
     const handleFollowStatus = (data) => {
@@ -74,6 +78,8 @@ const BusinessProfile = ({ socket, user }) => {
           `${API_URL}/api/profiles/me/following`,
           { withCredentials: true }
         );
+        console.log(businessId);
+        console.log(followRes.data);
         setIsFollowing(
           followRes.data.some(
             (f) => String(f.businessId) === String(businessId)
@@ -98,12 +104,14 @@ const BusinessProfile = ({ socket, user }) => {
   // -------------------- Logic --------------------
   const isOwner = user && owner && String(user.id) === String(owner.id);
 
-  const handleFollow = () => {
+  const handleFollow = (action) => {
     socket.emit("business-follow", {
       businessId,
       userId: user.id,
-      action: isFollowing ? "unfollow" : "follow",
+      action: action,
     });
+    if (action === "follow") setFollowersAmount(followersAmount + 1);
+    else if (action === "unfollow") setFollowersAmount(followersAmount - 1);
   };
 
   const handleBusinessSubmit = async (e) => {
@@ -172,16 +180,33 @@ const BusinessProfile = ({ socket, user }) => {
     </Link>
   );
 
-  const renderFollowButton = () =>
-    !followLoading &&
-    !isOwner && (
-      <button
-        className={`follow-button ${isFollowing ? "unfollow" : "follow"}`}
-        onClick={handleFollow}
-      >
-        {isFollowing ? "Unfollow" : "Follow"}
-      </button>
-    );
+  const renderFollowButton = () => {
+    if (!followLoading) {
+      if (isFollowing) {
+        return (
+          <button
+            className="follow-button"
+            onClick={() => {
+              handleFollow("unfollow");
+            }}
+          >
+            Unfollow
+          </button>
+        );
+      } else if (!isFollowing) {
+        return (
+          <button
+            className="follow-button"
+            onClick={() => {
+              handleFollow("follow");
+            }}
+          >
+            Follow
+          </button>
+        );
+      }
+    }
+  };
 
   // Owner view
   if (isOwner) {

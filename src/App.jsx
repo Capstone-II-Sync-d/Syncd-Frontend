@@ -24,6 +24,14 @@ const socket = io(SOCKETS_URL, {
   withCredentials: NODE_ENV === "production",
 });
 
+const userSocket = io(`${SOCKETS_URL}/userProfile`, {
+  withCredentials: NODE_ENV === "production",
+});
+
+const businessSocket = io(`${SOCKETS_URL}/businessProfile`, {
+  withCredentials: NODE_ENV === "production",
+});
+
 const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -103,7 +111,7 @@ const App = () => {
 
           <Route
             path="/user/profile/:profileId"
-            element={<UserProfile socket={socket} user={user} />}
+            element={<UserProfile socket={userSocket} user={user} />}
           />
 
           <Route
@@ -120,7 +128,7 @@ const App = () => {
           />
           <Route
             path="/business/profile/:businessId"
-            element={<BusinessProfile socket={socket} user={user} />}
+            element={<BusinessProfile socket={businessSocket} user={user} />}
           />
           <Route
             path="/user/myBusinesses/"
