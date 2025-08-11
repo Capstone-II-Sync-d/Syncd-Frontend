@@ -64,9 +64,13 @@ const App = () => {
       <NavBar user={user} onLogout={handleLogout} />
       <div className="app">
         <Routes>
-          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route
+            path="/login"
+            element={<Login setUser={setUser} socket={socket} />}
+          />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route path="/explore" element={<Explore />} />
+          <Route path="/userProfile" element={<UserProfile user={user} />} />
           <Route exact path="/" element={<Home />} />
           <Route path="/user/profile" element={<UserProfile user={user} />} />
           <Route path="*" element={<NotFound />} />
