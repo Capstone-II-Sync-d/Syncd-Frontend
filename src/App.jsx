@@ -12,6 +12,14 @@ import { API_URL, SOCKETS_URL, NODE_ENV } from "./shared";
 import { io } from "socket.io-client";
 import Home from "./components/calendar/Home";
 
+import Explore from "./components/Explore";
+import UserProfile from "./components/ProfilesPages/UserProfile";
+import FriendsList from "./components/Lists/UserFriendsList";
+import UserFollowingList from "./components/Lists/UserFollowingList";
+import FollowersList from "./components/Lists/BusinessFollowersList";
+import BusinessProfile from "./components/ProfilesPages/BusinessProfile";
+import MyBusinessesList from "./components/Lists/MyBusinessesList";
+
 const socket = io(SOCKETS_URL, {
   withCredentials: NODE_ENV === "production",
 });
@@ -30,6 +38,13 @@ const App = () => {
       socket.off("connect");
     };
   }, []);
+
+  // Emit userConnected when user changes and socket is connected
+  useEffect(() => {
+    if (socket && user?.id && socket.connected) {
+      socket.emit("userConnected", { id: user.id });
+    }
+  }, [socket, user]);
 
   const checkAuth = async () => {
     try {
@@ -76,10 +91,42 @@ const App = () => {
       <NavBar user={user} onLogout={handleLogout} />
       <div className="app">
         <Routes>
-          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route
+            path="/login"
+            element={<Login setUser={setUser} socket={socket} />}
+          />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route exact path="/" element={<Home user={user} />} />
           <Route path="/main" element={<Home user={user} />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route exact path="/" element={<Home />} />
+
+          <Route
+            path="/user/profile/:profileId"
+            element={<UserProfile socket={socket} user={user} />}
+          />
+
+          <Route
+            path="/user/friendsList/:profileId"
+            element={<FriendsList socket={socket} user={user} />}
+          />
+          <Route
+            path="/user/followingList/:profileId"
+            element={<UserFollowingList socket={socket} user={user} />}
+          />
+          <Route
+            path="/business/followers/:businessId"
+            element={<FollowersList socket={socket} user={user} />}
+          />
+          <Route
+            path="/business/profile/:businessId"
+            element={<BusinessProfile socket={socket} user={user} />}
+          />
+          <Route
+            path="/user/myBusinesses/"
+            element={<MyBusinessesList user={user} />}
+          />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
