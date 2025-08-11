@@ -54,7 +54,7 @@ const NavBar = ({ user, onLogout }) => {
             </button>
 
             {/* Discover/Explore */}
-            <Link to="/discover" className="nav-action-btn discover-btn">
+            <Link to="/explore" className="nav-action-btn discover-btn">
               <span className="discover-icon">✨</span>
               <span className="discover-text">Discover</span>
             </Link>
@@ -130,16 +130,22 @@ const NavBar = ({ user, onLogout }) => {
                   </div>
 
                   <div className="profile-menu">
-                    <Link to="/profile" className="profile-menu-item">
+                    <Link
+                      to={`/user/profile/${user.id}`}
+                      className="profile-menu-item"
+                    >
                       👤 My Profile
                     </Link>
                     <Link to="/settings" className="profile-menu-item">
                       ⚙️ Settings
                     </Link>
-                    <Link to="/friends" className="profile-menu-item">
+                    <Link
+                      to={`/user/friendsList/${user.id}`}
+                      className="profile-menu-item"
+                    >
                       👥 Friends
                     </Link>
-                    <Link to="/businesses" className="profile-menu-item">
+                    <Link to="/user/myBusinesses" className="profile-menu-item">
                       🏢 My Businesses
                     </Link>
                     <hr className="menu-divider" />
