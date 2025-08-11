@@ -164,6 +164,7 @@ const Home = () => {
           itemId: newCalendarItem.id,
           businessId: null,
           published: eventData.published || false,
+          published: eventData.published !== undefined ? eventData.published : false,
         });
         console.log("Created event record:", eventRecord);
       }
