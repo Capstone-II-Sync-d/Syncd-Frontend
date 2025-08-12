@@ -7,15 +7,6 @@ const NavBar = ({ user, onLogout }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  // Mock notifications 
-  const notifications = [
-    { id: 1, message: "New event invitation from Sarah", time: "5 min ago", unread: true },
-    { id: 2, message: "Coffee meeting reminder", time: "1 hour ago", unread: true },
-    { id: 3, message: "Weekly team sync tomorrow", time: "2 hours ago", unread: false },
-  ];
-
-  const unreadCount = notifications.filter(n => n.unread).length;
-
   return (
     <nav className="navbar">
       {/* Left side - Brand */}
