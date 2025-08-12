@@ -7,9 +7,11 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import NotFound from "./components/NotFound";
+import UserProfile from "./components/UserProfile";
 // import Main from "./components/Main";
 import { API_URL, SOCKETS_URL, NODE_ENV } from "./shared";
 import { io } from "socket.io-client";
+import Explore from "./components/Explore";
 import Home from "./components/calendar/Home";
 
 const socket = io(SOCKETS_URL, {
@@ -76,9 +78,15 @@ const App = () => {
       <NavBar user={user} onLogout={handleLogout} />
       <div className="app">
         <Routes>
-          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route
+            path="/login"
+            element={<Login setUser={setUser} socket={socket} />}
+          />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/userProfile" element={<UserProfile user={user} />} />
           <Route exact path="/" element={<Home user={user} />} />
+          <Route path="/user/profile" element={<UserProfile user={user} />} />
           <Route path="/main" element={<Home user={user} />} /> 
           <Route path="*" element={<NotFound />} />
         </Routes>

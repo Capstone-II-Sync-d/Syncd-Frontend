@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import './ModalStyles.css';
+import "./ModalStyles.css";
 
 const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
   const [formData, setFormData] = useState({
@@ -13,7 +13,7 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
       ? new Date(selectedDateTime.end).toISOString().slice(0, 16)
       : "",
     public: false,
-    isEvent: false, // New field to determine if this should be an Event
+    isEvent: false,
   });
 
   const handleInputChange = (e) => {
@@ -146,19 +146,54 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
             </div>
           </div>
 
-          {!formData.isEvent && (
-            <div className="form-group">
-              <label className="checkbox-label">
+          {/* Privacy Settings */}
+          <div className="form-group">
+            <label className="form-section-title">
+              {formData.isEvent ? "Event Privacy" : "Calendar Item Privacy"}
+            </label>
+            <div className="radio-group">
+              <label className="radio-label">
                 <input
-                  type="checkbox"
+                  type="radio"
+                  name="public"
+                  checked={!formData.public}
+                  onChange={() =>
+                    setFormData((prev) => ({ ...prev, public: false }))
+                  }
+                />
+                <span>
+                  {formData.isEvent
+                    ? "Private (Invite Only)"
+                    : "Private (Only You)"}
+                </span>
+                <small>
+                  {formData.isEvent
+                    ? "Only invited people can see and attend this event"
+                    : "Only you can see this calendar item"}
+                </small>
+              </label>
+              <label className="radio-label">
+                <input
+                  type="radio"
                   name="public"
                   checked={formData.public}
-                  onChange={handleInputChange}
+                  onChange={() =>
+                    setFormData((prev) => ({ ...prev, public: true }))
+                  }
                 />
-                Make this visible to friends
+                <span>
+                  {formData.isEvent
+                    ? "Public (Everyone)"
+                    : "Public (Friends Can View)"}
+                </span>
+                <small>
+                  {formData.isEvent
+                    ? "Anyone can discover and attend this event"
+                    : "Your friends can see this calendar item"}
+                </small>
               </label>
             </div>
-          )}
+          </div>
 
           <div className="modal-actions">
             <button type="button" onClick={onClose} className="btn-secondary">

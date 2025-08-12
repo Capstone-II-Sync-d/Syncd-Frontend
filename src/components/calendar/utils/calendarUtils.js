@@ -126,7 +126,7 @@ export const formatCurrentDate = (date) => {
 
 // Calendar configuration for TOAST UI
 export const getCalendarOptions = () => ({
-  defaultView: "month",
+  defaultView: 'month',
   useFormPopup: false,
   useDetailPopup: false,
   calendars: [

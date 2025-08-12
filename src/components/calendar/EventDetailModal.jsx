@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { eventsAPI, calendarAPI } from "./utils/api";
-import './ModalStyles.css';
+import "./ModalStyles.css";
 
 const EventDetailModal = ({ event, onClose, onRefresh }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -33,7 +33,7 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
         start: new Date(formData.start).toISOString(),
         end: new Date(formData.end).toISOString(),
       });
-      
+
       await onRefresh();
       onClose();
     } catch (error) {
@@ -58,7 +58,7 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
       await eventsAPI.updateEvent(event.event.id, {
         published: !isPublished,
       });
-      
+
       await onRefresh();
       onClose();
     } catch (error) {
@@ -140,19 +140,53 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
                 />
               </div>
             </div>
-            {!isEvent && (
-              <div className="form-group">
-                <label className="checkbox-label">
+            {/* Privacy Settings */}
+            <div className="form-group">
+              <label className="form-section-title">
+                {isEvent ? "Event Privacy" : "Calendar Item Privacy"}
+              </label>
+              <div className="radio-group">
+                <label className="radio-label">
                   <input
-                    type="checkbox"
+                    type="radio"
+                    name="public"
+                    checked={!formData.public}
+                    onChange={() =>
+                      setFormData((prev) => ({ ...prev, public: false }))
+                    }
+                  />
+                  <span>
+                    {isEvent ? "Private (Invite Only)" : "Private (Only You)"}
+                  </span>
+                  <small>
+                    {isEvent
+                      ? "Only invited people can see and attend this event"
+                      : "Only you can see this calendar item"}
+                  </small>
+                </label>
+                <label className="radio-label">
+                  <input
+                    type="radio"
                     name="public"
                     checked={formData.public}
-                    onChange={handleInputChange}
+                    onChange={() =>
+                      setFormData((prev) => ({ ...prev, public: true }))
+                    }
                   />
-                  Make this visible to friends
+                  <span>
+                    {isEvent
+                      ? "Public (Everyone)"
+                      : "Public (Friends Can View)"}
+                  </span>
+                  <small>
+                    {isEvent
+                      ? "Anyone can discover and attend this event"
+                      : "Your friends can see this calendar item"}
+                  </small>
                 </label>
               </div>
-            )}
+            </div>
+
             <div className="modal-actions">
               <button
                 type="button"
@@ -198,14 +232,15 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
             </div>
 
             <div className="detail-item">
-              <strong>Type:</strong>
+              <strong>Privacy:</strong>
               <span>
-                {isEvent 
-                  ? "Public Event" 
-                  : event.public 
-                    ? "Public Calendar Item" 
-                    : "Private Calendar Item"
-                }
+                {isEvent
+                  ? event.public
+                    ? "Public (Everyone can see)"
+                    : "Private (Invite only)"
+                  : event.public
+                  ? "Public (Friends can see)"
+                  : "Private (Only you)"}
               </span>
             </div>
 
