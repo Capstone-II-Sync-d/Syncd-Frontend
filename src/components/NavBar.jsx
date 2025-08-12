@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./NavBarStyles.css";
+import NotificationsTab from "./NotificationTab";
 
 const NavBar = ({ user, onLogout }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -45,43 +46,7 @@ const NavBar = ({ user, onLogout }) => {
             </Link>
 
             {/* Notifications */}
-            <div className="notification-container">
-              <button 
-                className="nav-action-btn notification-btn"
-                onClick={() => setShowNotifications(!showNotifications)}
-              >
-                <span className="notification-icon">🔔</span>
-                {unreadCount > 0 && (
-                  <span className="notification-badge">{unreadCount}</span>
-                )}
-              </button>
-              
-              {showNotifications && (
-                <div className="notification-dropdown">
-                  <div className="notification-header">
-                    <h3>Notifications</h3>
-                  </div>
-                  <div className="notification-list">
-                    {notifications.map(notification => (
-                      <div 
-                        key={notification.id} 
-                        className={`notification-item ${notification.unread ? 'unread' : ''}`}
-                      >
-                        <div className="notification-message">
-                          {notification.message}
-                        </div>
-                        <div className="notification-time">
-                          {notification.time}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="notification-footer">
-                    <button className="view-all-btn">View All</button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <NotificationsTab />
 
             {/* Profile */}
             <div className="profile-container">
