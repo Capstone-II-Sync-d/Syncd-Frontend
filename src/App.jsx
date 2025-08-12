@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import axios from "axios";
 // import "./AppStyles.css";
@@ -13,14 +13,23 @@ import { API_URL, SOCKETS_URL, NODE_ENV } from "./shared";
 import { io } from "socket.io-client";
 import Explore from "./components/Explore";
 import Home from "./components/calendar/Home";
+import { AppContext } from "./AppContext";
 
 const socket = io(SOCKETS_URL, {
   withCredentials: NODE_ENV === "production",
 });
 
 const App = () => {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+
+  const appContext = useMemo(() => ({
+    user,
+    setUser,
+    notifications,
+    setNotifications,
+  }));
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -75,28 +84,30 @@ const App = () => {
 
   return (
     <div>
-      <NavBar user={user} onLogout={handleLogout} />
-      <div className="app">
-        <Routes>
-          <Route path="/main" element={<Home user={user} />} /> 
-          <Route
-            path="/login"
-            element={<Login setUser={setUser} socket={socket} />}
-          />
-          <Route path="/signup" element={<Signup setUser={setUser} />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route exact path="/" element={<Home user={user} />} />
-          <Route
-            path="/user/profile/:ownerId"
-            element={<UserProfile socket={socket} user={user} />}
-          />
-          <Route
-            path="/business/profile/:businessId"
-            element={<BusinessProfile user={user} />}
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
+      <AppContext.Provider value={appContext}>
+        <NavBar user={user} onLogout={handleLogout} />
+        <div className="app">
+          <Routes>
+            <Route path="/main" element={<Home user={user} />} /> 
+            <Route
+              path="/login"
+              element={<Login setUser={setUser} socket={socket} />}
+            />
+            <Route path="/signup" element={<Signup setUser={setUser} />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route exact path="/" element={<Home user={user} />} />
+            <Route
+              path="/user/profile/:ownerId"
+              element={<UserProfile socket={socket} user={user} />}
+              />
+            <Route
+              path="/business/profile/:businessId"
+              element={<BusinessProfile user={user} />}
+              />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+      </AppContext.Provider>
     </div>
   );
 };
