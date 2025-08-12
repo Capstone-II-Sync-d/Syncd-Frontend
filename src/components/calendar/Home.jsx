@@ -33,6 +33,10 @@ const Home = () => {
     drafts: true,
   });
 
+   useEffect(()=> {
+      console.log("view", calendarOptions)
+   },[currentView])
+
   // Modal states
   const [showEventModal, setShowEventModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -197,6 +201,7 @@ const Home = () => {
 
   // Force month view on mount
   useEffect(() => {
+    console.log("word", JSON.stringify(calendarRef));
     if (calendarRef.current) {
       const calendar = calendarRef.current.getInstance();
       calendar.changeView("month");
