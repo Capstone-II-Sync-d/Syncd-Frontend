@@ -18,7 +18,17 @@
   flex: 0 0 auto;
 }
 
+.profile-picture {
+  height: 50px;
+  width: 50px;
+  border-radius: 70%;
+  object-fit: cover;
+}
+
 .brand-link {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
   text-decoration: none;
   color: #1a1a1a;
 }
