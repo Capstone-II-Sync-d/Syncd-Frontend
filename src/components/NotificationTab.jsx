@@ -1,11 +1,14 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../AppContext";
 
 const NotificationsTab = () => {
   const [show, setShow] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-
   const { notifications } = useContext(AppContext);
+
+  useEffect(() => {
+    setUnreadCount(notifications.filter(n => n.unread).length);
+  }, []);
 
   return (
     <div className="notification-container">
@@ -25,7 +28,7 @@ const NotificationsTab = () => {
             <h3>Notifications</h3>
           </div>
           <div className="notification-list">
-            {notifications.map(notification => (
+            {notifications.slice(0, 5).map(notification => (
               <div 
                 key={notification.id} 
                 className={`notification-item ${notification.unread ? 'unread' : ''}`}
