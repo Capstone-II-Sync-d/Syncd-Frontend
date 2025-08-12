@@ -24,6 +24,7 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [currentView, setCurrentView] = useState("month");
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [calendarKey, setCalendarKey] = useState(0);
 
   // Calendar visibility toggles
   const [calendarVisibility, setCalendarVisibility] = useState({
@@ -132,6 +133,18 @@ const Home = () => {
     setSelectedEvent(originalEvent);
     setShowEventModal(true);
   };
+
+  // When closing the create event modal
+  const handleCloseCreateModal = () => {
+    setShowCreateModal(false);
+    setCalendarKey((k) => k + 1);
+  };
+  
+  // When closng the event detail modal
+  const handleCloseEventDetailModal = () => {
+    setShowEventModal(false);
+    setCalendarKey((k) => k + 1);
+  }
 
   // Handle date selection for creating new events
   const handleSelectDateTime = (selectionInfo) => {
@@ -426,6 +439,7 @@ const Home = () => {
         {/* TOAST UI Calendar */}
         <div className="calendar-wrapper">
           <Calendar
+            key={calendarKey}
             ref={calendarRef}
             height="600px"
             events={events}
@@ -441,10 +455,7 @@ const Home = () => {
       {showEventModal && selectedEvent && (
         <EventDetailModal
           event={selectedEvent}
-          onClose={() => {
-            setShowEventModal(false);
-            setSelectedEvent(null);
-          }}
+          onClose={handleCloseEventDetailModal}
           onRefresh={fetchCalendarItems}
         />
       )}
@@ -453,10 +464,7 @@ const Home = () => {
       {showCreateModal && (
         <CreateEventModal
           selectedDateTime={selectedDateTime}
-          onClose={() => {
-            setShowCreateModal(false);
-            setSelectedDateTime(null);
-          }}
+          onClose={handleCloseCreateModal}
           onCreate={handleCreateEvent}
         />
       )}
