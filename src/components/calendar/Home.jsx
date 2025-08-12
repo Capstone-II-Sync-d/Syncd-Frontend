@@ -430,6 +430,7 @@ const Home = () => {
             height="600px"
             events={events}
             {...calendarOptions}
+            view={currentView}
             onClickEvent={handleEventClick}
             onSelectDateTime={handleSelectDateTime}
           />
