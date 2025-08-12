@@ -31,6 +31,22 @@ const App = () => {
     setNotifications,
   }));
 
+  const getNotifications = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/notifications/me`, {
+        withCredentials: true,
+      });
+      setNotifications(response.data.notifications);
+      console.log(response.data.message);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getNotifications();
+  }, []);
+
   useEffect(() => {
     socket.on("connect", () => {
       console.log("🔗 Connected to socket");
