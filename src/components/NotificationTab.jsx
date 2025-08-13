@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../AppContext";
+import Notification from "./Notification";
 
 const NotificationsTab = () => {
   const [show, setShow] = useState(false);
@@ -29,17 +30,7 @@ const NotificationsTab = () => {
           </div>
           <div className="notification-list">
             {notifications.slice(0, 5).map(notification => (
-              <div 
-                key={notification.id} 
-                className={`notification-item ${notification.unread ? 'unread' : ''}`}
-              >
-                <div className="notification-message">
-                  {notification.message}
-                </div>
-                <div className="notification-time">
-                  {notification.time}
-                </div>
-              </div>
+              <Notification key={notification.id} notification={notification} />
             ))}
           </div>
           <div className="notification-footer">
