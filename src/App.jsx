@@ -104,6 +104,15 @@ const App = () => {
             element={<Login setUser={setUser} socket={socket} />}
           />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
+<<<<<<< Updated upstream
+=======
+          <Route
+            exact
+            path="/"
+            element={<Home socket={socket} user={user} />}
+          />
+          <Route path="/main" element={<Home user={user} />} />
+>>>>>>> Stashed changes
           <Route path="/explore" element={<Explore />} />
           <Route path="/main" element={<Home user={user} />} />
 
