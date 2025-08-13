@@ -8,8 +8,8 @@ const NotificationsTab = () => {
   const { notifications } = useContext(AppContext);
 
   useEffect(() => {
-    setUnreadCount(notifications.filter(n => n.unread).length);
-  }, []);
+    setUnreadCount(notifications.filter(n => !n.read).length);
+  }, [notifications]);
 
   return (
     <div className="notification-container">
