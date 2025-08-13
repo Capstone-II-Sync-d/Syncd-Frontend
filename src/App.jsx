@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import axios from "axios";
-import "./AppStyles.css";
+// import "./AppStyles.css";
 import NavBar from "./components/NavBar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
@@ -104,10 +104,8 @@ const App = () => {
             element={<Login setUser={setUser} socket={socket} />}
           />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
-          <Route exact path="/" element={<Home user={user} />} />
-          <Route path="/main" element={<Home user={user} />} />
           <Route path="/explore" element={<Explore />} />
-          <Route exact path="/" element={<Home />} />
+          <Route path="/main" element={<Home user={user} />} />
 
           <Route
             path="/user/profile/:profileId"

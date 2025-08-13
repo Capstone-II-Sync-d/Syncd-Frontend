@@ -6,7 +6,7 @@ const NavBar = ({ user, onLogout }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  // Mock notifications (you can replace with real data later)
+  // Mock notifications 
   const notifications = [
     {
       id: 1,
