@@ -1,10 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { API_URL } from "../shared";
-import EventList from "./EventList";
+import EventList from "./Lists/EventList";
+import BusinessList from "./Lists/BusinessList";
+import UserList from "./Lists/UserList";
 import "./ExploreStyles.css";
-import BusinessList from "./BusinessList";
-import UserList from "./UserList";
 
 const Explore = () => {
   const [loading, setLoading] = useState(true);
