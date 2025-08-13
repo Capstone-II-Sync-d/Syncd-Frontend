@@ -395,19 +395,19 @@
   .navbar {
     padding: 12px 16px;
   }
-  
+
   .nav-center {
     gap: 16px;
   }
-  
+
   .current-date {
     display: none;
   }
-  
+
   .discover-text {
     display: none;
   }
-  
+
   .notification-dropdown,
   .profile-dropdown {
     width: 280px;

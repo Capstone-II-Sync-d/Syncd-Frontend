@@ -7,14 +7,28 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import NotFound from "./components/NotFound";
-import UserProfile from "./components/UserProfile";
 // import Main from "./components/Main";
 import { API_URL, SOCKETS_URL, NODE_ENV } from "./shared";
 import { io } from "socket.io-client";
-import Explore from "./components/Explore";
 import Home from "./components/calendar/Home";
 
+import Explore from "./components/Explore";
+import UserProfile from "./components/ProfilesPages/UserProfile";
+import FriendsList from "./components/Lists/UserFriendsList";
+import UserFollowingList from "./components/Lists/UserFollowingList";
+import FollowersList from "./components/Lists/BusinessFollowersList";
+import BusinessProfile from "./components/ProfilesPages/BusinessProfile";
+import MyBusinessesList from "./components/Lists/MyBusinessesList";
+
 const socket = io(SOCKETS_URL, {
+  withCredentials: NODE_ENV === "production",
+});
+
+const userSocket = io(`${SOCKETS_URL}/userProfile`, {
+  withCredentials: NODE_ENV === "production",
+});
+
+const businessSocket = io(`${SOCKETS_URL}/businessProfile`, {
   withCredentials: NODE_ENV === "production",
 });
 
@@ -27,11 +41,18 @@ const App = () => {
       console.log("🔗 Connected to socket");
     });
 
-  // Cleanup socket on unmount
+    // Cleanup socket on unmount
     return () => {
       socket.off("connect");
     };
   }, []);
+
+  // Emit userConnected when user changes and socket is connected
+  useEffect(() => {
+    if (socket && user?.id && socket.connected) {
+      socket.emit("userConnected", { id: user.id });
+    }
+  }, [socket, user]);
 
   const checkAuth = async () => {
     try {
@@ -84,10 +105,34 @@ const App = () => {
           />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route path="/explore" element={<Explore />} />
-          <Route path="/userProfile" element={<UserProfile user={user} />} />
-          <Route exact path="/" element={<Home user={user} />} />
-          <Route path="/user/profile" element={<UserProfile user={user} />} />
-          <Route path="/main" element={<Home user={user} />} /> 
+          <Route path="/main" element={<Home user={user} />} />
+
+          <Route
+            path="/user/profile/:profileId"
+            element={<UserProfile socket={userSocket} user={user} />}
+          />
+
+          <Route
+            path="/user/friendsList/:profileId"
+            element={<FriendsList socket={socket} user={user} />}
+          />
+          <Route
+            path="/user/followingList/:profileId"
+            element={<UserFollowingList socket={socket} user={user} />}
+          />
+          <Route
+            path="/business/followers/:businessId"
+            element={<FollowersList socket={socket} user={user} />}
+          />
+          <Route
+            path="/business/profile/:businessId"
+            element={<BusinessProfile socket={businessSocket} user={user} />}
+          />
+          <Route
+            path="/user/myBusinesses/"
+            element={<MyBusinessesList user={user} />}
+          />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

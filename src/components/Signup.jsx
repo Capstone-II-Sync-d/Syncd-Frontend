@@ -60,13 +60,11 @@ const Signup = ({ setUser }) => {
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
-          confirmPassword: formData.confirmPassword,
         },
         { withCredentials: true }
       );
 
       setUser(response.data.user);
-      navigate("/");
     } catch (error) {
       if (error.response?.data?.error) {
         setErrors({ general: error.response.data.error });
@@ -77,7 +75,7 @@ const Signup = ({ setUser }) => {
       setIsLoading(false);
     }
 
-    navigate("/MyPolls");
+    navigate("/main");
   };
 
   const handleChange = (e) => {

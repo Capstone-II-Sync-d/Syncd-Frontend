@@ -8,12 +8,27 @@ const NavBar = ({ user, onLogout }) => {
 
   // Mock notifications 
   const notifications = [
-    { id: 1, message: "New event invitation from Sarah", time: "5 min ago", unread: true },
-    { id: 2, message: "Coffee meeting reminder", time: "1 hour ago", unread: true },
-    { id: 3, message: "Weekly team sync tomorrow", time: "2 hours ago", unread: false },
+    {
+      id: 1,
+      message: "New event invitation from Sarah",
+      time: "5 min ago",
+      unread: true,
+    },
+    {
+      id: 2,
+      message: "Coffee meeting reminder",
+      time: "1 hour ago",
+      unread: true,
+    },
+    {
+      id: 3,
+      message: "Weekly team sync tomorrow",
+      time: "2 hours ago",
+      unread: false,
+    },
   ];
 
-  const unreadCount = notifications.filter(n => n.unread).length;
+  const unreadCount = notifications.filter((n) => n.unread).length;
 
   return (
     <nav className="navbar">
@@ -39,14 +54,14 @@ const NavBar = ({ user, onLogout }) => {
             </button>
 
             {/* Discover/Explore */}
-            <Link to="/discover" className="nav-action-btn discover-btn">
+            <Link to="/explore" className="nav-action-btn discover-btn">
               <span className="discover-icon">✨</span>
               <span className="discover-text">Discover</span>
             </Link>
 
             {/* Notifications */}
             <div className="notification-container">
-              <button 
+              <button
                 className="nav-action-btn notification-btn"
                 onClick={() => setShowNotifications(!showNotifications)}
               >
@@ -55,17 +70,19 @@ const NavBar = ({ user, onLogout }) => {
                   <span className="notification-badge">{unreadCount}</span>
                 )}
               </button>
-              
+
               {showNotifications && (
                 <div className="notification-dropdown">
                   <div className="notification-header">
                     <h3>Notifications</h3>
                   </div>
                   <div className="notification-list">
-                    {notifications.map(notification => (
-                      <div 
-                        key={notification.id} 
-                        className={`notification-item ${notification.unread ? 'unread' : ''}`}
+                    {notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`notification-item ${
+                          notification.unread ? "unread" : ""
+                        }`}
                       >
                         <div className="notification-message">
                           {notification.message}
@@ -85,46 +102,57 @@ const NavBar = ({ user, onLogout }) => {
 
             {/* Profile */}
             <div className="profile-container">
-              <button 
+              <button
                 className="profile-btn"
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)}
               >
-                <img 
-                  src={user.profilePicture || '/default-avatar.png'} 
+                <img
+                  src={user.profilePicture || "/default-avatar.png"}
                   alt={user.username}
                   className="profile-avatar"
                 />
               </button>
-              
+
               {showProfileDropdown && (
                 <div className="profile-dropdown">
                   <div className="profile-info">
-                    <img 
-                      src={user.profilePicture || '/default-avatar.png'} 
+                    <img
+                      src={user.profilePicture || "/default-avatar.png"}
                       alt={user.username}
                       className="dropdown-avatar"
                     />
                     <div className="user-details">
-                      <div className="user-name">{user.firstName} {user.lastName}</div>
+                      <div className="user-name">
+                        {user.firstName} {user.lastName}
+                      </div>
                       <div className="user-email">@{user.username}</div>
                     </div>
                   </div>
-                  
+
                   <div className="profile-menu">
-                    <Link to="/profile" className="profile-menu-item">
+                    <Link
+                      to={`/user/profile/${user.id}`}
+                      className="profile-menu-item"
+                    >
                       👤 My Profile
                     </Link>
                     <Link to="/settings" className="profile-menu-item">
                       ⚙️ Settings
                     </Link>
-                    <Link to="/friends" className="profile-menu-item">
+                    <Link
+                      to={`/user/friendsList/${user.id}`}
+                      className="profile-menu-item"
+                    >
                       👥 Friends
                     </Link>
-                    <Link to="/businesses" className="profile-menu-item">
+                    <Link to="/user/myBusinesses" className="profile-menu-item">
                       🏢 My Businesses
                     </Link>
                     <hr className="menu-divider" />
-                    <button onClick={onLogout} className="profile-menu-item logout">
+                    <button
+                      onClick={onLogout}
+                      className="profile-menu-item logout"
+                    >
                       🚪 Logout
                     </button>
                   </div>
