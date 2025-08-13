@@ -62,9 +62,7 @@ const NavBar = ({ user, onLogout }) => {
         {user ? (
           <>
             {/* Search */}
-            <button className="nav-action-btn">
-              <span className="search-icon">🔍</span>
-            </button>
+         
 
             {/* Discover/Explore */}
             <Link to="/discover" className="nav-action-btn discover-btn">

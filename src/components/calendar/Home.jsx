@@ -24,7 +24,6 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [currentView, setCurrentView] = useState("month");
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [calendarKey, setCalendarKey] = useState(0);
 
   // Calendar visibility toggles
   const [calendarVisibility, setCalendarVisibility] = useState({
@@ -33,10 +32,6 @@ const Home = () => {
     events: true,
     drafts: true,
   });
-
-   useEffect(()=> {
-      console.log("view", calendarOptions)
-   },[currentView])
 
   // Modal states
   const [showEventModal, setShowEventModal] = useState(false);
@@ -61,7 +56,7 @@ const Home = () => {
   const fetchCalendarItems = async () => {
     try {
       const items = await calendarAPI.getMyItems();
-      console.log("Fetched calendar items:", items); // Debug log
+      console.log("Fetched calendar items:", items);
       setCalendarItems(items);
       transformAndSetEvents(items);
     } catch (err) {
@@ -134,18 +129,6 @@ const Home = () => {
     setShowEventModal(true);
   };
 
-  // When closing the create event modal
-  const handleCloseCreateModal = () => {
-    setShowCreateModal(false);
-    setCalendarKey((k) => k + 1);
-  };
-  
-  // When closng the event detail modal
-  const handleCloseEventDetailModal = () => {
-    setShowEventModal(false);
-    setCalendarKey((k) => k + 1);
-  }
-
   // Handle date selection for creating new events
   const handleSelectDateTime = (selectionInfo) => {
     console.log("Date/time selected:", selectionInfo);
@@ -159,10 +142,7 @@ const Home = () => {
   // Create new calendar item/event
   const handleCreateEvent = async (eventData) => {
     console.log("Creating event with data:", eventData);
-    console.log("Published value:", eventData.published);
     try {
-      console.log("Creating event with data:", eventData);
-
       // Step 1: Create the calendar item first
       const newCalendarItem = await calendarAPI.createItem({
         title: eventData.title,
@@ -170,7 +150,7 @@ const Home = () => {
         location: eventData.location,
         start: eventData.start,
         end: eventData.end,
-        public: eventData.public, // Both calendar items and events can be public/private
+        public: eventData.isEvent ? true : eventData.public,
       });
 
       console.log("Created calendar item:", newCalendarItem);
@@ -180,7 +160,7 @@ const Home = () => {
         const eventRecord = await eventsAPI.createEvent({
           itemId: newCalendarItem.id,
           businessId: null,
-          published: eventData.published || false,
+          published: eventData.published !== undefined ? eventData.published : false,
         });
         console.log("Created event record:", eventRecord);
       }
@@ -198,7 +178,7 @@ const Home = () => {
   const handleCreateEventsClick = () => {
     setSelectedDateTime({
       start: new Date(),
-      end: new Date(Date.now() + 60 * 60 * 1000), // 1 hour later
+      end: new Date(Date.now() + 60 * 60 * 1000),
     });
     setShowCreateModal(true);
   };
@@ -214,7 +194,6 @@ const Home = () => {
 
   // Force month view on mount
   useEffect(() => {
-    console.log("word", JSON.stringify(calendarRef));
     if (calendarRef.current) {
       const calendar = calendarRef.current.getInstance();
       calendar.changeView("month");
@@ -439,12 +418,10 @@ const Home = () => {
         {/* TOAST UI Calendar */}
         <div className="calendar-wrapper">
           <Calendar
-            key={calendarKey}
             ref={calendarRef}
             height="600px"
             events={events}
             {...calendarOptions}
-            view={currentView}
             onClickEvent={handleEventClick}
             onSelectDateTime={handleSelectDateTime}
           />
@@ -455,7 +432,10 @@ const Home = () => {
       {showEventModal && selectedEvent && (
         <EventDetailModal
           event={selectedEvent}
-          onClose={handleCloseEventDetailModal}
+          onClose={() => {
+            setShowEventModal(false);
+            setSelectedEvent(null);
+          }}
           onRefresh={fetchCalendarItems}
         />
       )}
@@ -464,7 +444,10 @@ const Home = () => {
       {showCreateModal && (
         <CreateEventModal
           selectedDateTime={selectedDateTime}
-          onClose={handleCloseCreateModal}
+          onClose={() => {
+            setShowCreateModal(false);
+            setSelectedDateTime(null);
+          }}
           onCreate={handleCreateEvent}
         />
       )}
