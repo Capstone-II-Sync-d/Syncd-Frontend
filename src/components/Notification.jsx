@@ -32,10 +32,12 @@ const Notification = ({ notification }) => {
       <div className="notification-message">
         {message}
       </div>
-      <div className="notification-buttons">
-        <button>Accept</button>
-        <button>Decline</button>
-      </div>
+      { showButtons &&
+        <div className="notification-buttons">
+          <button>Accept</button>
+          <button>Decline</button>
+        </div>
+      }
       <div className="notification-time">
         {notification.time}
       </div>
