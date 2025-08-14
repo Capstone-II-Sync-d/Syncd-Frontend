@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import axios from "axios";
 // import "./AppStyles.css";
@@ -10,8 +10,8 @@ import NotFound from "./components/NotFound";
 // import Main from "./components/Main";
 import { API_URL, SOCKETS_URL, NODE_ENV } from "./shared";
 import { io } from "socket.io-client";
+import { AppContext } from "./AppContext";
 import Home from "./components/calendar/Home";
-
 import Explore from "./components/Explore";
 import UserProfile from "./components/ProfilesPages/UserProfile";
 import FriendsList from "./components/Lists/UserFriendsList";
@@ -33,9 +33,33 @@ const businessSocket = io(`${SOCKETS_URL}/businessProfile`, {
 });
 
 const App = () => {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
+
+  const appContext = useMemo(() => ({
+    user,
+    setUser,
+    notifications,
+    setNotifications,
+  }));
+
+  const getNotifications = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/notifications/me`, {
+        withCredentials: true,
+      });
+      setNotifications(response.data.notifications);
+      console.log(response.data.message);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getNotifications();
+  }, []);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -98,46 +122,48 @@ const App = () => {
 
   return (
     <div>
-      <NavBar user={user} onLogout={handleLogout} />
-      <div className="app">
-        <Routes>
-          <Route
-            path="/login"
-            element={<Login setUser={setUser} socket={socket} />}
-          />
-          <Route path="/signup" element={<Signup setUser={setUser} />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/main" element={<Home user={user} />} />
+      <AppContext.Provider value={appContext}>
+        <NavBar user={user} onLogout={handleLogout} />
+        <div className="app">
+          <Routes>
+            <Route
+              path="/login"
+              element={<Login setUser={setUser} socket={socket} />}
+            />
+            <Route path="/signup" element={<Signup setUser={setUser} />} />
+            <Route path="/explore" element={<Explore />} />
+            <Route path="/main" element={<Home user={user} />} />
 
-          <Route
-            path="/user/profile/:profileId"
-            element={<UserProfile socket={userSocket} user={user} />}
-          />
+            <Route
+              path="/user/profile/:profileId"
+              element={<UserProfile socket={userSocket} user={user} />}
+            />
 
-          <Route
-            path="/user/friendsList/:profileId"
-            element={<FriendsList socket={socket} user={user} />}
-          />
-          <Route
-            path="/user/followingList/:profileId"
-            element={<UserFollowingList socket={socket} user={user} />}
-          />
-          <Route
-            path="/business/followers/:businessId"
-            element={<FollowersList socket={socket} user={user} />}
-          />
-          <Route
-            path="/business/profile/:businessId"
-            element={<BusinessProfile socket={businessSocket} user={user} />}
-          />
-          <Route
-            path="/user/myBusinesses/"
-            element={<MyBusinessesList user={user} />}
-          />
+            <Route
+              path="/user/friendsList/:profileId"
+              element={<FriendsList socket={socket} user={user} />}
+            />
+            <Route
+              path="/user/followingList/:profileId"
+              element={<UserFollowingList socket={socket} user={user} />}
+            />
+            <Route
+              path="/business/followers/:businessId"
+              element={<FollowersList socket={socket} user={user} />}
+            />
+            <Route
+              path="/business/profile/:businessId"
+              element={<BusinessProfile socket={businessSocket} user={user} />}
+            />
+            <Route
+              path="/user/myBusinesses/"
+              element={<MyBusinessesList user={user} />}
+            />
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+      </AppContext.Provider>
     </div>
   );
 };

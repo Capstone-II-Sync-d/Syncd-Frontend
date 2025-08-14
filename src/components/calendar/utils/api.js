@@ -1,9 +1,8 @@
-// API base URL
-const API_BASE = "http://localhost:8080";
+import { API_URL } from "../../../shared";
 
 // Generic API call function
 const apiCall = async (endpoint, options = {}) => {
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+  const response = await fetch(`${API_URL}${endpoint}`, {
     credentials: "include",
     ...options,
   });
