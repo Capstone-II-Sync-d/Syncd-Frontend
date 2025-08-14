@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import NotificationsTab from "./NotificationTab";
 import "./NavBarStyles.css";
@@ -6,6 +6,28 @@ import "./NavBarStyles.css";
 const NavBar = ({ user, onLogout }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const profileRef = useRef(null);
+  const notifRef = useRef(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        profileRef.current && 
+        !profileRef.current.contains(event.target)
+      ) {
+        setShowProfileDropdown(false);
+      }
+    };
+
+    if (showProfileDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showProfileDropdown]);
 
   return (
     <nav className="navbar">
@@ -26,9 +48,7 @@ const NavBar = ({ user, onLogout }) => {
         {user ? (
           <>
             {/* Search */}
-            <button className="nav-action-btn">
-              <span className="search-icon">🔍</span>
-            </button>
+         
 
             {/* Discover/Explore */}
             <Link to="/explore" className="nav-action-btn discover-btn">
@@ -37,10 +57,10 @@ const NavBar = ({ user, onLogout }) => {
             </Link>
 
             {/* Notifications */}
-            <NotificationsTab />
+            <NotificationsTab notifRef={notifRef}/>
 
             {/* Profile */}
-            <div className="profile-container">
+            <div className="profile-container" ref={profileRef}>
               <button
                 className="profile-btn"
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)}
