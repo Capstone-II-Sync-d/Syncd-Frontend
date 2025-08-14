@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./BusinessCardStyle.css";
+import "../Cards/styling/BusinessCardStyle.css";
 
 const BusinessCard = ({ business }) => {
   if (!business) return null;
@@ -12,10 +12,11 @@ const BusinessCard = ({ business }) => {
         <h2>{business.name}</h2>
       </div>
       <div className="info">
-        {
-          business.owner && 
-          <p><strong>Owner:</strong> {business.owner}</p>
-        }
+        {business.owner && (
+          <p>
+            <strong>Owner:</strong> {business.owner}
+          </p>
+        )}
         <p className="bio">{business.bio}</p>
       </div>
     </Link>
