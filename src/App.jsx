@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import axios from "axios";
 // import "./AppStyles.css";
 import NavBar from "./components/NavBar";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import NotFound from "./components/NotFound";
@@ -35,6 +35,7 @@ const businessSocket = io(`${SOCKETS_URL}/businessProfile`, {
 const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -89,6 +90,7 @@ const App = () => {
       );
       setUser(null);
       console.log("Logout successful");
+      navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
     }
