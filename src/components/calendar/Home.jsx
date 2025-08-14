@@ -12,6 +12,9 @@ const Home = ({ user, socket }) => {
   const [calendarItems, setCalendarItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentView, setCurrentView] = useState("month");
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [calendarKey, setCalendarKey] = useState(0);
 
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [showConversation, setShowConversation] = useState(false);
@@ -22,6 +25,12 @@ const Home = ({ user, socket }) => {
     business: true,
     friends: true,
   });
+
+  // Modal states
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedDateTime, setSelectedDateTime] = useState(null);
 
   const [allMessages, setAllMessages] = useState([]);
   const [unread, setUnread] = useState(0);
@@ -66,6 +75,10 @@ const Home = ({ user, socket }) => {
   // |--- Calendar API ---------------------------------------------|
   const fetchUserCalendarItems = async () => {
     try {
+      const items = await calendarAPI.getMyItems();
+      console.log("Fetched calendar items:", items);
+      setCalendarItems(items);
+      transformAndSetEvents(items);
       setLoading(true);
       setError(null);
 
@@ -141,6 +154,67 @@ const Home = ({ user, socket }) => {
     socket.emit("sending-message", input, user, userClicked, room);
   };
 
+  // When closing the create event modal
+  const handleCloseCreateModal = () => {
+    setShowCreateModal(false);
+    setCalendarKey((k) => k + 1);
+  };
+  
+  // When closng the event detail modal
+  const handleCloseEventDetailModal = () => {
+    setShowEventModal(false);
+    setCalendarKey((k) => k + 1);
+  }
+
+
+  // Create new calendar item/event
+  const handleCreateEvent = async (eventData) => {
+    console.log("Creating event with data:", eventData);
+    try {
+      // Step 1: Create the calendar item first
+      const newCalendarItem = await calendarAPI.createItem({
+        title: eventData.title,
+        description: eventData.description,
+        location: eventData.location,
+        start: eventData.start,
+        end: eventData.end,
+        public: eventData.isEvent ? true : eventData.public,
+      });
+
+      console.log("Created calendar item:", newCalendarItem);
+
+      // Step 2: If this should be an Event, create the Event record
+      if (eventData.isEvent) {
+        const eventRecord = await eventsAPI.createEvent({
+          itemId: newCalendarItem.id,
+          businessId: null,
+          published: eventData.published !== undefined ? eventData.published : false,
+        });
+        console.log("Created event record:", eventRecord);
+      }
+
+      // Step 3: Refresh calendar data
+      await fetchCalendarItems();
+      setShowCreateModal(false);
+      setSelectedDateTime(null);
+    } catch (error) {
+      console.error("Error creating event:", error);
+    }
+  };
+
+  // Handle create events button click
+  const handleCreateEventsClick = () => {
+    setSelectedDateTime({
+      start: new Date(),
+      end: new Date(Date.now() + 60 * 60 * 1000),
+    });
+    setShowCreateModal(true);
+  };
+
+  // Get calendar options
+  const calendarOptions = getCalendarOptions();
+
+  // Initialize data on component mount
   // |--- UI Actions ------------------------------------------------|
   const toggleCalendar = (calendarId) => {
     setCalendarsVisible((prev) => ({
@@ -161,6 +235,28 @@ const Home = ({ user, socket }) => {
   }, [query, friends]);
 
   useEffect(() => {
+    if (calendarRef.current) {
+      const calendar = calendarRef.current.getInstance();
+      calendar.changeView("month");
+    }
+  }, []);
+
+  // Update calendar events when data or visibility changes
+  useEffect(() => {
+    if (calendarRef.current && events.length > 0) {
+      const calendar = calendarRef.current.getInstance();
+      calendar.clear();
+      calendar.createEvents(events);
+
+      // Apply visibility settings
+      Object.keys(calendarVisibility).forEach((calendarType) => {
+        calendar.setCalendarVisibility(
+          calendarType,
+          calendarVisibility[calendarType]
+        );
+      });
+    }
+  }, [events, calendarVisibility]);
     if (user) {
       fetchUserCalendarItems();
       getAllFriends();
@@ -416,6 +512,38 @@ const Home = ({ user, socket }) => {
             </span>
           </div>
         </div>
+
+        {/* TOAST UI Calendar */}
+        <div className="calendar-wrapper">
+          <Calendar
+            key={calendarKey}
+            ref={calendarRef}
+            height="600px"
+            events={events}
+            {...calendarOptions}
+            view={currentView}
+            onClickEvent={handleEventClick}
+            onSelectDateTime={handleSelectDateTime}
+          />
+        </div>
+      </div>
+
+      {/* Event Detail Modal */}
+      {showEventModal && selectedEvent && (
+        <EventDetailModal
+          event={selectedEvent}
+          onClose={handleCloseEventDetailModal}
+          onRefresh={fetchCalendarItems}
+        />
+      )}
+
+      {/* Create Event Modal */}
+      {showCreateModal && (
+        <CreateEventModal
+          selectedDateTime={selectedDateTime}
+          onClose={handleCloseCreateModal}
+          onCreate={handleCreateEvent}
+        />
       )}
     </div>
   );
