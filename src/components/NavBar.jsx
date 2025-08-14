@@ -1,34 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import NotificationsTab from "./NotificationTab";
 import "./NavBarStyles.css";
 
 const NavBar = ({ user, onLogout }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-
-  // Mock notifications 
-  const notifications = [
-    {
-      id: 1,
-      message: "New event invitation from Sarah",
-      time: "5 min ago",
-      unread: true,
-    },
-    {
-      id: 2,
-      message: "Coffee meeting reminder",
-      time: "1 hour ago",
-      unread: true,
-    },
-    {
-      id: 3,
-      message: "Weekly team sync tomorrow",
-      time: "2 hours ago",
-      unread: false,
-    },
-  ];
-
-  const unreadCount = notifications.filter((n) => n.unread).length;
 
   return (
     <nav className="navbar">
@@ -60,45 +37,7 @@ const NavBar = ({ user, onLogout }) => {
             </Link>
 
             {/* Notifications */}
-            <div className="notification-container">
-              <button
-                className="nav-action-btn notification-btn"
-                onClick={() => setShowNotifications(!showNotifications)}
-              >
-                <span className="notification-icon">🔔</span>
-                {unreadCount > 0 && (
-                  <span className="notification-badge">{unreadCount}</span>
-                )}
-              </button>
-
-              {showNotifications && (
-                <div className="notification-dropdown">
-                  <div className="notification-header">
-                    <h3>Notifications</h3>
-                  </div>
-                  <div className="notification-list">
-                    {notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`notification-item ${
-                          notification.unread ? "unread" : ""
-                        }`}
-                      >
-                        <div className="notification-message">
-                          {notification.message}
-                        </div>
-                        <div className="notification-time">
-                          {notification.time}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="notification-footer">
-                    <button className="view-all-btn">View All</button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <NotificationsTab />
 
             {/* Profile */}
             <div className="profile-container">
