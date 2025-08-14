@@ -1,10 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./NavBarStyles.css";
 
 const NavBar = ({ user, onLogout }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const profileRef = useRef(null);
+  const notifRef = useRef(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        profileRef.current && 
+        !profileRef.current.contains(event.target)
+      ) {
+        setShowProfileDropdown(false);
+      }
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+
+    if (showProfileDropdown || showNotifications) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showProfileDropdown, showNotifications]);
 
   // Mock notifications 
   const notifications = [
@@ -45,7 +73,7 @@ const NavBar = ({ user, onLogout }) => {
             </Link>
 
             {/* Notifications */}
-            <div className="notification-container">
+            <div className="notification-container" ref={notifRef}>
               <button 
                 className="nav-action-btn notification-btn"
                 onClick={() => setShowNotifications(!showNotifications)}
@@ -84,8 +112,8 @@ const NavBar = ({ user, onLogout }) => {
             </div>
 
             {/* Profile */}
-            <div className="profile-container">
-              <button 
+            <div className="profile-container" ref={profileRef}>
+              <button
                 className="profile-btn"
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)}
               >
