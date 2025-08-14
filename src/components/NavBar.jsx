@@ -19,45 +19,15 @@ const NavBar = ({ user, onLogout }) => {
       ) {
         setShowProfileDropdown(false);
       }
-      if (
-        notifRef.current &&
-        !notifRef.current.contains(event.target)
-      ) {
-        setShowNotifications(false);
-      }
     };
 
-    if (showProfileDropdown || showNotifications) {
+    if (showProfileDropdown) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showProfileDropdown, showNotifications]);
-
-  // Mock notifications 
-  const notifications = [
-    {
-      id: 1,
-      message: "New event invitation from Sarah",
-      time: "5 min ago",
-      unread: true,
-    },
-    {
-      id: 2,
-      message: "Coffee meeting reminder",
-      time: "1 hour ago",
-      unread: true,
-    },
-    {
-      id: 3,
-      message: "Weekly team sync tomorrow",
-      time: "2 hours ago",
-      unread: false,
-    },
-  ];
-
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  }, [showProfileDropdown]);
 
   return (
     <nav className="navbar">
@@ -87,7 +57,7 @@ const NavBar = ({ user, onLogout }) => {
             </Link>
 
             {/* Notifications */}
-            <NotificationsTab />
+            <NotificationsTab notifRef={notifRef}/>
 
             {/* Profile */}
             <div className="profile-container" ref={profileRef}>
