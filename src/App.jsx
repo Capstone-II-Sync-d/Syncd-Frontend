@@ -58,8 +58,11 @@ const App = () => {
   };
 
   useEffect(() => {
-    getNotifications();
-  }, []);
+    if (user)
+      getNotifications();
+    else
+      setNotifications([]);
+  }, [user]);
 
   useEffect(() => {
     socket.on("connect", () => {
