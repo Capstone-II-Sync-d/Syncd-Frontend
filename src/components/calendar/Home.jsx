@@ -609,7 +609,12 @@ const Home = () => {
               <p className="no-messages">No messages yet</p>
             ) : (
               allMessages.map((msg) => (
-                <MessageCard key={msg.id} message={msg} user={user} />
+                <div
+                  key={msg.id}
+                  className={msg.senderId === user.id ? "sent" : "received"}
+                >
+                  <MessageCard message={msg} user={user} />
+                </div>
               ))
             )}
           </div>
