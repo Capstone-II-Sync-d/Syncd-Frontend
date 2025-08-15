@@ -5,10 +5,10 @@ import Notification from "./Notification";
 const NotificationsTab = ({ notifRef }) => {
   const [show, setShow] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const { notifications } = useContext(AppContext);
+  const { socket, notifications, setNotifications } = useContext(AppContext);
 
   useEffect(() => {
-    setUnreadCount(notifications.filter(n => !n.read).length);
+    setUnreadCount(notifications.filter((n) => !n.read).length);
   }, [notifications]);
 
   // Close dropdown when clicking outside
@@ -29,7 +29,24 @@ const NotificationsTab = ({ notifRef }) => {
       document.removeEventListener("mousedown", handleClickOutside)
     };
   }, [show]);
-  
+
+  const onAcceptedRequest = (notif) => {
+    console.log("Received Friend Request!");
+    setNotifications((prev) => ([
+      ...prev,
+      notif,
+    ]));
+  };
+
+  useEffect(() => {
+    console.log(`Notifications listening`);
+    socket.on("friend-request-accepted", onAcceptedRequest);
+
+    return () => {
+      socket.off("friend-request-accepted", onAcceptedRequest);
+    };
+  }, []);
+
   return (
     <div className="notification-container" ref={notifRef}>
       <button
