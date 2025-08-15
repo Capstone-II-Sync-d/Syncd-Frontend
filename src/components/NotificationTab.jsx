@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../AppContext";
 import Notification from "./Notification";
 
-const NotificationsTab = () => {
+const NotificationsTab = ({ notifRef }) => {
   const [show, setShow] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const { notifications } = useContext(AppContext);
@@ -11,9 +11,28 @@ const NotificationsTab = () => {
     setUnreadCount(notifications.filter(n => !n.read).length);
   }, [notifications]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target)
+      ) {
+        setShow(false);
+      }
+    };
+
+    if (show) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    };
+  }, [show]);
+  
   return (
-    <div className="notification-container">
-      <button 
+    <div className="notification-container" ref={notifRef}>
+      <button
         className="nav-action-btn notification-btn"
         onClick={() => setShow(!show)}
       >
@@ -22,14 +41,14 @@ const NotificationsTab = () => {
           <span className="notification-badge">{unreadCount}</span>
         )}
       </button>
-      
+
       {show && (
         <div className="notification-dropdown">
           <div className="notification-header">
             <h3>Notifications</h3>
           </div>
           <div className="notification-list">
-            {notifications.slice(0, 5).map(notification => (
+            {notifications.slice(0, 5).map((notification) => (
               <Notification key={notification.id} notification={notification} />
             ))}
           </div>
