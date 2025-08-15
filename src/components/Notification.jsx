@@ -1,29 +1,37 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { API_URL } from "../shared";
+import { AppContext } from "../AppContext";
 
 const Notification = ({ notification }) => {
   const [message, setMessage] = useState("");
   const [showButtons, setShowButtons] = useState(false);
+  const { user, socket } = useContext(AppContext);
 
-  const generateRequestMessage = (notif) => {
-    const otherUserName = `${notif.otherUser.firstName} (${notif.otherUser.username})`;
-    if (notif.status === "accepted")
+  if (!user || !notification)
+    return;
+
+  const generateRequestMessage = () => {
+    const otherUserName = `${notification.otherUser.firstName} (${notification.otherUser.username})`;
+    if (notification.status === "accepted")
       return `You and ${otherUserName} are now friends!`;
-
     else
       return `${otherUserName} sent you a friend request`
   };
 
-  const handleReply = async (status) => {
-    const info = { status };
+  const handleReply = async (action) => {
+    const info = {
+      action
+    };
     try {
       switch (notification.type) {
         case 'blank':
           return;
         case 'request':
+          info.receiverId = notification.otherUser.id;
           info.friendshipId = notification.friendshipId;
-          const response = await axios.patch(`${API_URL}/api/`, info, {withCredentials: true});
+          socket.emit("friend-request", info);
+          console.log(`Sending Friend Request Event`, info);
           return;
       }
     } catch (error) {
@@ -38,7 +46,7 @@ const Notification = ({ notification }) => {
         return;
       case 'request':
         setShowButtons(notification.status !== "accepted");
-        setMessage(generateRequestMessage(notification));
+        setMessage(generateRequestMessage());
         return;
     }
   }, []);
@@ -52,8 +60,8 @@ const Notification = ({ notification }) => {
       </div>
       { showButtons &&
         <div className="notification-buttons">
-          <button onClick={() => {handleReply('accepted')}}>Accept</button>
-          <button onClick={() => {handleReply('declined')}}>Decline</button>
+          <button onClick={() => {handleReply('accept')}}>Accept</button>
+          <button onClick={() => {handleReply('decline')}}>Decline</button>
         </div>
       }
       <div className="notification-time">
