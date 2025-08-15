@@ -223,8 +223,9 @@ const Home = () => {
       if (eventData.isEvent) {
         await eventsAPI.createEvent({
           itemId: newCalendarItem.id,
-          businessId: null,
-          published: eventData.published ?? false,
+          businessId: eventData.postAs === "personal" ? null : eventData.postAs,
+          published:
+            eventData.published !== undefined ? eventData.published : false,
         });
       }
 

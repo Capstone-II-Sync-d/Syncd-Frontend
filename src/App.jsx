@@ -42,17 +42,22 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [friends, setFriends] = useState([]);
+  const [businesses, setBusinesses] = useState([]);
   const navigate = useNavigate();
 
-  const appContext = useMemo(() => ({
-    socket,
-    user,
-    setUser,
-    notifications,
-    setNotifications,
-    friends,
-    setFriends,
-  }));
+  const appContext = useMemo(
+    () => ({
+      socket,
+      user,
+      setUser,
+      notifications,
+      setNotifications,
+      friends,
+      setFriends,
+      businesses,
+    }),
+    [user, notifications, businesses]
+  );
 
   const getNotifications = async () => {
     try {
@@ -66,9 +71,27 @@ const App = () => {
     }
   };
 
+  const getBusinesses = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/profiles/me/businesses`,
+        {
+          withCredentials: true,
+        }
+      );
+      setBusinesses(response.data || []);
+    } catch (error) {
+      console.error("Error fetching businesses:", error);
+      setBusinesses([]);
+    }
+  };
+
   useEffect(() => {
-    getNotifications();
-  }, []);
+    if (user) {
+      getNotifications();
+      getBusinesses();
+    }
+  }, [user]);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -100,6 +123,7 @@ const App = () => {
     } catch (error) {
       console.log("Not authenticated: ", error.message);
       setUser(null);
+      setBusinesses([]);
     } finally {
       setLoading(false);
     }
@@ -122,6 +146,7 @@ const App = () => {
         }
       );
       setUser(null);
+      setBusinesses([]);
       console.log("Logout successful");
       navigate("/");
     } catch (error) {
