@@ -46,7 +46,7 @@ const Login = ({ socket, setUser }) => {
       });
 
       setUser(response.data.user);
-      navigate("/");
+      navigate("/main");
       socket.emit("userConnected", response.data.user);
     } catch (error) {
       if (error.response?.data?.error) {
