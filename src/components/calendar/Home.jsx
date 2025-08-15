@@ -1,9 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import { AppContext } from "../../AppContext";
 import Calendar from "@toast-ui/react-calendar";
 import "@toast-ui/calendar/dist/toastui-calendar.min.css";
 import "./HomeStyles.css";
+import axios from "axios";
+import { API_URL } from "../../shared";
+import Conversation from "../Cards/ConversationCard";
+import MessageCard from "../Cards/MessageCard";
 
-// Import utilities and components
+// Utility APIs and functions
 import { authAPI, calendarAPI, eventsAPI } from "./utils/api";
 import {
   determineCalendarId,
@@ -12,21 +17,23 @@ import {
   formatCurrentDate,
   getCalendarOptions,
 } from "./utils/calendarUtils";
+
+// Modals
 import CreateEventModal from "./CreateEventModal";
 import EventDetailModal from "./EventDetailModal";
 
 const Home = () => {
-  // State management
-  const [user, setUser] = useState(null);
-  const [calendarItems, setCalendarItems] = useState([]);
-  const [events, setEvents] = useState([]);
+  // -------------------- STATE VARIABLES --------------------
+  const [calendarItems, setCalendarItems] = useState([]); // raw calendar items
+  const [events, setEvents] = useState([]); // transformed calendar events for TOAST UI
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentView, setCurrentView] = useState("month");
+  const [currentView, setCurrentView] = useState("month"); // month/week/day
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [calendarKey, setCalendarKey] = useState(0);
+  const [calendarKey, setCalendarKey] = useState(0); // force calendar rerender
+  const { socket, user, friends, setFriends, setUser } = useContext(AppContext);
 
-  // Calendar visibility toggles
+  // Calendar visibility toggles (personal, business, events, drafts)
   const [calendarVisibility, setCalendarVisibility] = useState({
     personal: true,
     business: true,
@@ -34,16 +41,85 @@ const Home = () => {
     drafts: true,
   });
 
+  // Messaging state
+  const [allMessages, setAllMessages] = useState([]);
+  const [unread, setUnread] = useState(0);
+  const [query, setQuery] = useState(""); // search bar query
+  const [filteredFriends, setFilteredFriends] = useState([]);
+  const [showMessage, setShowMessage] = useState(false);
+  const [showConversation, setShowConversation] = useState(false);
+  const [userClicked, setUserClicked] = useState(); // friend being messaged
+  const [input, setInput] = useState(""); // message input
+  const [room, setRoom] = useState(null); // socket room for chat
+
   // Modal states
   const [showEventModal, setShowEventModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDateTime, setSelectedDateTime] = useState(null);
 
-  // TOAST UI Calendar ref
+  // Reference to TOAST UI calendar
   const calendarRef = useRef(null);
 
-  // Fetch current user
+  const userId = user ? Number(user.id) : null;
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("🏠 Home component received user:", user);
+  }
+
+  console.log("Socket in parent:", socket);
+
+  // -------------------- FRIENDS API --------------------
+  const getAllFriends = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/profiles/user/${userId}/friends`,
+        { withCredentials: true }
+      );
+      setFriends(response.data);
+      setFilteredFriends(response.data);
+    } catch (error) {
+      console.error("Error fetching friends:", error);
+      setFriends([]);
+      setFilteredFriends([]);
+    }
+  };
+
+  // -------------------- FILTER FRIENDS --------------------
+  const filterFriends = () => {
+    if (friends.length === 0) {
+      setFilteredFriends([]);
+      return;
+    }
+    setFilteredFriends(
+      friends.filter(
+        (friend) =>
+          friend.user?.username &&
+          friend.user.username.toLowerCase().includes(query.toLowerCase())
+      )
+    );
+  };
+
+  // -------------------- SOCKET HELPERS --------------------
+  const joinMessageRoom = (roomName, user, friend) => {
+    if (!socket || !roomName || !user || !friend) return;
+    console.log("Joining message room:", roomName);
+
+    // Leave previous room
+    if (room) {
+      socket.emit("leave-message-room", room);
+    }
+
+    // Join new room
+    socket.emit("join-message-room", roomName, user, friend);
+  };
+
+  const handleMessageSend = (messageText) => {
+    socket.emit("sending-message", messageText, user, userClicked, room);
+    setInput("");
+  };
+
+  // -------------------- FETCH USER --------------------
   const fetchUser = async () => {
     try {
       const userData = await authAPI.getMe();
@@ -53,7 +129,7 @@ const Home = () => {
     }
   };
 
-  // Fetch calendar items from API
+  // -------------------- CALENDAR FUNCTIONS --------------------
   const fetchCalendarItems = async () => {
     try {
       const items = await calendarAPI.getMyItems();
@@ -68,13 +144,11 @@ const Home = () => {
     }
   };
 
-  // Transform and set events
   const transformAndSetEvents = (items) => {
     const transformedEvents = transformCalendarData(items, calendarVisibility);
     setEvents(transformedEvents);
   };
 
-  // Handle calendar visibility toggle
   const handleCalendarToggle = (calendarType) => {
     const newVisibility = {
       ...calendarVisibility,
@@ -82,14 +156,13 @@ const Home = () => {
     };
     setCalendarVisibility(newVisibility);
 
-    // Update TOAST UI calendar visibility
+    // Update TOAST UI visibility
     if (calendarRef.current) {
       const calendar = calendarRef.current.getInstance();
       calendar.setCalendarVisibility(calendarType, newVisibility[calendarType]);
     }
   };
 
-  // Handle view change
   const handleViewChange = (view) => {
     setCurrentView(view);
     if (calendarRef.current) {
@@ -98,31 +171,22 @@ const Home = () => {
     }
   };
 
-  // Navigate to today
   const handleTodayClick = () => {
     setCurrentDate(new Date());
     if (calendarRef.current) {
-      const calendar = calendarRef.current.getInstance();
-      calendar.today();
+      calendarRef.current.getInstance().today();
     }
   };
 
-  // Navigate calendar
   const handleNavigation = (direction) => {
-    if (calendarRef.current) {
-      const calendar = calendarRef.current.getInstance();
-      if (direction === "prev") {
-        calendar.prev();
-      } else {
-        calendar.next();
-      }
-      setCurrentDate(calendar.getDate().toDate());
-    }
+    if (!calendarRef.current) return;
+    const calendar = calendarRef.current.getInstance();
+    if (direction === "prev") calendar.prev();
+    else calendar.next();
+    setCurrentDate(calendar.getDate().toDate());
   };
 
-  // Handle event click
   const handleEventClick = (eventInfo) => {
-    console.log("Event clicked:", eventInfo);
     const originalEvent = calendarItems.find(
       (item) => item.id.toString() === eventInfo.event.id
     );
@@ -130,34 +194,23 @@ const Home = () => {
     setShowEventModal(true);
   };
 
-  // Handle date selection for creating new events
   const handleSelectDateTime = (selectionInfo) => {
-    console.log("Date/time selected:", selectionInfo);
-    setSelectedDateTime({
-      start: selectionInfo.start,
-      end: selectionInfo.end,
-    });
+    setSelectedDateTime({ start: selectionInfo.start, end: selectionInfo.end });
     setShowCreateModal(true);
   };
 
-  // When closing the create event modal
   const handleCloseCreateModal = () => {
     setShowCreateModal(false);
     setCalendarKey((k) => k + 1);
   };
-  
-  // When closng the event detail modal
+
   const handleCloseEventDetailModal = () => {
     setShowEventModal(false);
     setCalendarKey((k) => k + 1);
-  }
+  };
 
-
-  // Create new calendar item/event
   const handleCreateEvent = async (eventData) => {
-    console.log("Creating event with data:", eventData);
     try {
-      // Step 1: Create the calendar item first
       const newCalendarItem = await calendarAPI.createItem({
         title: eventData.title,
         description: eventData.description,
@@ -167,19 +220,15 @@ const Home = () => {
         public: eventData.isEvent ? true : eventData.public,
       });
 
-      console.log("Created calendar item:", newCalendarItem);
-
-      // Step 2: If this should be an Event, create the Event record
       if (eventData.isEvent) {
-        const eventRecord = await eventsAPI.createEvent({
+        await eventsAPI.createEvent({
           itemId: newCalendarItem.id,
           businessId: eventData.postAs === "personal" ? null : eventData.postAs,
-          published: eventData.published !== undefined ? eventData.published : false,
+          published:
+            eventData.published !== undefined ? eventData.published : false,
         });
-        console.log("Created event record:", eventRecord);
       }
 
-      // Step 3: Refresh calendar data
       await fetchCalendarItems();
       setShowCreateModal(false);
       setSelectedDateTime(null);
@@ -188,73 +237,92 @@ const Home = () => {
     }
   };
 
-  // Handle create events button click
   const handleCreateEventsClick = () => {
     setSelectedDateTime({
       start: new Date(),
-      end: new Date(Date.now() + 60 * 60 * 1000),
+      end: new Date(Date.now() + 3600000),
     });
     setShowCreateModal(true);
   };
 
-  // Get calendar options
   const calendarOptions = getCalendarOptions();
 
-  // Initialize data on component mount
+  // -------------------- SOCKET EFFECT --------------------
+  useEffect(() => {
+    if (!socket || !user) return;
+
+    const handleReceiveMessage = (data) => {
+      if (Array.isArray(data)) setAllMessages(data);
+      else
+        setAllMessages((prev) => {
+          if (prev.some((msg) => msg.id === data.id)) return prev;
+          return [...prev, data];
+        });
+    };
+
+    const handleReconnect = () => {
+      if (room && userClicked) joinMessageRoom(room);
+    };
+
+    socket.on("receive-message", handleReceiveMessage);
+    socket.on("connect", handleReconnect);
+
+    return () => {
+      socket.off("receive-message", handleReceiveMessage);
+      socket.off("connect", handleReconnect);
+      if (room) socket.emit("leave-message-room", room);
+    };
+  }, [socket, user, room, userClicked]);
+
+  // -------------------- INITIAL DATA --------------------
   useEffect(() => {
     fetchUser();
     fetchCalendarItems();
   }, []);
 
-  // Force month view on mount
   useEffect(() => {
     if (calendarRef.current) {
-      const calendar = calendarRef.current.getInstance();
-      calendar.changeView("month");
+      calendarRef.current.getInstance().changeView("month");
     }
   }, []);
 
-  // Update calendar events when data or visibility changes
+  useEffect(() => filterFriends(), [query, friends]);
+  useEffect(() => {
+    if (user) getAllFriends();
+    else setLoading(false);
+  }, [user]);
+
   useEffect(() => {
     if (calendarRef.current && events.length > 0) {
       const calendar = calendarRef.current.getInstance();
       calendar.clear();
       calendar.createEvents(events);
 
-      // Apply visibility settings
-      Object.keys(calendarVisibility).forEach((calendarType) => {
-        calendar.setCalendarVisibility(
-          calendarType,
-          calendarVisibility[calendarType]
-        );
-      });
+      Object.keys(calendarVisibility).forEach((type) =>
+        calendar.setCalendarVisibility(type, calendarVisibility[type])
+      );
     }
   }, [events, calendarVisibility]);
 
-  // Update events when visibility changes
   useEffect(() => {
-    if (calendarItems.length > 0) {
-      transformAndSetEvents(calendarItems);
-    }
+    if (calendarItems.length > 0) transformAndSetEvents(calendarItems);
   }, [calendarVisibility]);
 
   const stats = getEventStats(calendarItems, calendarVisibility);
 
-  if (loading) {
+  // -------------------- RENDER --------------------
+  if (loading)
     return (
       <div className="home-container">
         <div className="loading">Loading your calendar...</div>
       </div>
     );
-  }
-
-  if (error) {
+  if (error)
     return (
       <div className="home-container">
         <div className="error">Error: {error}</div>
       </div>
     );
-  }
 
   return (
     <div className="home-container">
@@ -460,6 +528,118 @@ const Home = () => {
           onClose={handleCloseCreateModal}
           onCreate={handleCreateEvent}
         />
+      )}
+      {/* |-----------------------------------------------------------| */}
+      {/* |   MESSAGING BUTTON                                       | */}
+      {/* |-----------------------------------------------------------| */}
+      <div className="messages">
+        <button
+          className="msg-btn"
+          onClick={() => setShowConversation(!showConversation)}
+        >
+          <img src="https://i.pinimg.com/736x/7f/66/c6/7f66c6785be2dfd18a370e9069eafc52.jpg" />
+        </button>
+      </div>
+
+      {/* |-----------------------------------------------------------| */}
+      {/* |   FRIENDS LIST POPUP                                     | */}
+      {/* |-----------------------------------------------------------| */}
+      {showConversation && (
+        <div className="friends-list">
+          {/* |--- Search Bar -----------------------------------------| */}
+          <div className="search">
+            <input
+              type="text"
+              id="search-bar"
+              placeholder="Search friends..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+
+          {/* |--- Friend Cards ---------------------------------------| */}
+          <div className="friend-cards">
+            {filteredFriends.length === 0 ? (
+              friends.length === 0 ? (
+                <p className="no-results">You have no friends yet</p>
+              ) : (
+                <p className="no-results">No friends match your search</p>
+              )
+            ) : (
+              filteredFriends.map((friend) => (
+                <Conversation
+                  key={friend.user.id}
+                  friend={friend.user}
+                  setRoom={setRoom}
+                  setUserClicked={setUserClicked}
+                  setShowMessage={setShowMessage}
+                  showMessage={showMessage}
+                  joinMessageRoom={joinMessageRoom}
+                />
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* |-----------------------------------------------------------| */}
+      {/* |   MESSAGE POPUP                                         | */}
+      {/* |-----------------------------------------------------------| */}
+      {showMessage && (
+        <div className="messagePopup">
+          <div className="messagePopupHeader">
+            <img src={userClicked.profilePicture} />
+            <span>{userClicked.username}</span>
+          </div>
+          <button
+            className="backButton"
+            onClick={() => {
+              if (socket && room) {
+                socket.emit("leave-message-room", room);
+                console.log(`🚪 Left room: ${room}`);
+              }
+              setShowMessage(false);
+              setRoom(null);
+              setUserClicked(null);
+            }}
+          >
+            Back
+          </button>
+          <div className="chat">
+            {allMessages.length === 0 ? (
+              <p className="no-messages">No messages yet</p>
+            ) : (
+              allMessages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={msg.senderId === user.id ? "sent" : "received"}
+                >
+                  <MessageCard message={msg} user={user} />
+                </div>
+              ))
+            )}
+          </div>
+          <div className="msgInput">
+            <input
+              type="text"
+              id="textInput"
+              placeholder="Aa"
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+              }}
+            />
+            <span>
+              <button
+                onClick={() => {
+                  handleMessageSend(input);
+                }}
+              >
+                Send
+              </button>
+            </span>
+          </div>
+        </div>
       )}
     </div>
   );
