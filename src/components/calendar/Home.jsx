@@ -173,7 +173,7 @@ const Home = () => {
       if (eventData.isEvent) {
         const eventRecord = await eventsAPI.createEvent({
           itemId: newCalendarItem.id,
-          businessId: null,
+          businessId: eventData.postAs === "personal" ? null : eventData.postAs,
           published: eventData.published !== undefined ? eventData.published : false,
         });
         console.log("Created event record:", eventRecord);

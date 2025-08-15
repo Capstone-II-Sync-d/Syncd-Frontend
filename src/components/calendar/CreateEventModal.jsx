@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { AppContext } from "../../AppContext";
 import "./ModalStyles.css";
 
 const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
+  const { businesses } = useContext(AppContext);
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -14,6 +17,7 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
       : "",
     public: false,
     isEvent: false,
+    postAs: "personal",
   });
 
   const handleInputChange = (e) => {
@@ -75,7 +79,23 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
               </label>
             </div>
           </div>
-
+          {formData.isEvent && (
+            <div className="form-group">
+              <label className="form-section-title">Post as</label>
+              <select
+                name="postAs"
+                value={formData.postAs}
+                onChange={handleInputChange}
+              >
+                <option value="personal">Personal</option>
+                {businesses.map((biz) => (
+                  <option key={biz.id} value={biz.id}>
+                    {biz.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="form-group">
             <label>Title *</label>
             <input
