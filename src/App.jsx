@@ -36,6 +36,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [businesses, setBusinesses] = useState([]);
   const navigate = useNavigate();
 
   const appContext = useMemo(() => ({
@@ -43,7 +44,8 @@ const App = () => {
     setUser,
     notifications,
     setNotifications,
-  }));
+    businesses,
+  }), [user, notifications, businesses]);
 
   const getNotifications = async () => {
     try {
@@ -57,9 +59,24 @@ const App = () => {
     }
   };
 
+  const getBusinesses = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/profiles/me/businesses`, {
+        withCredentials: true,
+      });
+      setBusinesses(response.data || []);
+    } catch (error) {
+      console.error("Error fetching businesses:", error);
+      setBusinesses([]);
+    }
+  };
+
   useEffect(() => {
-    getNotifications();
-  }, []);
+    if (user) {
+      getNotifications();
+      getBusinesses();
+    }
+  }, [user]);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -88,9 +105,12 @@ const App = () => {
       });
       console.log("Authentication successful: ", response.data);
       setUser(response.data.user);
+      // Fetch businesses after successful authentication
+      await getBusinesses();
     } catch (error) {
       console.log("Not authenticated: ", error.message);
       setUser(null);
+      setBusinesses([]);
     } finally {
       setLoading(false);
     }
@@ -113,6 +133,7 @@ const App = () => {
         }
       );
       setUser(null);
+      setBusinesses([]);
       console.log("Logout successful");
       navigate("/");
     } catch (error) {
