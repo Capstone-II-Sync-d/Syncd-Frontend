@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
+import { AppContext } from "../../AppContext";
 import Calendar from "@toast-ui/react-calendar";
 import "@toast-ui/calendar/dist/toastui-calendar.min.css";
 import "./HomeStyles.css";
 import axios from "axios";
 import { API_URL } from "../../shared";
 import Conversation from "../Cards/ConversationCard";
-
+import MessageCard from "../Cards/MessageCard";
 // Import utilities and components
 import { authAPI, calendarAPI, eventsAPI } from "./utils/api";
 import {
@@ -17,7 +18,6 @@ import {
 } from "./utils/calendarUtils";
 import CreateEventModal from "./CreateEventModal";
 import EventDetailModal from "./EventDetailModal";
-import { AppContext } from "../../AppContext";
 
 const Home = () => {
   // State management
@@ -120,6 +120,33 @@ const Home = () => {
     }
   };
 
+  // Fetch all messages between current user and a specific friend
+  const fetchMessagesWithFriend = async (friendId) => {
+    if (!userId || !friendId) return;
+
+    try {
+      const res = await axios.get(`${API_URL}/api/messages/me`, {
+        withCredentials: true,
+      });
+      // Filter messages to include only those with the specific friend
+      const filteredMessages = res.data.filter(
+        (msg) =>
+          (msg.senderId === userId && msg.receiverId === friendId) ||
+          (msg.senderId === friendId && msg.receiverId === userId)
+      );
+      console.log("Messages", filteredMessages);
+
+      // Sort messages by creation time
+      const sortedMessages = filteredMessages.sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
+
+      setAllMessages(sortedMessages);
+    } catch (err) {
+      console.error("Error fetching messages:", err);
+      setAllMessages([]);
+    }
+  };
   // Fetch calendar items from API
   const fetchCalendarItems = async () => {
     try {
@@ -267,8 +294,34 @@ const Home = () => {
   // Get calendar options
   const calendarOptions = getCalendarOptions();
 
+  useEffect(() => {
+    if (!socket || !user) return;
+
+    const handleReceiveMessage = () => {
+      if (userClicked) {
+        // Fetch only messages with the clicked friend
+        fetchMessagesWithFriend(userClicked.id);
+      }
+    };
+
+    socket.on("receive-message", handleReceiveMessage);
+
+    const handleReconnect = () => {
+      console.log("🔄 Socket reconnected");
+      if (room && userClicked) {
+        socket.emit("join-message-room", room, user, userClicked);
+        console.log(`✅ Rejoined room: ${room}`);
+      }
+    };
+    socket.on("connect", handleReconnect);
+
+    return () => {
+      socket.off("receive-message", handleReceiveMessage);
+      socket.off("connect", handleReconnect);
+    };
+  }, [socket, user, room, userClicked]);
+
   // Initialize data on component mount
-  useEffect(() => {}, [socket, user?.id, showConversation]);
   useEffect(() => {
     fetchUser();
     fetchCalendarItems();
@@ -582,7 +635,6 @@ const Home = () => {
                 <Conversation
                   key={friend.user.id}
                   friend={friend.user}
-                  user={user}
                   setRoom={setRoom}
                   setUserClicked={setUserClicked}
                   setShowMessage={setShowMessage}
@@ -607,12 +659,26 @@ const Home = () => {
           <button
             className="backButton"
             onClick={() => {
-              setShowMessage(!showMessage);
+              if (socket && room) {
+                socket.emit("leave-message-room", room);
+                console.log(`🚪 Left room: ${room}`);
+              }
+              setShowMessage(false);
+              setRoom(null);
+              setUserClicked(null);
             }}
           >
             Back
           </button>
-          <div className="chat"></div>
+          <div className="chat">
+            {allMessages.length === 0 ? (
+              <p className="no-messages">No messages yet</p>
+            ) : (
+              allMessages.map((msg) => (
+                <MessageCard key={msg.id} message={msg} user={user} />
+              ))
+            )}
+          </div>
           <div className="msgInput">
             <input
               type="text"

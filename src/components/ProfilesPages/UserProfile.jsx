@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axios from "axios";
 
 import { API_URL } from "../../shared";
 import BusinessCard from "../Cards/BusinessCard";
+import { AppContext } from "../../AppContext";
 
-const UserProfile = ({ socket, user }) => {
+const UserProfile = () => {
   let { profileId } = useParams();
   profileId = Number(profileId);
+
+  const { socket, user, friends, setFriends, setUser } = useContext(AppContext);
 
   // -------------------- State --------------------
   // Profile info
@@ -25,52 +28,218 @@ const UserProfile = ({ socket, user }) => {
   const [followingBusinesses, setFollowingBusinesses] = useState([]);
   const [friendsAmount, setFriendsAmount] = useState(0);
   const [followingAmount, setFollowingAmount] = useState(0);
-  const [room, setRoom] = useState(0);
 
   // -------------------- Socket: live friends count --------------------
   useEffect(() => {
-    if (!socket || !user?.id) return;
-    setRoom(profileId);
+    console.log("Socket connection status:", socket?.connected); // Debug log
 
-    // Join profile room in userProfile namespace
-    socket.emit("join-profile-room", profileId);
+    if (!socket || !user?.id) {
+      console.warn("Socket or user not available - skipping setup", {
+        socket,
+        user,
+      });
+      return;
+    }
 
-    // Handle reconnection
-    const handleReconnect = () => {
-      socket.emit("join-profile-room", profileId);
-    };
-    socket.on("connect", handleReconnect);
+    // Verify socket connection
+    if (!socket.connected) {
+      console.error("Socket exists but is not connected");
+      return;
+    }
 
-    // Listen for friendship updates
-    socket.on("friendship-update", (data) => {
-      const usersInvolved = [data.user1, data.user2];
+    console.log(
+      `Setting up socket listeners for user ${user.id} and profile ${profileId}`
+    );
+
+    socket.emit("join-profile-room", profileId, (ack) => {
+      console.log(
+        "Join room acknowledgement:",
+        ack || "No acknowledgment received"
+      );
+    });
+
+    const handleFriendshipUpdate = (data) => {
+      console.log("Received friendship-update:", data);
+      const usersInvolved = [Number(data.user1), Number(data.user2)];
       if (usersInvolved.includes(Number(user.id))) {
-        setFriendship(data.status === "none" ? null : data.friendship);
+        console.log("Update affects current user");
+        setFriendship(
+          data.status === "none"
+            ? null
+            : {
+                status: data.status,
+                user1: Number(data.user1),
+                user2: Number(data.user2),
+                user: {
+                  id:
+                    Number(data.user1) === Number(user.id)
+                      ? Number(data.user2)
+                      : Number(data.user1),
+                },
+              }
+        );
         if (data.friendsCount !== undefined) {
           setFriendsAmount(data.friendsCount);
         }
+        // Update friends context for accept/unfriend actions
+        if (data.action === "accept") {
+          setFriends((prev) => [
+            ...prev,
+            { id: profileId, username: username || `User ${profileId}` },
+          ]);
+        } else if (
+          data.action === "unfriend" ||
+          data.action === "decline" ||
+          data.action === "cancel"
+        ) {
+          setFriends((prev) =>
+            prev.filter((friend) => friend.id !== profileId)
+          );
+        }
       }
+    };
+
+    const handleFriendsAmount = (amount) => {
+      console.log("Received friends count update:", amount);
+      setFriendsAmount(amount);
+    };
+
+    socket.on("friendship-update", handleFriendshipUpdate);
+    socket.on("friends/amount", handleFriendsAmount);
+    socket.on("connect_error", (err) => {
+      console.error("Socket connection error:", err);
     });
 
-    // Listen for friend count updates
-    socket.on("friends/amount", setFriendsAmount);
-
     return () => {
-      socket.off("connect", handleReconnect);
-      socket.off("friendship-update");
-      socket.off("friends/amount");
-      // Don't disconnect - let parent component manage connection
+      console.log("Cleaning up socket listeners");
+      socket.off("friendship-update", handleFriendshipUpdate);
+      socket.off("friends/amount", handleFriendsAmount);
+      socket.off("connect_error");
+      socket.emit("leave-profile-room", profileId);
     };
-  }, [socket, profileId, user?.id]);
+  }, [socket, profileId, user?.id, username, setFriends]);
 
-  // Fetch profile, friends, businesses, and following
+  // -------------------- Handle friend request actions --------------------
+  const handleRequest = async (actionType = "add") => {
+    console.log("Friend request initiated - action:", actionType);
+
+    if (!socket || !socket.connected) {
+      console.error("Socket not connected - cannot send friend request");
+      return;
+    }
+
+    if (!user?.id) {
+      console.error("No user ID - cannot send friend request");
+      return;
+    }
+
+    console.log("Current friendship state:", friendship);
+    console.log("Action details:", {
+      profileId,
+      viewerId: Number(user.id),
+      actionType,
+    });
+
+    const oldFriendship = friendship;
+    const oldFriends = [...friends];
+    try {
+      let action = actionType;
+      let newStatus;
+
+      if (!friendship && actionType === "add") {
+        // Optimistic update for adding friend
+        const [user1, user2] =
+          Number(user.id) < profileId
+            ? [Number(user.id), profileId]
+            : [profileId, Number(user.id)];
+        newStatus = Number(user.id) < profileId ? "pending1" : "pending2";
+        setFriendship({
+          status: newStatus,
+          user1,
+          user2,
+          user: { id: profileId },
+        });
+        setFriendsAmount((prev) => prev + 1); // Optimistic friends count update
+        action = "add";
+      } else if (friendship?.status.startsWith("pending")) {
+        const isReceiver =
+          (friendship.user1 === Number(user.id) &&
+            friendship.status === "pending1") ||
+          (friendship.user2 === Number(user.id) &&
+            friendship.status === "pending2");
+
+        if (isReceiver) {
+          if (actionType === "accept") {
+            setFriendship({ ...friendship, status: "accepted" });
+            setFriends((prev) => [
+              ...prev,
+              { id: profileId, username: username || `User ${profileId}` },
+            ]);
+            setFriendsAmount((prev) => prev + 1); // Optimistic friends count update
+            action = "accept";
+          } else if (actionType === "decline") {
+            setFriendship(null);
+            setFriendsAmount((prev) => prev - 1); // Optimistic friends count update
+            action = "decline";
+          }
+        } else {
+          setFriendship(null);
+          setFriendsAmount((prev) => prev - 1); // Optimistic friends count update
+          action = "cancel";
+        }
+      } else if (
+        friendship?.status === "accepted" &&
+        actionType === "unfriend"
+      ) {
+        setFriendship(null);
+        setFriends((prev) => prev.filter((friend) => friend.id !== profileId));
+        setFriendsAmount((prev) => prev - 1); // Optimistic friends count update
+        action = "unfriend";
+      }
+
+      console.log("Emitting friend-request with:", {
+        profileId,
+        viewerId: Number(user.id),
+        action,
+      });
+
+      socket.emit(
+        "friend-request",
+        {
+          profileId,
+          viewerId: Number(user.id),
+          action,
+        },
+        (ack) => {
+          console.log("Server acknowledgement:", ack);
+          if (!ack?.success) {
+            console.warn(
+              "Server reported failure - reverting optimistic update"
+            );
+            setFriendship(oldFriendship);
+            setFriends(oldFriends);
+            setFriendsAmount(oldFriends.length);
+          }
+        }
+      );
+    } catch (err) {
+      console.error("Friend request failed:", err);
+      setFriendship(oldFriendship);
+      setFriends(oldFriends);
+      setFriendsAmount(oldFriends.length);
+    }
+  };
+
+  // -------------------- Fetch profile, friends, businesses, and following --------------------
   useEffect(() => {
     const fetchProfileFriendshipAndFollowing = async () => {
       try {
         // Fetch profile info
         const res = await axios.get(
           `${API_URL}/api/profiles/user/${profileId}`,
-          { withCredentials: true }
+          {
+            withCredentials: true,
+          }
         );
         setFirstName(res.data.firstName || "");
         setLastName(res.data.lastName || "");
@@ -94,15 +263,23 @@ const UserProfile = ({ socket, user }) => {
           `${API_URL}/api/profiles/me/friends`,
           { withCredentials: true }
         );
+        console.log("Fetched friendships:", friendShipsOfViewer.data);
 
         const friendshipStatus = friendShipsOfViewer.data.find((friendship) => {
+          console.log(
+            "Comparing friendship user:",
+            friendship.user.id,
+            profileId
+          );
           return String(friendship.user.id) === String(profileId);
         });
 
         setFriendship(friendshipStatus || null);
+        setFriends(friendShipsOfViewer.data.map((f) => f.user));
       } catch (error) {
         console.error("Failed to fetch friendship data", error);
         setFriendship(null);
+        setFriends([]);
       }
 
       try {
@@ -138,80 +315,48 @@ const UserProfile = ({ socket, user }) => {
     };
     fetchProfileFriendshipAndFollowing();
     setIsEditing(false);
-  }, [user?.id, profileId]);
+  }, [user?.id, profileId, setFriends]);
 
-  // -------------------- Logic --------------------
-  const isOwner = user && String(user.id) === String(profileId);
-  // -------------------- Handle friend request actions --------------------
-  const handleRequest = async (actionType = "add") => {
-    const oldFriendship = friendship;
-    try {
-      let action = actionType;
-
-      if (!friendship) {
-        // Prepare new pending request
-        const [user1, user2] =
-          user.id < profileId ? [user.id, profileId] : [profileId, user.id];
-        const newStatus = user.id < profileId ? "pending1" : "pending2";
-
-        setFriendship({
-          user1,
-          user2,
-          status: newStatus,
-          user: { id: user.id },
-        });
-        action = "add";
-      } else if (friendship.status.startsWith("pending")) {
-        const isViewerReceiver =
-          (friendship.user1 === user.id && friendship.status === "pending1") ||
-          (friendship.user2 === user.id && friendship.status === "pending2");
-
-        if (isViewerReceiver) {
-          if (actionType === "accept") {
-            setFriendship({ ...friendship, status: "accepted" });
-            action = "accept";
-          } else if (actionType === "decline") {
-            setFriendship(null);
-            action = "decline";
-          }
-        } else {
-          setFriendship(null);
-          action = "cancel";
-        }
-      } else if (friendship.status === "accepted") {
-        setFriendship(null);
-        action = "unfriend";
-      }
-
-      // Emit to server - will broadcast to all in profile room
-      socket.emit("friend-request", {
-        profileId,
-        viewerId: user.id,
-        action,
-      });
-    } catch (err) {
-      console.error("Request failed", err);
-      // Revert on error
-      setFriendship(oldFriendship);
-    }
-  };
-
+  // -------------------- Handle profile submit --------------------
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
+    console.log("Submitting profile update:", {
+      firstName,
+      lastName,
+      username,
+      email,
+      bio,
+    });
+
     try {
-      await axios.patch(
+      const response = await axios.patch(
         `${API_URL}/api/profiles/me`,
         { firstName, lastName, username, email, bio },
         { withCredentials: true }
       );
+      console.log("Profile update successful:", response.data);
+      setUser((prev) => ({
+        ...prev,
+        firstName,
+        lastName,
+        username,
+        email,
+        bio,
+      }));
       setIsEditing(false);
     } catch (error) {
-      console.error("Failed to update profile", error);
+      console.error(
+        "Failed to update profile:",
+        error.response?.data || error.message
+      );
+      alert("Failed to update profile. Please try again.");
     }
   };
 
-  // -------------------- Render helpers --------------------
+  // -------------------- Logic --------------------
+  const isOwner = user && String(user.id) === String(profileId);
 
+  // -------------------- Render helpers --------------------
   const renderEditForm = () => {
     const isFormValid = username.trim() && firstName.trim() && lastName.trim();
 
@@ -285,7 +430,6 @@ const UserProfile = ({ socket, user }) => {
   };
 
   const renderFollowingCount = () => {
-    console.log("Count:", friendship);
     if (friendship?.status === "accepted" || isOwner) {
       return (
         <Link to={`/user/followingList/${profileId}`}>
@@ -309,17 +453,18 @@ const UserProfile = ({ socket, user }) => {
   const renderFriendRequestButton = () => {
     if (!user || isOwner) return null;
 
-    console.log("Friendship:", friendship);
+    console.log("Friendship state for button:", friendship);
 
-    // Button states
     if (!friendship) {
       return <button onClick={() => handleRequest("add")}>Add Friend</button>;
     }
 
     if (friendship.status.startsWith("pending")) {
       const isReceiver =
-        (friendship.user1 === user.id && friendship.status === "pending1") ||
-        (friendship.user2 === user.id && friendship.status === "pending2");
+        (friendship.user1 === Number(user.id) &&
+          friendship.status === "pending1") ||
+        (friendship.user2 === Number(user.id) &&
+          friendship.status === "pending2");
 
       if (isReceiver) {
         return (
@@ -346,7 +491,7 @@ const UserProfile = ({ socket, user }) => {
     return (
       <div className="profileCard">
         <div className="profileHeader">
-          <img src={profilePicture} className="profilePic" />
+          <img src={profilePicture} className="profilePic" alt="Profile" />
           <div>
             <h1>
               {firstName} {lastName}
@@ -377,7 +522,7 @@ const UserProfile = ({ socket, user }) => {
   return (
     <div className="profileCard">
       <div className="profileHeader">
-        <img src={profilePicture} className="profilePic" />
+        <img src={profilePicture} className="profilePic" alt="Profile" />
         <div>
           <h1>
             {firstName} {lastName}

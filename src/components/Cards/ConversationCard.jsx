@@ -1,17 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
+import { AppContext } from "../../AppContext";
 import "../Cards/styling/UserCardStyles.css";
-import { Link } from "react-router-dom";
 
+// Conversation.js
 const Conversation = ({
   friend,
-  user,
   setUserClicked,
   setShowMessage,
   setRoom,
   showMessage,
   joinMessageRoom,
-  sortingMessages,
 }) => {
+  const { user } = useContext(AppContext);
   return (
     <div>
       <button
@@ -19,14 +19,17 @@ const Conversation = ({
         onClick={(e) => {
           e.preventDefault();
           setUserClicked(friend);
+
           const roomName =
             friend.id < user.id
               ? `${friend.id}-${user.id}`
               : `${user.id}-${friend.id}`;
           setRoom(roomName);
+
+          // Pass the actual values directly, not relying on state
           joinMessageRoom(roomName, user, friend);
-          setShowMessage(!showMessage);
-          sortingMessages(friend.id, user.id);
+
+          setShowMessage(true);
         }}
       >
         <img src={friend.profilePicture} />
