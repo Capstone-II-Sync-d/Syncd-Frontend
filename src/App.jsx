@@ -102,12 +102,16 @@ const App = () => {
     };
   }, []);
 
-  // Emit userConnected when user changes and socket is connected
-  useEffect(() => {
-    if (socket && user?.id && socket.connected) {
-      socket.emit("userConnected", { id: user.id });
-    }
-  }, [socket, user]);
+  const connectUser = () => {
+    if (!user || !socket?.connected)
+      return;
+
+    socket.emit("connected", user.id);
+  }
+
+  // Emit 'connected' when user changes and socket is connected
+  useEffect(connectUser, []);
+  useEffect(connectUser, [socket, user]);
 
   const checkAuth = async () => {
     try {
