@@ -1,4 +1,6 @@
+import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { API_URL } from "../shared";
 
 const Notification = ({ notification }) => {
   const [message, setMessage] = useState("");
@@ -12,6 +14,22 @@ const Notification = ({ notification }) => {
     else
       return `${otherUserName} sent you a friend request`
   };
+
+  const handleReply = async (status) => {
+    const info = { status };
+    try {
+      switch (notification.type) {
+        case 'blank':
+          return;
+        case 'request':
+          info.friendshipId = notification.friendshipId;
+          const response = await axios.patch(`${API_URL}/api/`, info, {withCredentials: true});
+          return;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   useEffect(() => {
     switch (notification.type) {
@@ -34,8 +52,8 @@ const Notification = ({ notification }) => {
       </div>
       { showButtons &&
         <div className="notification-buttons">
-          <button>Accept</button>
-          <button>Decline</button>
+          <button onClick={() => {handleReply('accepted')}}>Accept</button>
+          <button onClick={() => {handleReply('declined')}}>Decline</button>
         </div>
       }
       <div className="notification-time">
