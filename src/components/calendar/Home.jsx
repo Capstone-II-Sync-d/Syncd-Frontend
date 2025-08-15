@@ -7,7 +7,8 @@ import axios from "axios";
 import { API_URL } from "../../shared";
 import Conversation from "../Cards/ConversationCard";
 import MessageCard from "../Cards/MessageCard";
-// Import utilities and components
+
+// Utility APIs and functions
 import { authAPI, calendarAPI, eventsAPI } from "./utils/api";
 import {
   determineCalendarId,
@@ -16,21 +17,23 @@ import {
   formatCurrentDate,
   getCalendarOptions,
 } from "./utils/calendarUtils";
+
+// Modals
 import CreateEventModal from "./CreateEventModal";
 import EventDetailModal from "./EventDetailModal";
 
 const Home = () => {
-  // State management
-  const [calendarItems, setCalendarItems] = useState([]);
-  const [events, setEvents] = useState([]);
+  // -------------------- STATE VARIABLES --------------------
+  const [calendarItems, setCalendarItems] = useState([]); // raw calendar items
+  const [events, setEvents] = useState([]); // transformed calendar events for TOAST UI
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentView, setCurrentView] = useState("month");
+  const [currentView, setCurrentView] = useState("month"); // month/week/day
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [calendarKey, setCalendarKey] = useState(0);
+  const [calendarKey, setCalendarKey] = useState(0); // force calendar rerender
   const { socket, user, friends, setFriends, setUser } = useContext(AppContext);
 
-  // Calendar visibility toggles
+  // Calendar visibility toggles (personal, business, events, drafts)
   const [calendarVisibility, setCalendarVisibility] = useState({
     personal: true,
     business: true,
@@ -38,16 +41,16 @@ const Home = () => {
     drafts: true,
   });
 
+  // Messaging state
   const [allMessages, setAllMessages] = useState([]);
   const [unread, setUnread] = useState(0);
-
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(""); // search bar query
   const [filteredFriends, setFilteredFriends] = useState([]);
   const [showMessage, setShowMessage] = useState(false);
   const [showConversation, setShowConversation] = useState(false);
-  const [userClicked, setUserClicked] = useState();
-  const [input, setInput] = useState("");
-  const [room, setRoom] = useState(null);
+  const [userClicked, setUserClicked] = useState(); // friend being messaged
+  const [input, setInput] = useState(""); // message input
+  const [room, setRoom] = useState(null); // socket room for chat
 
   // Modal states
   const [showEventModal, setShowEventModal] = useState(false);
@@ -55,16 +58,18 @@ const Home = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDateTime, setSelectedDateTime] = useState(null);
 
-  // TOAST UI Calendar ref
+  // Reference to TOAST UI calendar
   const calendarRef = useRef(null);
 
   const userId = user ? Number(user.id) : null;
+
   if (process.env.NODE_ENV === "development") {
     console.log("🏠 Home component received user:", user);
   }
+
   console.log("Socket in parent:", socket);
 
-  // |--- Friends API ----------------------------------------------|
+  // -------------------- FRIENDS API --------------------
   const getAllFriends = async () => {
     try {
       const response = await axios.get(
@@ -80,7 +85,7 @@ const Home = () => {
     }
   };
 
-  // |--- Filtering Logic ------------------------------------------|
+  // -------------------- FILTER FRIENDS --------------------
   const filterFriends = () => {
     if (friends.length === 0) {
       setFilteredFriends([]);
@@ -95,22 +100,26 @@ const Home = () => {
     );
   };
 
-  // |--- Socket Helpers -------------------------------------------|
-  const joinMessageRoom = (roomName) => {
-    console.log("joinMessageRoom called", { socket, roomName });
-    if (socket && roomName) {
-      socket.emit("join-message-room", roomName);
-      console.log(`✅ Joined message room: ${roomName}`);
-    } else {
-      console.log("❌ No socket or no roomName");
+  // -------------------- SOCKET HELPERS --------------------
+  const joinMessageRoom = (roomName, user, friend) => {
+    if (!socket || !roomName || !user || !friend) return;
+    console.log("Joining message room:", roomName);
+
+    // Leave previous room
+    if (room) {
+      socket.emit("leave-message-room", room);
     }
+
+    // Join new room
+    socket.emit("join-message-room", roomName, user, friend);
   };
 
-  const handleMessageSend = async (input) => {
-    socket.emit("sending-message", input, user, userClicked, room);
+  const handleMessageSend = (messageText) => {
+    socket.emit("sending-message", messageText, user, userClicked, room);
+    setInput("");
   };
 
-  // Fetch current user
+  // -------------------- FETCH USER --------------------
   const fetchUser = async () => {
     try {
       const userData = await authAPI.getMe();
@@ -120,34 +129,7 @@ const Home = () => {
     }
   };
 
-  // Fetch all messages between current user and a specific friend
-  const fetchMessagesWithFriend = async (friendId) => {
-    if (!userId || !friendId) return;
-
-    try {
-      const res = await axios.get(`${API_URL}/api/messages/me`, {
-        withCredentials: true,
-      });
-      // Filter messages to include only those with the specific friend
-      const filteredMessages = res.data.filter(
-        (msg) =>
-          (msg.senderId === userId && msg.receiverId === friendId) ||
-          (msg.senderId === friendId && msg.receiverId === userId)
-      );
-      console.log("Messages", filteredMessages);
-
-      // Sort messages by creation time
-      const sortedMessages = filteredMessages.sort(
-        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-      );
-
-      setAllMessages(sortedMessages);
-    } catch (err) {
-      console.error("Error fetching messages:", err);
-      setAllMessages([]);
-    }
-  };
-  // Fetch calendar items from API
+  // -------------------- CALENDAR FUNCTIONS --------------------
   const fetchCalendarItems = async () => {
     try {
       const items = await calendarAPI.getMyItems();
@@ -162,13 +144,11 @@ const Home = () => {
     }
   };
 
-  // Transform and set events
   const transformAndSetEvents = (items) => {
     const transformedEvents = transformCalendarData(items, calendarVisibility);
     setEvents(transformedEvents);
   };
 
-  // Handle calendar visibility toggle
   const handleCalendarToggle = (calendarType) => {
     const newVisibility = {
       ...calendarVisibility,
@@ -176,14 +156,13 @@ const Home = () => {
     };
     setCalendarVisibility(newVisibility);
 
-    // Update TOAST UI calendar visibility
+    // Update TOAST UI visibility
     if (calendarRef.current) {
       const calendar = calendarRef.current.getInstance();
       calendar.setCalendarVisibility(calendarType, newVisibility[calendarType]);
     }
   };
 
-  // Handle view change
   const handleViewChange = (view) => {
     setCurrentView(view);
     if (calendarRef.current) {
@@ -192,31 +171,22 @@ const Home = () => {
     }
   };
 
-  // Navigate to today
   const handleTodayClick = () => {
     setCurrentDate(new Date());
     if (calendarRef.current) {
-      const calendar = calendarRef.current.getInstance();
-      calendar.today();
+      calendarRef.current.getInstance().today();
     }
   };
 
-  // Navigate calendar
   const handleNavigation = (direction) => {
-    if (calendarRef.current) {
-      const calendar = calendarRef.current.getInstance();
-      if (direction === "prev") {
-        calendar.prev();
-      } else {
-        calendar.next();
-      }
-      setCurrentDate(calendar.getDate().toDate());
-    }
+    if (!calendarRef.current) return;
+    const calendar = calendarRef.current.getInstance();
+    if (direction === "prev") calendar.prev();
+    else calendar.next();
+    setCurrentDate(calendar.getDate().toDate());
   };
 
-  // Handle event click
   const handleEventClick = (eventInfo) => {
-    console.log("Event clicked:", eventInfo);
     const originalEvent = calendarItems.find(
       (item) => item.id.toString() === eventInfo.event.id
     );
@@ -224,33 +194,23 @@ const Home = () => {
     setShowEventModal(true);
   };
 
-  // Handle date selection for creating new events
   const handleSelectDateTime = (selectionInfo) => {
-    console.log("Date/time selected:", selectionInfo);
-    setSelectedDateTime({
-      start: selectionInfo.start,
-      end: selectionInfo.end,
-    });
+    setSelectedDateTime({ start: selectionInfo.start, end: selectionInfo.end });
     setShowCreateModal(true);
   };
 
-  // When closing the create event modal
   const handleCloseCreateModal = () => {
     setShowCreateModal(false);
     setCalendarKey((k) => k + 1);
   };
 
-  // When closng the event detail modal
   const handleCloseEventDetailModal = () => {
     setShowEventModal(false);
     setCalendarKey((k) => k + 1);
   };
 
-  // Create new calendar item/event
   const handleCreateEvent = async (eventData) => {
-    console.log("Creating event with data:", eventData);
     try {
-      // Step 1: Create the calendar item first
       const newCalendarItem = await calendarAPI.createItem({
         title: eventData.title,
         description: eventData.description,
@@ -260,20 +220,14 @@ const Home = () => {
         public: eventData.isEvent ? true : eventData.public,
       });
 
-      console.log("Created calendar item:", newCalendarItem);
-
-      // Step 2: If this should be an Event, create the Event record
       if (eventData.isEvent) {
-        const eventRecord = await eventsAPI.createEvent({
+        await eventsAPI.createEvent({
           itemId: newCalendarItem.id,
           businessId: null,
-          published:
-            eventData.published !== undefined ? eventData.published : false,
+          published: eventData.published ?? false,
         });
-        console.log("Created event record:", eventRecord);
       }
 
-      // Step 3: Refresh calendar data
       await fetchCalendarItems();
       setShowCreateModal(false);
       setSelectedDateTime(null);
@@ -282,112 +236,92 @@ const Home = () => {
     }
   };
 
-  // Handle create events button click
   const handleCreateEventsClick = () => {
     setSelectedDateTime({
       start: new Date(),
-      end: new Date(Date.now() + 60 * 60 * 1000),
+      end: new Date(Date.now() + 3600000),
     });
     setShowCreateModal(true);
   };
 
-  // Get calendar options
   const calendarOptions = getCalendarOptions();
 
+  // -------------------- SOCKET EFFECT --------------------
   useEffect(() => {
     if (!socket || !user) return;
 
-    const handleReceiveMessage = () => {
-      if (userClicked) {
-        // Fetch only messages with the clicked friend
-        fetchMessagesWithFriend(userClicked.id);
-      }
+    const handleReceiveMessage = (data) => {
+      if (Array.isArray(data)) setAllMessages(data);
+      else
+        setAllMessages((prev) => {
+          if (prev.some((msg) => msg.id === data.id)) return prev;
+          return [...prev, data];
+        });
+    };
+
+    const handleReconnect = () => {
+      if (room && userClicked) joinMessageRoom(room);
     };
 
     socket.on("receive-message", handleReceiveMessage);
-
-    const handleReconnect = () => {
-      console.log("🔄 Socket reconnected");
-      if (room && userClicked) {
-        socket.emit("join-message-room", room, user, userClicked);
-        console.log(`✅ Rejoined room: ${room}`);
-      }
-    };
     socket.on("connect", handleReconnect);
 
     return () => {
       socket.off("receive-message", handleReceiveMessage);
       socket.off("connect", handleReconnect);
+      if (room) socket.emit("leave-message-room", room);
     };
   }, [socket, user, room, userClicked]);
 
-  // Initialize data on component mount
+  // -------------------- INITIAL DATA --------------------
   useEffect(() => {
     fetchUser();
     fetchCalendarItems();
   }, []);
 
-  // Force month view on mount
   useEffect(() => {
     if (calendarRef.current) {
-      const calendar = calendarRef.current.getInstance();
-      calendar.changeView("month");
+      calendarRef.current.getInstance().changeView("month");
     }
   }, []);
 
+  useEffect(() => filterFriends(), [query, friends]);
   useEffect(() => {
-    filterFriends();
-  }, [query, friends]);
-
-  useEffect(() => {
-    if (user) {
-      getAllFriends();
-    } else {
-      setLoading(false);
-    }
+    if (user) getAllFriends();
+    else setLoading(false);
   }, [user]);
 
-  // Update calendar events when data or visibility changes
   useEffect(() => {
     if (calendarRef.current && events.length > 0) {
       const calendar = calendarRef.current.getInstance();
       calendar.clear();
       calendar.createEvents(events);
 
-      // Apply visibility settings
-      Object.keys(calendarVisibility).forEach((calendarType) => {
-        calendar.setCalendarVisibility(
-          calendarType,
-          calendarVisibility[calendarType]
-        );
-      });
+      Object.keys(calendarVisibility).forEach((type) =>
+        calendar.setCalendarVisibility(type, calendarVisibility[type])
+      );
     }
   }, [events, calendarVisibility]);
 
-  // Update events when visibility changes
   useEffect(() => {
-    if (calendarItems.length > 0) {
-      transformAndSetEvents(calendarItems);
-    }
+    if (calendarItems.length > 0) transformAndSetEvents(calendarItems);
   }, [calendarVisibility]);
 
   const stats = getEventStats(calendarItems, calendarVisibility);
 
-  if (loading) {
+  // -------------------- RENDER --------------------
+  if (loading)
     return (
       <div className="home-container">
         <div className="loading">Loading your calendar...</div>
       </div>
     );
-  }
-
-  if (error) {
+  if (error)
     return (
       <div className="home-container">
         <div className="error">Error: {error}</div>
       </div>
     );
-  }
 
   return (
     <div className="home-container">
@@ -693,7 +627,6 @@ const Home = () => {
               <button
                 onClick={() => {
                   handleMessageSend(input);
-                  setInput("");
                 }}
               >
                 Send
