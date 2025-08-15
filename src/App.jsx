@@ -105,8 +105,6 @@ const App = () => {
       });
       console.log("Authentication successful: ", response.data);
       setUser(response.data.user);
-      // Fetch businesses after successful authentication
-      await getBusinesses();
     } catch (error) {
       console.log("Not authenticated: ", error.message);
       setUser(null);
