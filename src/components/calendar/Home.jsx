@@ -22,6 +22,21 @@ import {
 import CreateEventModal from "./CreateEventModal";
 import EventDetailModal from "./EventDetailModal";
 
+const roundToFiveMinutes = (date) => {
+  const rounded  = new Date(date);
+  const minutes = rounded.getMinutes();
+  const remainder = minutes % 5;
+  
+  if (remainder !== 0) {
+    rounded.setMinutes(minutes - remainder);
+  }
+  rounded.setSeconds(0);
+  rounded.setMilliseconds(0);
+
+  console.log(`Rounded ${date.toLocaleTimeString()}) to ${rounded.toLocaleTimeString()}`);
+  return rounded;
+};
+
 const Home = () => {
   // -------------------- STATE VARIABLES --------------------
   const [calendarItems, setCalendarItems] = useState([]); // raw calendar items
@@ -33,7 +48,12 @@ const Home = () => {
   const [calendarKey, setCalendarKey] = useState(0); // force calendar rerender
   const { socket, user, friends, setFriends, setUser } = useContext(AppContext);
 
+<<<<<<< Updated upstream
   // Calendar visibility toggles (personal, business, events, drafts)
+=======
+
+  // Calendar visibility toggles
+>>>>>>> Stashed changes
   const [calendarVisibility, setCalendarVisibility] = useState({
     personal: true,
     business: true,
@@ -195,7 +215,15 @@ const Home = () => {
   };
 
   const handleSelectDateTime = (selectionInfo) => {
+<<<<<<< Updated upstream
     setSelectedDateTime({ start: selectionInfo.start, end: selectionInfo.end });
+=======
+    console.log("Date/time selected:", selectionInfo);
+    setSelectedDateTime({
+      start: roundToFiveMinutes(selectionInfo.start),
+      end: roundToFiveMinutes(selectionInfo.end),
+    });
+>>>>>>> Stashed changes
     setShowCreateModal(true);
   };
 
@@ -238,9 +266,17 @@ const Home = () => {
   };
 
   const handleCreateEventsClick = () => {
+    console.log("Create Event clicked!");
+    const now = new Date();
+    console.log("Current time:", now.toLocaleTimeString());
     setSelectedDateTime({
+<<<<<<< Updated upstream
       start: new Date(),
       end: new Date(Date.now() + 3600000),
+=======
+      start: roundToFiveMinutes(now),
+      end: roundToFiveMinutes(new Date(now.getTime() + 60 * 60 * 1000)),
+>>>>>>> Stashed changes
     });
     setShowCreateModal(true);
   };

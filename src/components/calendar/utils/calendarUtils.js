@@ -204,6 +204,10 @@ export const getCalendarOptions = () => ({
     dayNames: ["S", "M", "T", "W", "T", "F", "S"],
     hourStart: 0,
     hourEnd: 24,
+    timeGrid: {
+      timeIntervalHeight: 20,
+      timeInterval: 5,
+    },
   },
   month: {
     startDayOfWeek: 0,

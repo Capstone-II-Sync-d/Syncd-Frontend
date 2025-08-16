@@ -2,6 +2,21 @@ import React, { useState, useContext } from "react";
 import { AppContext } from "../../AppContext";
 import "./ModalStyles.css";
 
+const roundToFiveMinutes = (date) => {
+  const rounded = new Date(date);
+  const minutes = rounded.getMinutes();
+  const remainder = minutes % 5;
+
+  if (remainder !== 0) {
+    rounded.setMinutes(minutes - remainder);
+  }
+
+  rounded.setSeconds(0);
+  rounded.setMilliseconds(0);
+  return rounded;
+
+};
+
 const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
   const { businesses } = useContext(AppContext);
 
@@ -10,10 +25,10 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
     description: "",
     location: "",
     start: selectedDateTime
-      ? new Date(selectedDateTime.start).toISOString().slice(0, 16)
+      ? roundToFiveMinutes(new Date(selectedDateTime.start)).toISOString().slice(0, 16)
       : "",
     end: selectedDateTime
-      ? new Date(selectedDateTime.end).toISOString().slice(0, 16)
+      ? roundToFiveMinutes(new Date(selectedDateTime.end)).toISOString().slice(0, 16)
       : "",
     public: false,
     isEvent: false,
@@ -22,21 +37,58 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+   
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
+ 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onCreate({
+    const startDate = new Date(formData.start);
+    const endDate = new Date(formData.end);
+
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      alert("Please enter valid start and end times.");
+      return;
+    }
+    const roundedStart = roundToFiveMinutes(startDate);
+    const roundedEnd = roundToFiveMinutes(endDate);
+     
+     onCreate({
       ...formData,
-      start: new Date(formData.start).toISOString(),
-      end: new Date(formData.end).toISOString(),
+      start: roundedStart.toISOString(),
+      end: roundedEnd.toISOString(),
       published: true, // Regular submit publishes event
     });
   };
+
+  const handleSaveAsDraft = () => {
+    const startDate = new Date(formData.start);
+    const endDate = new Date(formData.end);
+    
+ 
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      alert("Please enter valid start and end times.");
+      return;
+    }
+    
+    
+    const roundedStart = roundToFiveMinutes(startDate);
+    const roundedEnd = roundToFiveMinutes(endDate);
+    
+    onCreate({
+      ...formData,
+      start: roundedStart.toISOString(),
+      end: roundedEnd.toISOString(),
+      published: false,
+    });
+  };
+
+
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -150,6 +202,8 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                 name="start"
                 value={formData.start}
                 onChange={handleInputChange}
+               
+                step="300"
                 required
               />
             </div>
@@ -161,6 +215,8 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                 name="end"
                 value={formData.end}
                 onChange={handleInputChange}
+                
+                step="300"
                 required
               />
             </div>
@@ -224,14 +280,7 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={() => {
-                    onCreate({
-                      ...formData,
-                      start: new Date(formData.start).toISOString(),
-                      end: new Date(formData.end).toISOString(),
-                      published: false, // Save as draft
-                    });
-                  }}
+                  onClick={handleSaveAsDraft}
                 >
                   Save as Draft
                 </button>
@@ -251,4 +300,4 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
   );
 };
 
-export default CreateEventModal;
+export default CreateEventModal; 

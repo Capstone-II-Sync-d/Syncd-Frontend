@@ -2,14 +2,24 @@ import React, { useState } from "react";
 import { eventsAPI, calendarAPI } from "./utils/api";
 import "./ModalStyles.css";
 
+const toLocalDateString = (dateString) => {
+  if(!dateString) return "";
+  const date = new Date(dateString);
+  const offset = date.getTimezoneOffset() * 60000;
+  const localTime = new Date(date.getTime() - offset);
+  return localTime.toISOString().slice(0, 16);
+}
+
 const EventDetailModal = ({ event, onClose, onRefresh }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     title: event.title || "",
     description: event.description || "",
     location: event.location || "",
-    start: new Date(event.start).toISOString().slice(0, 16),
-    end: new Date(event.end).toISOString().slice(0, 16),
+    start: toLocalDateString(event.start),
+    end: toLocalDateString(event.end),
+    
+    
     public: event.public || false,
   });
 
@@ -28,10 +38,30 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const startDate = new Date(formData.start);
+      const endDate = new Date(formData.end);
+
+      const roundToFiveMinutes = (date) => {
+        const rounded = new Date(date);
+        const minutes = rounded.getMinutes();
+        const remainder = minutes % 5;
+
+        if (remainder !== 0) {
+          rounded.setMinutes(minutes - remainder);
+        }
+
+        rounded.setSeconds(0);
+        rounded.setMilliseconds(0);
+        return rounded;
+      }
+
+      const roundedStart = roundToFiveMinutes(startDate);
+      const roundedEnd = roundToFiveMinutes(endDate);
+
       await calendarAPI.updateItem(event.id, {
         ...formData,
-        start: new Date(formData.start).toISOString(),
-        end: new Date(formData.end).toISOString(),
+        start: roundedStart.toISOString(),
+        end: roundedEnd.toISOString(),
       });
 
       await onRefresh();
