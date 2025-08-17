@@ -21,7 +21,7 @@ import BusinessProfile from "./components/ProfilesPages/BusinessProfile";
 import MyBusinessesList from "./components/Lists/MyBusinessesList";
 
 const socket = io(SOCKETS_URL, {
-  withCredentials: NODE_ENV === "production",
+  withCredentials: true,
 });
 
 const userSocket = io(`${SOCKETS_URL}/userProfile`, {
