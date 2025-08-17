@@ -13,21 +13,28 @@ const Notification = ({ notification }) => {
 
   const generateRequestMessage = () => {
     const otherUserName = `${notification.otherUser.firstName} (${notification.otherUser.username})`;
-    if (notification.status === "accepted")
-      return `You and ${otherUserName} are now friends!`;
-    else
-      return `${otherUserName} sent you a friend request`
+    switch (notification.status) {
+      case 'accepted':
+        return `You and ${otherUserName} are now friends!`;
+      case 'declined':
+        return `You declined ${otherUserName}'s friend request`;
+      case 'removed':
+        return `You and ${otherUserName} are no longer friends`;
+      default:
+        return `${otherUserName} sent you a friend request`;
+    }
   };
 
   const handleReply = async (action) => {
     const info = {
-      action
+      action,
     };
     try {
       switch (notification.type) {
         case 'blank':
           return;
         case 'request':
+          setShowButtons(false);
           info.receiverId = notification.otherUser.id;
           info.friendshipId = notification.friendshipId;
           socket.emit("friend-request", info);
