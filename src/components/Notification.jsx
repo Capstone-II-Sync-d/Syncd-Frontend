@@ -60,8 +60,18 @@ const Notification = ({ notification }) => {
       </div>
       { showButtons &&
         <div className="notification-buttons">
-          <button onClick={() => {handleReply('accept')}}>Accept</button>
-          <button onClick={() => {handleReply('decline')}}>Decline</button>
+          <button
+            className="accept-btn"
+            onClick={() => {handleReply('accept')}}
+          >
+            Accept
+          </button>
+          <button
+            className="decline-btn"
+            onClick={() => {handleReply('decline')}}
+          >
+            Decline
+          </button>
         </div>
       }
       <div className="notification-time">

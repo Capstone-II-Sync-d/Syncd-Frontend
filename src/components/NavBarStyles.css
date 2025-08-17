@@ -241,6 +241,30 @@
   text-align: center;
 }
 
+.notification-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.accept-btn, .decline-btn {
+  flex: 1;
+  border: none;
+  border-radius: 0.5rem;
+  text-align: center;
+  padding: 0.5rem 0;
+  color: white;
+  cursor: pointer;
+}
+
+.accept-btn { background-color: #4caf50; }
+.accept-btn:hover { background-color: #45a049; }
+.accept-btn:active { background-color: #388e3c; }
+
+.decline-btn { background-color: #f44336; }
+.decline-btn:hover { background-color: #d32f2f; }
+.decline-btn:active { background-color: #b71c1c; }
+
 .view-all-btn {
   background: none;
   border: none;
