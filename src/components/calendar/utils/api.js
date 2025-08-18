@@ -24,7 +24,7 @@ export const authAPI = {
 export const calendarAPI = {
   // Get user's calendar items
   getMyItems: () => apiCall("/api/calendarItems/me"),
-  
+
   // Create calendar item
   createItem: (itemData) =>
     apiCall("/api/calendarItems/user/item", {
@@ -32,7 +32,7 @@ export const calendarAPI = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(itemData),
     }),
-  
+
   // Update calendar item
   updateItem: (itemId, itemData) =>
     apiCall(`/api/calendarItems/user/item/${itemId}`, {
@@ -40,7 +40,7 @@ export const calendarAPI = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(itemData),
     }),
-  
+
   // Delete calendar item
   deleteItem: (itemId) =>
     apiCall(`/api/calendarItems/user/item/${itemId}`, {
@@ -57,7 +57,7 @@ export const eventsAPI = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(eventData),
     }),
-  
+
   // Update event (publish/unpublish)
   updateEvent: (eventId, eventData) =>
     apiCall(`/api/calendarItems/events/${eventId}`, {
@@ -65,16 +65,16 @@ export const eventsAPI = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(eventData),
     }),
-  
+
   // Delete event
   deleteEvent: (eventId) =>
     apiCall(`/api/calendarItems/events/${eventId}`, {
       method: "DELETE",
     }),
-  
+
   // Get all public events
   getAllEvents: () => apiCall("/api/calendarItems/events"),
-  
+
   // Get future events
   getFutureEvents: () => apiCall("/api/calendarItems/events/future"),
 };
