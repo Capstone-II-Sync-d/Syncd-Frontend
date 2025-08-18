@@ -8,7 +8,9 @@ const NotificationsTab = ({ notifRef }) => {
   const { socket, notifications, setNotifications } = useContext(AppContext);
 
   useEffect(() => {
-    setUnreadCount(notifications.filter((n) => !n.read).length);
+    setUnreadCount(notifications.filter((n) => (
+      n.type !== 'blank' && !n.read
+    )).length);
   }, [notifications]);
 
   // Close dropdown when clicking outside
@@ -31,17 +33,19 @@ const NotificationsTab = ({ notifRef }) => {
   }, [show]);
 
   const updateFriendshipNotification = (friendshipId, newStatus) => {
-    const index = notifications.findIndex(notification => notification.friendshipId === friendshipId);
+    const index = notifications.findIndex((notification) => (
+      notification.friendshipId === friendshipId
+    ));
     if (index < 0)
       return;
     
     const notif = notifications[index];
     notif.status = newStatus;
-    setNotifications(
-      ...notifications.slice(0, index),
+    setNotifications([
+      ...(index > 0 ? notifications.slice(0, index) : []),
       notif,
-      ...notifications.slice(index),
-    );
+      ...(index < length - 1 ? notifications.slice(index) : []),
+    ]);
   }
 
   const onAcceptedRequest = (notif) => {
@@ -95,8 +99,13 @@ const NotificationsTab = ({ notifRef }) => {
             <h3>Notifications</h3>
           </div>
           <div className="notification-list">
-            {notifications.slice(0, 5).map((notification) => (
-              <Notification key={notification.id} notification={notification} />
+            {notifications.filter((notif) => (notif.type !== "blank"))
+                          .slice(0, 5)
+                          .map((notification) => (
+              <Notification
+                key={`${notification.id}: ${notification.status}`}
+                notification={notification}
+              />
             ))}
           </div>
           <div className="notification-footer">
