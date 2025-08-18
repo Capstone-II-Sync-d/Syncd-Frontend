@@ -171,10 +171,12 @@ const Home = () => {
   // -------------------- CALENDAR FUNCTIONS --------------------
   const fetchCalendarItems = async () => {
     try {
-      const items = await calendarAPI.getMyItems();
+      const items = await axios.get(`${API_URL}/api/calendarItems/me`, {
+        withCredentials: true,
+      });
       console.log("Fetched calendar items:", items);
-      setCalendarItems(items);
-      transformAndSetEvents(items);
+      setCalendarItems(items.data);
+      transformAndSetEvents(items.data);
     } catch (err) {
       setError("Error loading calendar data");
       console.error("Error fetching calendar items:", err);
@@ -396,6 +398,23 @@ const Home = () => {
       if (room) socket.emit("leave-message-room", room);
     };
   }, [socket, user, room, userClicked]);
+
+  // Messaging UI add on
+  // Ref for chat bottom
+  const chatEndRef = useRef(null);
+
+  // Function to scroll to bottom
+  const scrollToBottom = () => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  useEffect(() => {
+    if (showMessage) {
+      scrollToBottom();
+    }
+  }, [allMessages, showMessage]);
 
   // -------------------- INITIAL DATA --------------------
   useEffect(() => {
@@ -758,6 +777,7 @@ const Home = () => {
               setShowMessage(false);
               setRoom(null);
               setUserClicked(null);
+              setAllMessages([]);
             }}
           >
             Back
@@ -775,6 +795,7 @@ const Home = () => {
                 </div>
               ))
             )}
+            <div ref={chatEndRef} />
           </div>
           <div className="msgInput">
             <input
@@ -784,6 +805,12 @@ const Home = () => {
               value={input}
               onChange={(e) => {
                 setInput(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && input.trim() !== "") {
+                  handleMessageSend(input);
+                  setInput("");
+                }
               }}
             />
             <span>

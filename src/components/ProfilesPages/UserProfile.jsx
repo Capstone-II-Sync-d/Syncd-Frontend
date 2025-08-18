@@ -429,6 +429,17 @@ const UserProfile = () => {
     }
   };
 
+  const renderCalendarButton = () => {
+    if (isOwner || (friendship && friendship.status === "accepted")) {
+      return (
+        <Link to={`/user/${profileId}/calendar`} className="calendar-btn">
+          View Calendar
+        </Link>
+      );
+    }
+    return null;
+  };
+
   const renderFollowingCount = () => {
     if (friendship?.status === "accepted" || isOwner) {
       return (
@@ -545,6 +556,7 @@ const UserProfile = () => {
         {renderFollowingCount()}
       </div>
       {renderFriendRequestButton()}
+      {renderCalendarButton()}
       {renderBusinesses()}
     </div>
   );

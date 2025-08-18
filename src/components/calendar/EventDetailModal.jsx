@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { eventsAPI, calendarAPI } from "./utils/api";
 import "./ModalStyles.css";
+import { AppContext } from "../../AppContext";
+import axios from "axios";
+import { API_URL } from "../../shared";
 
 const toLocalDateString = (dateString) => {
   if(!dateString) return "";
@@ -24,9 +27,12 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
     public: event.public || false,
   });
 
+  const { user } = useContext(AppContext);
+
   // Determine if this is an event (has event record)
   const isEvent = event.event !== undefined && event.event !== null;
   const isPublished = isEvent && event.event?.published;
+  const isOwner = user?.id === event.userId;
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -75,14 +81,26 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
   };
 
   const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete this event?")) {
+    if (
+      window.confirm("Are you sure you want to remove this from your calendar?")
+    ) {
       try {
-        await calendarAPI.deleteItem(event.id);
-        await onRefresh();
-        onClose();
+        if (user.id !== event.userId) {
+          if (isEvent) {
+            await axios.delete(
+              `${API_URL}/api/calendarItems/${event.event.id}/${user.id}`
+            );
+            await onRefresh();
+            onClose();
+          }
+        } else {
+          await calendarAPI.deleteItem(event?.id);
+          await onRefresh();
+          onClose();
+        }
       } catch (error) {
-        console.error("Error deleting event:", error);
-        setFormError("Failed to delete event. Please try again.");
+        console.error("Error removing from calendar:", error);
+        alert("Failed to remove item. Please try again.");
       }
     }
   };
@@ -300,16 +318,23 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
                 Delete {isEvent ? "Event" : "Item"}
               </button>
               {isEvent && (
-                <button onClick={handlePublishToggle} className="btn-secondary">
-                  {isPublished ? "Unpublish" : "Publish"} Event
+                <div>
+                  <button
+                    onClick={handlePublishToggle}
+                    className="btn-secondary"
+                  >
+                    {isPublished ? "Unpublish" : "Publish"} Event
+                  </button>
+                </div>
+              )}
+              {isOwner && (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="btn-primary"
+                >
+                  Edit {isEvent ? "Event" : "Item"}
                 </button>
               )}
-              <button
-                onClick={() => setIsEditing(true)}
-                className="btn-primary"
-              >
-                Edit {isEvent ? "Event" : "Item"}
-              </button>
             </div>
           </div>
         )}
