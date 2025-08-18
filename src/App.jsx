@@ -20,24 +20,13 @@ import FollowersList from "./components/Lists/BusinessFollowersList";
 import BusinessProfile from "./components/ProfilesPages/BusinessProfile";
 import MyBusinessesList from "./components/Lists/MyBusinessesList";
 
-const socket = io(SOCKETS_URL, {
-  withCredentials: true,
-});
-
-const userSocket = io(`${SOCKETS_URL}/userProfile`, {
-  withCredentials: NODE_ENV === "production",
-});
-
-const businessSocket = io(`${SOCKETS_URL}/businessProfile`, {
-  withCredentials: NODE_ENV === "production",
-});
-
 const App = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [friends, setFriends] = useState([]);
   const [businesses, setBusinesses] = useState([]);
+  const [socket, setSocket] = useState(null);
   const navigate = useNavigate();
 
   const appContext = useMemo(
@@ -51,7 +40,7 @@ const App = () => {
       setFriends,
       businesses,
     }),
-    [user, notifications, businesses]
+    [socket, user, notifications, friends, businesses]
   );
 
   const getNotifications = async () => {
@@ -85,13 +74,20 @@ const App = () => {
     if (user) {
       getNotifications();
       getBusinesses();
+      setSocket(io(SOCKETS_URL, {
+      withCredentials: true,
+    }));
     } else {
       setNotifications([]);
       setBusinesses([]);
+      setSocket(null);
     }
   }, [user]);
 
   useEffect(() => {
+    if (!socket)
+      return;
+
     socket.on("connect", () => {
       console.log("🔗 Connected to socket");
     });
@@ -100,18 +96,7 @@ const App = () => {
     return () => {
       socket.off("connect");
     };
-  }, []);
-
-  const connectUser = () => {
-    if (!user || !socket?.connected)
-      return;
-
-    socket.emit("connected", user.id);
-  }
-
-  // Emit 'connected' when user changes and socket is connected
-  useEffect(connectUser, []);
-  useEffect(connectUser, [socket, user]);
+  }, [socket]);
 
   const checkAuth = async () => {
     try {
@@ -172,7 +157,7 @@ const App = () => {
 
             <Route
               path="/user/profile/:profileId"
-              element={<UserProfile socket={userSocket} user={user} />}
+              element={<UserProfile socket={socket} user={user} />}
             />
 
             <Route
@@ -189,7 +174,7 @@ const App = () => {
             />
             <Route
               path="/business/profile/:businessId"
-              element={<BusinessProfile socket={businessSocket} user={user} />}
+              element={<BusinessProfile socket={socket} user={user} />}
             />
             <Route
               path="/user/myBusinesses/"
