@@ -53,7 +53,7 @@ const NotificationsTab = ({ notifRef }) => {
 
   const onRequestSuccess = (info) => {
     console.log(`${info.action} request was successful!`);
-    updateFriendshipNotification(info.friendshipId, info.status);
+    updateFriendshipNotification(info.friendshipId, info.newStatus);
   }
 
   const onRequestFailed = (info) => {
