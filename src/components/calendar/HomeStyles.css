@@ -323,15 +323,14 @@ body {
   font-size: 20px;
   font-weight: bold;
 }
-
 /* Create Business Button */
 .create-business-btn {
   width: 100%;
   padding: 14px 18px;
   background: linear-gradient(
     135deg,
-    var(--glacial-drift) 0%,
-    var(--soft-lichen) 100%
+    var(--worn-trail) 0%,
+    var(--ridge-moss) 100%
   );
   color: var(--text-primary);
   border: none;
@@ -344,25 +343,24 @@ body {
   justify-content: center;
   gap: 8px;
   margin-bottom: 24px;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: "Inter", -qpple-system, BlinkMacSystemFont, sans-serif;
+  transition: all 0.3s cubic-bazierc(0.4, 0, 0.2, 1);
 }
+  .create-business-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(168, 184, 200, 0.4);
+    background: linear-gradient(
+      135deg,
+      var(--soft-lichen) 0%,
+      var(--glacial-drift) 100%
+    );
+  }
+  
+  .create-business-btn:active {
+    transform: translateY(0);
+  }
 
-.create-business-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(168, 184, 200, 0.4);
-  background: linear-gradient(
-    135deg,
-    var(--soft-lichen) 0%,
-    var(--glacial-drift) 100%
-  );
-}
-
-.create-business-btn:active {
-  transform: translateY(0);
-}
-
-/* User Message Popup */
+  /* User Message Popup */
 .user-message-popup {
   position: fixed;
   top: 20px;
@@ -377,21 +375,18 @@ body {
 .user-message-popup.error {
   background: #fee;
   border: 1px solid #fcc;
-  color: rgb(159, 33, 33);
+  color: rgb(159, 33, 33)
 }
-
 .user-message-popup.success {
-  background: rgb(245, 255, 245);
+  background: rgb(245,255,245);
   border: 1px solid #cfc;
   color: rgb(23, 113, 23);
 }
-
 .user-message-popup.warning {
-  background: #ffc;
+  background: #ff3;
   border: 1px solid #ffb;
   color: #cc6;
 }
-
 .message-content {
   display: flex;
   align-items: center;
@@ -405,7 +400,6 @@ body {
   font-size: 14px;
   line-height: 1.4;
 }
-
 .message-close {
   background: none;
   border: none;
@@ -424,7 +418,6 @@ body {
 .message-close:hover {
   opacity: 1;
 }
-
 @keyframes slideInRight {
   from {
     transform: translateX(100%);
@@ -726,8 +719,7 @@ body {
   color: var(--text-primary);
 }
 
-.view-button
-s {
+.view-buttons {
   display: flex;
   background: var(--forest-light);
   border-radius: 8px;
@@ -769,26 +761,40 @@ s {
   font-family: "Inter", sans-serif !important;
   background: #f8faf8 !important;
 }
-/* Calendar grid lines */
-.toasttui-calendar-month-daygrid-cell {
+/* Calendar cells */
+.toastui-calendar td,
+.toastui-calendar-month td,
+.toastui-calendar [class*="month"] td {
   border-right: 1px solid var(--border-light) !important;
   border-bottom: 1px solid var(--border-light) !important;  
-  background: white !important;
 }
 
-/* Weekend styling with grid lines */
-.toasttui-calendar-month-daygrid-cell.toastui-calendar-month-weekend {
-  background: #fafbfc !important;
+/* Day headers with borders */
+.toastui-calendar-month-day-name {
   border-right: 1px solid var(--border-light) !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  background: #f8fafc !important;
+  font-weight: 600 !important;
 }
 
-  /*Day headers with borders */
-  .toastui-calendar-month-day-name {
-    background: var(--forest-light) !important;
+
+  /*Weekend cells */
+  .toastui-calendar td.toastui-calendar-saturday,
+  .toastui-calendar td.toastui-calendar-sunday {
+    background: #fafbfc !important;
     border-right: 1px solid var(--border-light) !important;
     border-bottom: 1px solid var(--border-light) !important;
   }
 
+  /*Clean up last column*/
+  .toastui-calendar td:last-child {
+  border-right: none !important;
+}
+
+/*Clean up last row*/
+.toastui-calendar tr:last-child td {
+  border-bottom: none !important;
+}
   /* Modal Styles */
   .modal-overlay {
     position: fixed;
