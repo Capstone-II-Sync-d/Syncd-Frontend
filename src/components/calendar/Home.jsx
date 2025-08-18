@@ -132,10 +132,12 @@ const Home = () => {
   // -------------------- CALENDAR FUNCTIONS --------------------
   const fetchCalendarItems = async () => {
     try {
-      const items = await calendarAPI.getMyItems();
+      const items = await axios.get(`${API_URL}/api/calendarItems/me`, {
+        withCredentials: true,
+      });
       console.log("Fetched calendar items:", items);
-      setCalendarItems(items);
-      transformAndSetEvents(items);
+      setCalendarItems(items.data);
+      transformAndSetEvents(items.data);
     } catch (err) {
       setError("Error loading calendar data");
       console.error("Error fetching calendar items:", err);

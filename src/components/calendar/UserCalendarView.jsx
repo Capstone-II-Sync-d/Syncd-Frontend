@@ -12,6 +12,7 @@ import {
 
 const UserCalendarView = () => {
   const { id } = useParams();
+  const nav = useNavigate();
 
   const [calendarItems, setCalendarItems] = useState([]);
   const [events, setEvents] = useState([]);
@@ -84,6 +85,32 @@ const UserCalendarView = () => {
     }
   };
 
+  const handleAddEvent = async () => {
+    if (!selectedEvent) return;
+    console.log("Adding event:", selectedEvent);
+
+    const payload = {
+      sourceEventId: Number(selectedEvent.id),
+      title: selectedEvent.title,
+      description: selectedEvent.body,
+      location: selectedEvent.location,
+      start: selectedEvent.raw.start,
+      end: selectedEvent.raw.end,
+      isAllDay: selectedEvent.isAllday,
+      calendarId: selectedEvent.calendarId,
+      visibility: "private",
+    };
+    try {
+      await axios.post(`${API_URL}/api/calendarItems/user/add-event`, payload, {
+        withCredentials: true,
+      });
+      alert("Event added to your calendar!");
+      setSelectedEvent(null);
+    } catch (err) {
+      console.error("Error adding event to calendar:", err);
+      alert("Failed to add event to your calendar. Please try again.");
+    }
+  };
 
   const closePopup = () => {
     setSelectedEvent(null);
@@ -100,9 +127,14 @@ const UserCalendarView = () => {
 
   return (
     <div className="calendar-view-container">
-      <Link to={`/user/${id}`} className="back-to-profile-btn">
-        Back to Profile
-      </Link>
+      <button
+        className="back-btn"
+        onClick={() => {
+          nav("/main");
+        }}
+      >
+        Back to Calendar
+      </button>
       <div className="calendar-controls">
         <div className="date-navigation">
           <button className="nav-btn" onClick={() => handleNavigation("prev")}>
