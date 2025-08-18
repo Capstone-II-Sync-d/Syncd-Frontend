@@ -52,7 +52,7 @@ const Notification = ({ notification }) => {
         setMessage("Blank notification");
         return;
       case 'request':
-        setShowButtons(notification.status !== "accepted");
+        setShowButtons(notification.status && notification.status !== "accepted");
         setMessage(generateRequestMessage());
         return;
     }
