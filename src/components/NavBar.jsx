@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import NotificationsTab from "./NotificationTab";
 import "./NavBarStyles.css";
 
+
 const NavBar = ({ user, onLogout }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   //const [showNotifications, setShowNotifications] = useState(false);
