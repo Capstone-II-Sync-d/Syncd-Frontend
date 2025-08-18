@@ -12,6 +12,7 @@ const toLocalDateString = (dateString) => {
 
 const EventDetailModal = ({ event, onClose, onRefresh }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [formError, setFormError] = useState("");
   const [formData, setFormData] = useState({
     title: event.title || "",
     description: event.description || "",
@@ -37,6 +38,7 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError("");
     try {
       const startDate = new Date(formData.start);
       const endDate = new Date(formData.end);
@@ -68,6 +70,7 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
       onClose();
     } catch (error) {
       console.error("Error updating event:", error);
+      setFormError("Failed to update event. Please try again.");
     }
   };
 
@@ -79,6 +82,7 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
         onClose();
       } catch (error) {
         console.error("Error deleting event:", error);
+        setFormError("Failed to delete event. Please try again.");
       }
     }
   };
@@ -93,6 +97,7 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
       onClose();
     } catch (error) {
       console.error("Error toggling publish status:", error);
+      setFormError("Failed to update publish status. Please try again.");
     }
   };
 
@@ -217,6 +222,14 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
               </div>
             </div>
 
+            {/* Error Message */}
+            {formError && (
+              <div className="form-error-message">
+                <span className="error-icon">⚠️</span>
+                <span className="error-text">{formError}</span>
+              </div>
+            )}
+
             <div className="modal-actions">
               <button
                 type="button"
@@ -273,6 +286,14 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
                   : "Private (Only you)"}
               </span>
             </div>
+
+            {/* Error Message */}
+            {formError && (
+              <div className="form-error-message">
+                <span className="error-icon">⚠️</span>
+                <span className="error-text">{formError}</span>
+              </div>
+            )}
 
             <div className="modal-actions">
               <button onClick={handleDelete} className="btn-danger">

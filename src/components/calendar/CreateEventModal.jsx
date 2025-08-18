@@ -156,14 +156,6 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="event-form">
-          {/* Error Message */}
-          {formError && (
-            <div className="form-error-message">
-              <span className="error-icon">⚠️</span>
-              <span className="error-text">{formError}</span>
-            </div>
-          )}
-
           {/* Event Type Selection */}
           <div className="form-group">
             <label className="form-section-title">What are you creating?</label>
@@ -218,7 +210,6 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
               name="title"
               value={formData.title}
               onChange={handleInputChange}
-              required
               placeholder={
                 formData.isEvent ? "Event title" : "Calendar item title"
               }
@@ -231,7 +222,6 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              required={formData.isEvent}
               rows={3}
               placeholder={
                 formData.isEvent
@@ -248,7 +238,6 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
               name="location"
               value={formData.location}
               onChange={handleInputChange}
-              required={formData.isEvent}
               placeholder={
                 formData.isEvent
                   ? "Event location (required for events)"
@@ -267,7 +256,6 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                 onChange={handleInputChange}
                
                 step="300"
-                required
               />
             </div>
 
@@ -280,7 +268,6 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                 onChange={handleInputChange}
                 
                 step="300"
-                required
               />
             </div>
           </div>
@@ -340,6 +327,14 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
               </label>
             </div>
           </div>
+
+          {/* Error Message */}
+          {formError && (
+            <div className="form-error-message">
+              <span className="error-icon">⚠️</span>
+              <span className="error-text">{formError}</span>
+            </div>
+          )}
 
           <div className="modal-actions">
             <button type="button" onClick={onClose} className="btn-secondary">

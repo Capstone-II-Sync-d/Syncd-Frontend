@@ -3,6 +3,10 @@ import "./ModalStyles.css";
 
 const CreateBusinessModal = ({ onClose, onCreate }) => {
   const [formError, setFormError] = useState("");
+  // User feedback message states
+  const [userMessage, setUserMessage] = useState("");
+  const [userMessageType, setUserMessageType] = useState("error"); // error, success, warning
+  const [showUserMessage, setShowUserMessage] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -17,35 +21,50 @@ const CreateBusinessModal = ({ onClose, onCreate }) => {
       ...prev,
       [name]: value,
     }));
+    // Clear messages when user starts typing
+    if (showUserMessage) {
+      setShowUserMessage(false);
+    }
   };
 
   const validateBusinessForm = () => {
     setFormError("");
+    setShowUserMessage(false);
 
     if (!formData.name.trim()) {
-      setFormError("Business name is required.");
+      setUserMessage("Business name is required.");
+      setUserMessageType("error");
+      setShowUserMessage(true);
       return false;
     }
 
     if (!formData.email.trim()) {
-      setFormError("Business email is required.");
+      setUserMessage("Business email is required.");
+      setUserMessageType("error");
+      setShowUserMessage(true);
       return false;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setFormError("Please enter a valid email address.");
+      setUserMessage("Please enter a valid email address.");
+      setUserMessageType("error");
+      setShowUserMessage(true);
       return false;
     }
 
     if (!formData.bio.trim()) {
-      setFormError("Business description is required.");
+      setUserMessage("Business description is required.");
+      setUserMessageType("error");
+      setShowUserMessage(true);
       return false;
     }
 
     if (formData.pictureUrl.trim() && !isValidUrl(formData.pictureUrl)) {
-      setFormError("Please enter a valid URL for the business picture.");
+      setUserMessage("Please enter a valid URL for the business picture.");
+      setUserMessageType("error");
+      setShowUserMessage(true);
       return false;
     }
 
@@ -61,20 +80,38 @@ const CreateBusinessModal = ({ onClose, onCreate }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!validateBusinessForm()) {
       return;
     }
     
-    // Filter out empty pictureUrl
-    const submitData = { ...formData };
-    if (!submitData.pictureUrl.trim()) {
-      delete submitData.pictureUrl;
+    try {
+      // Filter out empty pictureUrl
+      const submitData = { ...formData };
+      if (!submitData.pictureUrl.trim()) {
+        delete submitData.pictureUrl;
+      }
+      
+      await onCreate(submitData);
+      
+      // Show success message
+      setUserMessage("Business created successfully!");
+      setUserMessageType("success");
+      setShowUserMessage(true);
+      
+      // Auto-close after showing success (optional)
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+      
+    } catch (error) {
+      console.error("Failed to create business:", error);
+      setUserMessage("Failed to create business. Please try again.");
+      setUserMessageType("error");
+      setShowUserMessage(true);
     }
-    
-    onCreate(submitData);
   };
 
   const isFormValid = formData.name.trim() && formData.email.trim() && formData.bio.trim();
@@ -89,15 +126,7 @@ const CreateBusinessModal = ({ onClose, onCreate }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="event-form">
-          {/* Error Message */}
-          {formError && (
-            <div className="form-error-message">
-              <span className="error-icon">⚠️</span>
-              <span className="error-text">{formError}</span>
-            </div>
-          )}
-
+        <form onSubmit={handleSubmit} className="event-form" noValidate>
           <div className="form-group">
             <label>Business Name *</label>
             <input
@@ -105,7 +134,6 @@ const CreateBusinessModal = ({ onClose, onCreate }) => {
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              required
               placeholder="Enter business name"
             />
           </div>
@@ -117,7 +145,6 @@ const CreateBusinessModal = ({ onClose, onCreate }) => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              required
               placeholder="Enter business email"
             />
           </div>
@@ -128,7 +155,6 @@ const CreateBusinessModal = ({ onClose, onCreate }) => {
               name="bio"
               value={formData.bio}
               onChange={handleInputChange}
-              required
               rows={3}
               placeholder="Describe your business"
             />
@@ -156,11 +182,29 @@ const CreateBusinessModal = ({ onClose, onCreate }) => {
             />
           </div>
 
+          {/* Error Message */}
+          {formError && (
+            <div className="form-error-message">
+              <span className="error-icon">⚠️</span>
+              <span className="error-text">{formError}</span>
+            </div>
+          )}
+
+          {/* User Message */}
+          {showUserMessage && (
+            <div className="form-error-message">
+              <span className="error-icon">
+                {userMessageType === 'success' ? '✅' : userMessageType === 'warning' ? '⚠️' : '⚠️'}
+              </span>
+              <span className="error-text">{userMessage}</span>
+            </div>
+          )}
+
           <div className="modal-actions">
             <button type="button" onClick={onClose} className="btn-secondary">
               Cancel
             </button>
-            <button type="submit" className="btn-primary" disabled={!isFormValid}>
+            <button type="submit" className="btn-primary">
               Create Business
             </button>
           </div>
