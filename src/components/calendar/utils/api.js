@@ -79,4 +79,18 @@ export const eventsAPI = {
   getFutureEvents: () => apiCall("/api/calendarItems/events/future"),
 };
 
-export default { authAPI, calendarAPI, eventsAPI };
+// Business API calls
+export const businessAPI = {
+  // Create business
+  createBusiness: (businessData) =>
+    apiCall("/api/profiles/business", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(businessData),
+    }),
+  
+  // Get user's businesses
+  getMyBusinesses: () => apiCall("/api/profiles/me/businesses"),
+};
+
+export default { authAPI, calendarAPI, eventsAPI, businessAPI };

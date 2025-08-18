@@ -324,6 +324,44 @@ body {
   font-weight: bold;
 }
 
+/* Create Business Button */
+.create-business-btn {
+  width: 100%;
+  padding: 14px 18px;
+  background: linear-gradient(
+    135deg,
+    var(--glacial-drift) 0%,
+    var(--soft-lichen) 100%
+  );
+  color: var(--text-primary);
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.create-business-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(168, 184, 200, 0.4);
+  background: linear-gradient(
+    135deg,
+    var(--soft-lichen) 0%,
+    var(--glacial-drift) 100%
+  );
+}
+
+.create-business-btn:active {
+  transform: translateY(0);
+}
+
 /* Network Section */
 .network-section {
   background: linear-gradient(
@@ -614,7 +652,8 @@ body {
   color: var(--text-primary);
 }
 
-.view-buttons {
+.view-button
+s {
   display: flex;
   background: var(--forest-light);
   border-radius: 8px;

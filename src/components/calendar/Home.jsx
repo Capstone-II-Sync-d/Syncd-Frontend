@@ -9,7 +9,7 @@ import Conversation from "../Cards/ConversationCard";
 import MessageCard from "../Cards/MessageCard";
 
 // Utility APIs and functions
-import { authAPI, calendarAPI, eventsAPI } from "./utils/api";
+import { authAPI, calendarAPI, eventsAPI, businessAPI } from "./utils/api";
 import {
   determineCalendarId,
   transformCalendarData,
@@ -21,6 +21,7 @@ import {
 // Modals
 import CreateEventModal from "./CreateEventModal";
 import EventDetailModal from "./EventDetailModal";
+import CreateBusinessModal from "./CreateBusinessModal";
 
 const roundToFiveMinutes = (date) => {
   const rounded  = new Date(date);
@@ -46,14 +47,10 @@ const Home = () => {
   const [currentView, setCurrentView] = useState("month"); // month/week/day
   const [currentDate, setCurrentDate] = useState(new Date());
   const [calendarKey, setCalendarKey] = useState(0); // force calendar rerender
-  const { socket, user, friends, setFriends, setUser } = useContext(AppContext);
+  const { socket, user, friends, setFriends, setUser, businesses, getBusinesses } = useContext(AppContext);
 
-<<<<<<< Updated upstream
-  // Calendar visibility toggles (personal, business, events, drafts)
-=======
 
   // Calendar visibility toggles
->>>>>>> Stashed changes
   const [calendarVisibility, setCalendarVisibility] = useState({
     personal: true,
     business: true,
@@ -75,6 +72,7 @@ const Home = () => {
   // Modal states
   const [showEventModal, setShowEventModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showBusinessModal, setShowBusinessModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDateTime, setSelectedDateTime] = useState(null);
 
@@ -215,15 +213,11 @@ const Home = () => {
   };
 
   const handleSelectDateTime = (selectionInfo) => {
-<<<<<<< Updated upstream
-    setSelectedDateTime({ start: selectionInfo.start, end: selectionInfo.end });
-=======
     console.log("Date/time selected:", selectionInfo);
     setSelectedDateTime({
       start: roundToFiveMinutes(selectionInfo.start),
       end: roundToFiveMinutes(selectionInfo.end),
     });
->>>>>>> Stashed changes
     setShowCreateModal(true);
   };
 
@@ -270,15 +264,34 @@ const Home = () => {
     const now = new Date();
     console.log("Current time:", now.toLocaleTimeString());
     setSelectedDateTime({
-<<<<<<< Updated upstream
-      start: new Date(),
-      end: new Date(Date.now() + 3600000),
-=======
       start: roundToFiveMinutes(now),
       end: roundToFiveMinutes(new Date(now.getTime() + 60 * 60 * 1000)),
->>>>>>> Stashed changes
     });
     setShowCreateModal(true);
+  };
+
+  const handleCreateBusinessClick = () => {
+    console.log("Create Business clicked!");
+    setShowBusinessModal(true);
+  };
+
+  const handleCreateBusiness = async (businessData) => {
+    try {
+      await businessAPI.createBusiness(businessData);
+      console.log("Business created successfully!");
+      setShowBusinessModal(false);
+      // Refresh businesses list
+      if (getBusinesses) {
+        await getBusinesses();
+      }
+    } catch (error) {
+      console.error("Error creating business:", error);
+      // Optionally show error message to user
+    }
+  };
+
+  const handleCloseBusinessModal = () => {
+    setShowBusinessModal(false);
   };
 
   const calendarOptions = getCalendarOptions();
@@ -368,6 +381,12 @@ const Home = () => {
         <button className="create-events-btn" onClick={handleCreateEventsClick}>
           <span className="plus-icon">+</span>
           Create Event
+        </button>
+
+        {/* Create Business Button */}
+        <button className="create-business-btn" onClick={handleCreateBusinessClick}>
+          <span className="plus-icon">+</span>
+          Create Business
         </button>
 
         {/* My Network Section */}
@@ -563,6 +582,14 @@ const Home = () => {
           selectedDateTime={selectedDateTime}
           onClose={handleCloseCreateModal}
           onCreate={handleCreateEvent}
+        />
+      )}
+
+      {/* Create Business Modal */}
+      {showBusinessModal && (
+        <CreateBusinessModal
+          onClose={handleCloseBusinessModal}
+          onCreate={handleCreateBusiness}
         />
       )}
       {/* |-----------------------------------------------------------| */}
