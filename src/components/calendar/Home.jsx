@@ -48,12 +48,11 @@ const Home = () => {
   const [calendarKey, setCalendarKey] = useState(0); // force calendar rerender
   const { socket, user, friends, setFriends, setUser } = useContext(AppContext);
 
-<<<<<<< Updated upstream
-  // Calendar visibility toggles (personal, business, events, drafts)
-=======
 
-  // Calendar visibility toggles
->>>>>>> Stashed changes
+  // Calendar visibility toggles (personal, business, events, drafts)
+
+
+
   const [calendarVisibility, setCalendarVisibility] = useState({
     personal: true,
     business: true,
@@ -215,15 +214,15 @@ const Home = () => {
   };
 
   const handleSelectDateTime = (selectionInfo) => {
-<<<<<<< Updated upstream
-    setSelectedDateTime({ start: selectionInfo.start, end: selectionInfo.end });
-=======
+
+  
+
     console.log("Date/time selected:", selectionInfo);
     setSelectedDateTime({
       start: roundToFiveMinutes(selectionInfo.start),
       end: roundToFiveMinutes(selectionInfo.end),
     });
->>>>>>> Stashed changes
+
     setShowCreateModal(true);
   };
 
@@ -270,13 +269,11 @@ const Home = () => {
     const now = new Date();
     console.log("Current time:", now.toLocaleTimeString());
     setSelectedDateTime({
-<<<<<<< Updated upstream
-      start: new Date(),
-      end: new Date(Date.now() + 3600000),
-=======
+
+     
       start: roundToFiveMinutes(now),
       end: roundToFiveMinutes(new Date(now.getTime() + 60 * 60 * 1000)),
->>>>>>> Stashed changes
+
     });
     setShowCreateModal(true);
   };
