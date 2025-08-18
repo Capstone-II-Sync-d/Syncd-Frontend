@@ -24,6 +24,7 @@ import UserFollowingList from "./components/Lists/UserFollowingList";
 import FollowersList from "./components/Lists/BusinessFollowersList";
 import BusinessProfile from "./components/ProfilesPages/BusinessProfile";
 import MyBusinessesList from "./components/Lists/MyBusinessesList";
+import UserCalendarView from "./components/calendar/UserCalendarView";
 
 const socket = io(SOCKETS_URL, {
   withCredentials: NODE_ENV === "production",
@@ -166,6 +167,7 @@ const App = () => {
               element={<Login setUser={setUser} socket={socket} />}
             />
             <Route path="/signup" element={<Signup setUser={setUser} />} />
+            <Route path="/user/:id/calendar" element={<UserCalendarView />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/main" element={<Home user={user} />} />
 
