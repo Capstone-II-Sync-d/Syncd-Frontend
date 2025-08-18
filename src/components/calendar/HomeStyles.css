@@ -553,19 +553,19 @@ body {
 }
 
 .checkmark.personal {
-  background-color: var(--soft-lichen);
+  background-color: #10b981; 
 }
 
 .checkmark.business {
-  background-color: var(--glacial-drift);
+  background-color: #3b82f6;
 }
 
 .checkmark.events {
-  background-color: var(--worn-trail);
+  background-color: #f59e0b;
 }
 
 .checkmark.drafts {
-  background-color: var(--text-muted);
+  background-color: #6366f1;
 }
 
 .calendar-name {
@@ -769,42 +769,24 @@ s {
   font-family: "Inter", sans-serif !important;
   background: #f8faf8 !important;
 }
+/* Calendar grid lines */
+.toasttui-calendar-month-daygrid-cell {
+  border-right: 1px solid var(--border-light) !important;
+  border-bottom: 1px solid var(--border-light) !important;  
+  background: white !important;
+}
 
-.toastui-calendar-month-day-name {
-  color: var(--text-primary) !important;
-  font-weight: 500 !important;
-  background: #f8faf8 !important;
+/* Weekend styling with grid lines */
+.toasttui-calendar-month-daygrid-cell.toastui-calendar-month-weekend {
+  background: #fafbfc !important;
+  border-right: 1px solid var(--border-light) !important;
+}
 
-  .toastui-calendar-month-date.toastui-calendar-month-date-today {
-    background: linear-gradient(
-      135deg,
-      var(--ridge-moss) 0%,
-      var(--pine-shadow) 100%
-    ) !important;
-    color: white !important;
-    border-radius: 8px !important;
-  }
-
-  .toastui-calendar-month .toastui-calendar-month-date {
-    background: #f8faf8 !important;
-    background-color: #f8faf8 !important;
-    border: 1px solid #f8f9fa !important;
-  }
-
-  .toastui-calendar-month .toastui-calendar-month-date:hover {
-    background: #f8faf8 !important;
-  }
-
-  /* Weekend styling */
-  .toastui-calendar-month
-    .toastui-calendar-month-date.toastui-calendar-saturday,
-  .toastui-calendar-month .toastui-calendar-month-date.toastui-calendar-sunday {
-    background: #fafbfc !important;
-  }
-
-  /* Calendar wrapper background */
-  .calendar-wrapper {
-    background: #f8faf8 !important;
+  /*Day headers with borders */
+  .toastui-calendar-month-day-name {
+    background: var(--forest-light) !important;
+    border-right: 1px solid var(--border-light) !important;
+    border-bottom: 1px solid var(--border-light) !important;
   }
 
   /* Modal Styles */
@@ -1113,4 +1095,4 @@ s {
       grid-template-columns: 1fr;
     }
   }
-}
+

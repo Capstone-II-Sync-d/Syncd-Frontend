@@ -50,7 +50,10 @@ const Home = () => {
   const { socket, user, friends, setFriends, setUser, businesses, getBusinesses } = useContext(AppContext);
 
 
-  // Calendar visibility toggles
+  // Calendar visibility toggles (personal, business, events, drafts)
+
+
+
   const [calendarVisibility, setCalendarVisibility] = useState({
     personal: true,
     business: true,
