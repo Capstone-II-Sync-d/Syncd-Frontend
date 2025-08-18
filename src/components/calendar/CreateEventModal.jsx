@@ -20,6 +20,7 @@ const roundToFiveMinutes = (date) => {
 const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
   const { businesses } = useContext(AppContext);
 
+  const [formError, setFormError] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -45,16 +46,59 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
     }));
   };
 
- 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const validateForm = () => {
+    // Clear previous errors
+    setFormError("");
+
     const startDate = new Date(formData.start);
     const endDate = new Date(formData.end);
 
+    // Required field checks
+    if (!formData.title.trim()) {
+      setFormError("Event title is required.");
+      return false;
+    }
+
+    if (formData.isEvent && !formData.description.trim()) {
+      setFormError("Event description is required for public events.");
+      return false;
+    }
+
+    if (formData.isEvent && !formData.location.trim()) {
+      setFormError("Event location is required for public events.");
+      return false;
+    }
+
+    // Date validation
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      alert("Please enter valid start and end times.");
+      setFormError("Please enter valid start and end times.");
+      return false;
+    }
+
+    if (endDate <= startDate) {
+      setFormError("End time must be after start time.");
+      return false;
+    }
+
+    // Check if event is in the past
+    const now = new Date();
+    if (startDate < now && (now - startDate) > 5 * 60 * 1000) { // Allow 5 minute to be nice
+      setFormError("Cannot create events in the past.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
       return;
     }
+
+    const startDate = new Date(formData.start);
+    const endDate = new Date(formData.end);
     const roundedStart = roundToFiveMinutes(startDate);
     const roundedEnd = roundToFiveMinutes(endDate);
      
@@ -67,15 +111,26 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
   };
 
   const handleSaveAsDraft = () => {
+    // For drafts, we only need title and valid dates
+    setFormError("");
+
     const startDate = new Date(formData.start);
     const endDate = new Date(formData.end);
     
- 
-    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      alert("Please enter valid start and end times.");
+    if (!formData.title.trim()) {
+      setFormError("Event title is required.");
       return;
     }
-    
+ 
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      setFormError("Please enter valid start and end times.");
+      return;
+    }
+
+    if (endDate <= startDate) {
+      setFormError("End time must be after start time.");
+      return;
+    }
     
     const roundedStart = roundToFiveMinutes(startDate);
     const roundedEnd = roundToFiveMinutes(endDate);
@@ -101,6 +156,14 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="event-form">
+          {/* Error Message */}
+          {formError && (
+            <div className="form-error-message">
+              <span className="error-icon">⚠️</span>
+              <span className="error-text">{formError}</span>
+            </div>
+          )}
+
           {/* Event Type Selection */}
           <div className="form-group">
             <label className="form-section-title">What are you creating?</label>
@@ -115,7 +178,7 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                   }
                 />
                 <span>Personal Calendar Item</span>
-                <small>Private reminder or personal task</small>
+                <small>   Private reminder or personal task</small>
               </label>
               <label className="radio-label">
                 <input
@@ -127,7 +190,7 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                   }
                 />
                 <span>Public Event</span>
-                <small>Others can discover and attend this event</small>
+                <small>   Others can discover and attend this event</small>
               </label>
             </div>
           </div>
@@ -220,6 +283,13 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                 required
               />
             </div>
+          </div>
+
+          <div className="time-info-message">
+            <span className="info-icon">ℹ️</span>
+            <span className="info-text">
+              Times are automatically rounded to the nearest 5-minute interval.
+            </span>
           </div>
 
           {/* Privacy Settings */}

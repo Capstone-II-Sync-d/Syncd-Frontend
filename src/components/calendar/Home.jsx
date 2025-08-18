@@ -76,6 +76,11 @@ const Home = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDateTime, setSelectedDateTime] = useState(null);
 
+  // User feedback message states
+  const [userMessage, setUserMessage] = useState("");
+  const [userMessageType, setUserMessageType] = useState("error"); // error, success, warning
+  const [showUserMessage, setShowUserMessage] = useState(false);
+
   // Reference to TOAST UI calendar
   const calendarRef = useRef(null);
 
@@ -86,6 +91,17 @@ const Home = () => {
   }
 
   console.log("Socket in parent:", socket);
+
+  // Helper function to show user messages
+  const showUserMessagePopup = (message, type = "error") => {
+    setUserMessage(message);
+    setUserMessageType(type);
+    setShowUserMessage(true);
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      setShowUserMessage(false);
+    }, 5000);
+  };
 
   // -------------------- FRIENDS API --------------------
   const getAllFriends = async () => {
@@ -100,6 +116,7 @@ const Home = () => {
       console.error("Error fetching friends:", error);
       setFriends([]);
       setFilteredFriends([]);
+      showUserMessagePopup("Failed to load your friends list. Some messaging features may not work.", "warning");
     }
   };
 
@@ -144,6 +161,7 @@ const Home = () => {
       setUser(userData.user);
     } catch (err) {
       console.error("Error fetching user:", err);
+      showUserMessagePopup("Failed to load your profile. Please refresh the page to try again.", "error");
     }
   };
 
@@ -157,6 +175,7 @@ const Home = () => {
     } catch (err) {
       setError("Error loading calendar data");
       console.error("Error fetching calendar items:", err);
+      showUserMessagePopup("Failed to load your calendar events. Please refresh the page to try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -182,43 +201,82 @@ const Home = () => {
   };
 
   const handleViewChange = (view) => {
-    setCurrentView(view);
-    if (calendarRef.current) {
-      const calendar = calendarRef.current.getInstance();
-      calendar.changeView(view);
+    try {
+      setCurrentView(view);
+      if (calendarRef.current) {
+        const calendar = calendarRef.current.getInstance();
+        calendar.changeView(view);
+      }
+    } catch (error) {
+      console.error("Error changing calendar view:", error);
+      showUserMessagePopup("Failed to change calendar view. Please try refreshing the page.", "error");
+      // Revert to previous view on error
+      setCurrentView(currentView);
     }
   };
 
   const handleTodayClick = () => {
-    setCurrentDate(new Date());
-    if (calendarRef.current) {
-      calendarRef.current.getInstance().today();
+    try {
+      setCurrentDate(new Date());
+      if (calendarRef.current) {
+        calendarRef.current.getInstance().today();
+      }
+    } catch (error) {
+      console.error("Error navigating to today:", error);
+      showUserMessagePopup("Failed to navigate to today. Please try refreshing the page.", "error");
     }
   };
 
   const handleNavigation = (direction) => {
-    if (!calendarRef.current) return;
-    const calendar = calendarRef.current.getInstance();
-    if (direction === "prev") calendar.prev();
-    else calendar.next();
-    setCurrentDate(calendar.getDate().toDate());
+    try {
+      if (!calendarRef.current) return;
+      const calendar = calendarRef.current.getInstance();
+      if (direction === "prev") calendar.prev();
+      else calendar.next();
+      setCurrentDate(calendar.getDate().toDate());
+    } catch (error) {
+      console.error("Error navigating calendar:", error);
+      showUserMessagePopup("Failed to navigate calendar. Please try refreshing the page.", "error");
+    }
   };
 
   const handleEventClick = (eventInfo) => {
-    const originalEvent = calendarItems.find(
-      (item) => item.id.toString() === eventInfo.event.id
-    );
-    setSelectedEvent(originalEvent);
-    setShowEventModal(true);
+    try {
+      const originalEvent = calendarItems.find(
+        (item) => item.id.toString() === eventInfo.event.id
+      );
+      
+      if (!originalEvent) {
+        showUserMessagePopup("Event not found. Please refresh the page and try again.", "error");
+        return;
+      }
+      
+      setSelectedEvent(originalEvent);
+      setShowEventModal(true);
+    } catch (error) {
+      console.error("Error opening event:", error);
+      showUserMessagePopup("Failed to open event details. Please try again.", "error");
+    }
   };
 
   const handleSelectDateTime = (selectionInfo) => {
-    console.log("Date/time selected:", selectionInfo);
-    setSelectedDateTime({
-      start: roundToFiveMinutes(selectionInfo.start),
-      end: roundToFiveMinutes(selectionInfo.end),
-    });
-    setShowCreateModal(true);
+    try {
+      console.log("Date/time selected:", selectionInfo);
+      
+      if (!selectionInfo.start || !selectionInfo.end) {
+        showUserMessagePopup("Invalid time selection. Please try selecting a different time.", "error");
+        return;
+      }
+      
+      setSelectedDateTime({
+        start: roundToFiveMinutes(selectionInfo.start),
+        end: roundToFiveMinutes(selectionInfo.end),
+      });
+      setShowCreateModal(true);
+    } catch (error) {
+      console.error("Error selecting date/time:", error);
+      showUserMessagePopup("Failed to select time slot. Please try again.", "error");
+    }
   };
 
   const handleCloseCreateModal = () => {
@@ -254,8 +312,20 @@ const Home = () => {
       await fetchCalendarItems();
       setShowCreateModal(false);
       setSelectedDateTime(null);
+      showUserMessagePopup(
+        eventData.isEvent 
+          ? "Event created successfully!" 
+          : "Calendar item created successfully!", 
+        "success"
+      );
     } catch (error) {
       console.error("Error creating event:", error);
+      showUserMessagePopup(
+        eventData.isEvent 
+          ? "Failed to create event. Please check your input and try again." 
+          : "Failed to create calendar item. Please check your input and try again.",
+        "error"
+      );
     }
   };
 
@@ -284,9 +354,10 @@ const Home = () => {
       if (getBusinesses) {
         await getBusinesses();
       }
+      showUserMessagePopup("Business created successfully! You can now post events from your business.", "success");
     } catch (error) {
       console.error("Error creating business:", error);
-      // Optionally show error message to user
+      showUserMessagePopup("Failed to create business. Please check your input and try again.", "error");
     }
   };
 
@@ -342,14 +413,19 @@ const Home = () => {
   }, [user]);
 
   useEffect(() => {
-    if (calendarRef.current && events.length > 0) {
-      const calendar = calendarRef.current.getInstance();
-      calendar.clear();
-      calendar.createEvents(events);
+    try {
+      if (calendarRef.current && events.length > 0) {
+        const calendar = calendarRef.current.getInstance();
+        calendar.clear();
+        calendar.createEvents(events);
 
-      Object.keys(calendarVisibility).forEach((type) =>
-        calendar.setCalendarVisibility(type, calendarVisibility[type])
-      );
+        Object.keys(calendarVisibility).forEach((type) =>
+          calendar.setCalendarVisibility(type, calendarVisibility[type])
+        );
+      }
+    } catch (error) {
+      console.error("Error rendering calendar events:", error);
+      showUserMessagePopup("Failed to display calendar events. Please refresh the page.", "error");
     }
   }, [events, calendarVisibility]);
 
@@ -375,6 +451,21 @@ const Home = () => {
 
   return (
     <div className="home-container">
+      {/* User Message Popup */}
+      {showUserMessage && (
+        <div className={`user-message-popup ${userMessageType}`}>
+          <div className="message-content">
+            <span className="message-text">{userMessage}</span>
+            <button 
+              className="message-close"
+              onClick={() => setShowUserMessage(false)}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Sidebar */}
       <div className="sidebar">
         {/* Create Events Button */}

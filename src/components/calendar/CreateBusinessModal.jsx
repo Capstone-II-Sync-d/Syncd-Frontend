@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import "./CreateBusinessModalStyles.css";
+import "./ModalStyles.css";
 
 const CreateBusinessModal = ({ onClose, onCreate }) => {
+  const [formError, setFormError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,8 +19,54 @@ const CreateBusinessModal = ({ onClose, onCreate }) => {
     }));
   };
 
+  const validateBusinessForm = () => {
+    setFormError("");
+
+    if (!formData.name.trim()) {
+      setFormError("Business name is required.");
+      return false;
+    }
+
+    if (!formData.email.trim()) {
+      setFormError("Business email is required.");
+      return false;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setFormError("Please enter a valid email address.");
+      return false;
+    }
+
+    if (!formData.bio.trim()) {
+      setFormError("Business description is required.");
+      return false;
+    }
+
+    if (formData.pictureUrl.trim() && !isValidUrl(formData.pictureUrl)) {
+      setFormError("Please enter a valid URL for the business picture.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const isValidUrl = (string) => {
+    try {
+      new URL(string);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    if (!validateBusinessForm()) {
+      return;
+    }
     
     // Filter out empty pictureUrl
     const submitData = { ...formData };
@@ -42,7 +89,15 @@ const CreateBusinessModal = ({ onClose, onCreate }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="business-form">
+        <form onSubmit={handleSubmit} className="event-form">
+          {/* Error Message */}
+          {formError && (
+            <div className="form-error-message">
+              <span className="error-icon">⚠️</span>
+              <span className="error-text">{formError}</span>
+            </div>
+          )}
+
           <div className="form-group">
             <label>Business Name *</label>
             <input

@@ -125,6 +125,53 @@
   margin-bottom: 20px;
 }
 
+/* Form Error Message */
+.form-error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #ffeaea;
+  border: 1px solid #ffcccc;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.error-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.error-text {
+  font-size: 14px;
+  color: #cc3333;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+/* Time Info Message */
+.time-info-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #f0f8ff;
+  border: 1px solid #d1e7dd;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.info-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.info-text {
+  font-size: 13px;
+  color: #055160;
+  line-height: 1.4;
+}
+
 .form-section-title {
   font-weight: 600;
   color: var(--text-primary);
