@@ -62,6 +62,9 @@ const NotificationsTab = ({ notifRef }) => {
   }
 
   useEffect(() => {
+    if (!socket)
+      return;
+
     console.log(`Notifications listening`);
     socket.on("friend-request-accepted", onAcceptedRequest);
     socket.on("friend-request-success", onRequestSuccess);
@@ -72,7 +75,7 @@ const NotificationsTab = ({ notifRef }) => {
       socket.off("friend-request-success", onRequestSuccess);
       socket.off("friendship-error", onRequestFailed);
     };
-  }, []);
+  }, [notifications]);
 
   return (
     <div className="notification-container" ref={notifRef}>
