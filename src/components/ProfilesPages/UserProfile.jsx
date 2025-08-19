@@ -549,7 +549,7 @@ const UserProfile = () => {
     console.log("Friendship state for button:", friendship);
 
     if (!friendship) {
-      return <button onClick={() => handleRequest("add")}>Add Friend</button>;
+      return <button className="friend-action-btn" onClick={() => handleRequest("add")}>Add Friend</button>;
     }
 
     if (friendship.status.startsWith("pending")) {
@@ -574,7 +574,7 @@ const UserProfile = () => {
 
     if (friendship.status === "accepted") {
       return (
-        <button onClick={() => handleRequest("unfriend")}>Unfriend</button>
+        <button className="friend-action-btn" onClick={() => handleRequest("unfriend")}>Unfriend</button>
       );
     }
   };
