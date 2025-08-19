@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../../shared";
 import BusinessCard from "../Cards/BusinessCard";
+import "./styling/MyBusinessesListStyle.css";
 
 const MyBusinessesList = ({ user }) => {
   // -------------------- State --------------------
