@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../AppContext";
 import Calendar from "@toast-ui/react-calendar";
 import "@toast-ui/calendar/dist/toastui-calendar.min.css";
@@ -41,6 +42,9 @@ const roundToFiveMinutes = (date) => {
 };
 
 const Home = () => {
+  // -------------------- NAVIGATION --------------------
+  const navigate = useNavigate();
+
   // -------------------- STATE VARIABLES --------------------
   const [calendarItems, setCalendarItems] = useState([]); // raw calendar items
   const [events, setEvents] = useState([]); // transformed calendar events for TOAST UI
@@ -111,6 +115,31 @@ const Home = () => {
     setTimeout(() => {
       setShowUserMessage(false);
     }, 5000);
+  };
+
+  // -------------------- NETWORK NAVIGATION --------------------
+  const handleFriendsClick = () => {
+    if (!user) {
+      showUserMessagePopup("Please log in to view your friends.", "warning");
+      return;
+    }
+    navigate(`/user/friendsList/${user.id}`);
+  };
+
+  const handleBusinessesClick = () => {
+    if (!user) {
+      showUserMessagePopup("Please log in to view your businesses.", "warning");
+      return;
+    }
+    navigate(`/user/myBusinesses/`);
+  };
+
+  const handleFollowingClick = () => {
+    if (!user) {
+      showUserMessagePopup("Please log in to view who you're following.", "warning");
+      return;
+    }
+    navigate(`/user/followingList/${user.id}`);
   };
 
   // -------------------- FRIENDS API --------------------
@@ -557,10 +586,19 @@ const Home = () => {
             <span className="network-icon">👥</span>
             <span className="network-title">My Network</span>
           </div>
-          <div className="network-stats">
-            <span>3 Friends • 1 Businesses</span>
-            <br />
-            <span>Following 3</span>
+          <div className="network-buttons">
+            <button className="network-btn friends-btn" onClick={handleFriendsClick}>
+              <span className="network-count">{friends?.length || 0}</span>
+              <span className="network-label">Friends</span>
+            </button>
+            <button className="network-btn businesses-btn" onClick={handleBusinessesClick}>
+              <span className="network-count">{businesses?.length || 0}</span>
+              <span className="network-label">Businesses</span>
+            </button>
+            <button className="network-btn following-btn" onClick={handleFollowingClick}>
+              <span className="network-count">3</span>
+              <span className="network-label">Following</span>
+            </button>
           </div>
         </div>
 
