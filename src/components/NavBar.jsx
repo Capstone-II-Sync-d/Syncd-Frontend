@@ -6,29 +6,6 @@ import "./NavBarStyles.css";
 
 const NavBar = ({ user, onLogout }) => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  //const [showNotifications, setShowNotifications] = useState(false);
-
-  const profileRef = useRef(null);
-  const notifRef = useRef(null);
-
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        profileRef.current && 
-        !profileRef.current.contains(event.target)
-      ) {
-        setShowProfileDropdown(false);
-      }
-    };
-
-    if (showProfileDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showProfileDropdown]);
 
   const profileRef = useRef(null);
   const notifRef = useRef(null);

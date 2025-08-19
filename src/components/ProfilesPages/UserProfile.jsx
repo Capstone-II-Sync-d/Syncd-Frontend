@@ -4,7 +4,6 @@ import axios from "axios";
 import { API_URL } from "../../shared";
 import { AppContext } from "../../AppContext";
 import BusinessCard from "../Cards/BusinessCard";
-import { AppContext } from "../../AppContext";
 
 const UserProfile = () => {
   let { profileId } = useParams();
