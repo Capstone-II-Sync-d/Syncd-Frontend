@@ -1,16 +1,21 @@
+/* Import the unified design system */
+@import url("../styles/GlobalStyles.css");
+
 /* NavBar Styles */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.95);
+  padding: 20px 40px;
+  background: linear-gradient(135deg, #ffffff 0%, rgba(232, 232, 216, 0.8) 50%, rgba(200, 211, 197, 0.6) 100%);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: 0 8px 32px rgba(90, 122, 107, 0.2);
   position: sticky;
   top: 0;
   z-index: 1000;
-  height: 64px;
+  height: 80px;
+  font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 /* Left - Brand */
@@ -26,14 +31,80 @@
 }
 
 .brand-link {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
+  display: flex;
+  align-items: center;
   text-decoration: none;
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.brand-link:hover {
+  transform: scale(1.08);
 }
 
 .brand-name {
-  color: var(--text-primary); 
+  font-size: 2.4rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #2d4a2b 0%, #4a6b47 50%, #3a5a3a 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: "Outfit", sans-serif;
+  position: relative;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 8px rgba(45, 74, 43, 0.3);
+  filter: drop-shadow(0 2px 4px rgba(45, 74, 43, 0.2));
+}
+
+.brand-name::before {
+  content: "✨";
+  position: absolute;
+  left: -35px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.brand-name::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--gradient-button);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transition: transform var(--transition-base);
+  transform-origin: left;
+}
+
+.brand-link:hover .brand-name::after {
+  transform: scaleX(1);
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translateY(-50%) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.2);
+  }
+}
+
+/* For smaller screens, make logo smaller */
+@media (max-width: 768px) {
+  .brand-name {
+    font-size: 1.8rem;
+  }
+  
+  .brand-name::before {
+    left: -28px;
+    font-size: 1rem;
+  }
 }
 
 /* Center - Navigation */
@@ -117,7 +188,7 @@
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
   flex: 0 0 auto;
 }
 
@@ -143,27 +214,29 @@
 
 .discover-btn {
   width: auto;
-  padding: 14px 18px;
+  padding: 14px 24px;
   background: linear-gradient(135deg, var(--ridge-moss) 0%, var(--pine-shadow) 100%);
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 800;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(90, 122, 107, 0.3);
+  box-shadow: 0 6px 24px rgba(90, 122, 107, 0.4);
   text-decoration: none;
+  font-family: "Outfit", sans-serif;
+  letter-spacing: -0.02em;
 }
 
 
 .discover-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(90, 122, 107, 0.4);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 32px rgba(90, 122, 107, 0.5);
   background: linear-gradient(
     135deg,
     var(--pine-shadow) 0%,
@@ -179,6 +252,16 @@
 .search-icon {
   font-size: 20px;
   font-weight: bold;
+}
+
+/* Notification Icon */
+.notification-icon {
+  font-size: 28px;
+  transition: all var(--transition-base);
+}
+
+.nav-action-btn:hover .notification-icon {
+  transform: scale(1.1);
 }
 
 /* Notifications */
@@ -204,24 +287,26 @@
   top: calc(100% + 8px);
   right: 0;
   width: 320px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 48px var(--shadow-strong);
+  border: 1px solid var(--border-light);
   overflow: hidden;
   z-index: 1001;
 }
 
 .notification-header {
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .notification-header h3 {
   margin: 0;
   font-size: 16px;
-  font-weight: 600;
-  color: #1a1a1a;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: "Outfit", sans-serif;
 }
 
 .notification-list {
@@ -295,15 +380,22 @@
 }
 
 .profile-btn:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
+}
+
+.profile-btn:hover .profile-avatar {
+  border-color: var(--ridge-moss);
+  box-shadow: 0 6px 20px rgba(90, 122, 107, 0.3);
 }
 
 .profile-avatar {
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(0, 0, 0, 0.06);
+  border: 3px solid var(--soft-lichen);
+  box-shadow: 0 4px 16px var(--shadow-strong);
+  transition: all var(--transition-base);
 }
 
 .profile-dropdown {
@@ -311,10 +403,11 @@
   top: calc(100% + 8px);
   right: 0;
   width: 280px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 48px var(--shadow-strong);
+  border: 1px solid var(--border-light);
   overflow: hidden;
   z-index: 1001;
 }
@@ -340,14 +433,15 @@
 
 .user-name {
   font-size: 16px;
-  font-weight: 600;
-  color: #1a1a1a;
+  font-weight: 700;
+  color: var(--text-primary);
   margin-bottom: 2px;
+  font-family: "Outfit", sans-serif;
 }
 
 .user-email {
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .profile-menu {
@@ -391,34 +485,47 @@
 /* Auth Links (when not logged in) */
 .auth-links {
   display: flex;
-  gap: 12px;
+  gap: 16px;
 }
 
 .auth-btn {
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 16px 32px;
+  border-radius: 16px;
   text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-weight: 800;
+  font-family: "Outfit", sans-serif;
+  transition: all var(--transition-base);
   border: 1px solid transparent;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  min-width: 120px;
+  text-align: center;
 }
 
 .login-btn {
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--border-light);
+  backdrop-filter: blur(10px);
 }
 
 .login-btn:hover {
-  background: rgba(102, 126, 234, 0.1);
+  background: white;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 24px var(--shadow-strong);
+  border-color: var(--soft-lichen);
 }
 
 .signup-btn {
   color: white;
-  background: #667eea;
+  background: var(--gradient-button);
+  box-shadow: 0 6px 20px rgba(90, 122, 107, 0.4);
 }
 
 .signup-btn:hover {
-  background: #5a6fd8;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 10px 32px rgba(90, 122, 107, 0.5);
+  background: linear-gradient(135deg, var(--pine-shadow) 0%, var(--ridge-moss) 100%);
 }
 
 /* Responsive */
