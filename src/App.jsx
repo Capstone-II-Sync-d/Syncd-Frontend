@@ -3,7 +3,12 @@ import { createRoot } from "react-dom/client";
 import axios from "axios";
 // import "./AppStyles.css";
 import NavBar from "./components/NavBar";
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import NotFound from "./components/NotFound";
@@ -19,6 +24,8 @@ import UserFollowingList from "./components/Lists/UserFollowingList";
 import FollowersList from "./components/Lists/BusinessFollowersList";
 import BusinessProfile from "./components/ProfilesPages/BusinessProfile";
 import MyBusinessesList from "./components/Lists/MyBusinessesList";
+import UserCalendarView from "./components/calendar/UserCalendarView";
+import BusinessCalendarView from "./components/calendar/BusinessCalendarView";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -32,13 +39,10 @@ const App = () => {
   const appContext = useMemo(
     () => ({
       socket,
-      user,
-      setUser,
-      notifications,
-      setNotifications,
-      friends,
-      setFriends,
-      businesses,
+      user, setUser,
+      notifications, setNotifications,
+      friends, setFriends,
+      businesses, setBusinesses, getBusinesses,
     }),
     [socket, user, notifications, friends, businesses]
   );
@@ -134,12 +138,14 @@ const App = () => {
         }
       );
       setUser(null);
+      setBusinesses([]);
       console.log("Logout successful");
       navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
+  //
 
   return (
     <div>
@@ -152,6 +158,7 @@ const App = () => {
               element={<Login setUser={setUser} socket={socket} />}
             />
             <Route path="/signup" element={<Signup setUser={setUser} />} />
+            <Route path="/user/:id/calendar" element={<UserCalendarView />} />
             <Route path="/explore" element={<Explore />} />
             <Route path="/main" element={<Home user={user} />} />
 
@@ -176,6 +183,13 @@ const App = () => {
               path="/business/profile/:businessId"
               element={<BusinessProfile socket={socket} user={user} />}
             />
+            <Route
+              path="/business/:businessId/calendar"
+              element={
+                <BusinessCalendarView socket={businessSocket} user={user} />
+              }
+            />
+
             <Route
               path="/user/myBusinesses/"
               element={<MyBusinessesList user={user} />}

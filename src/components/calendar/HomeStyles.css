@@ -1,22 +1,231 @@
 /* Import modern font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 /* Color Palette Variables */
 :root {
-  --soft-lichen: #C8D3C5;
-  --glacial-drift: #A8B8C8;
-  --forest-light: #E8E8D8;
-  --ridge-moss: #7A8A6B;
-  --worn-trail: #C8B5A0;
-  --pine-shadow: #5A7A6B;
-  
+  --soft-lichen: #c8d3c5;
+  --glacial-drift: #a8b8c8;
+  --forest-light: #e8e8d8;
+  --ridge-moss: #7a8a6b;
+  --worn-trail: #c8b5a0;
+  --pine-shadow: #5a7a6b;
+
   /* Additional supporting colors */
-  --white: #FFFFFF;
-  --text-primary: #2D3D2A;
-  --text-secondary: #5A6B57;
-  --text-muted: #8A9B87;
-  --border-light: #D8E3D5;
+  --white: #ffffff;
+  --text-primary: #2d3d2a;
+  --text-secondary: #5a6b57;
+  --text-muted: #8a9b87;
+  --border-light: #d8e3d5;
   --shadow: rgba(90, 122, 107, 0.15);
+}
+
+.messages {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+}
+
+.msg-btn {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.msg-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.msg-btn img {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.friends-list {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 300px;
+  max-height: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  transform-origin: bottom right;
+}
+
+.messagePopup {
+  position: fixed;
+  bottom: 100px;
+  right: 30px;
+  width: 350px;
+  height: 500px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+}
+
+.messagePopupHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+  border-radius: 12px 12px 0 0;
+  position: relative;
+}
+
+.messagePopupHeader img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.messagePopupHeader span {
+  font-weight: 600;
+  color: #333;
+  font-size: 16px;
+}
+
+.backButton {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: color 0.2s ease;
+}
+
+.backButton:hover {
+  color: #333;
+  background: #f0f0f0;
+}
+
+.chat {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background: #f8f9fa;
+  flex: 1;
+}
+
+.msgInput {
+  display: flex;
+  padding: 15px;
+  gap: 10px;
+  border-top: 1px solid #eee;
+  background: white;
+  border-radius: 0 0 12px 12px;
+}
+
+.msgInput input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+}
+
+.msgInput input:focus {
+  border-color: #007bff;
+}
+
+.msgInput button {
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.msgInput button:hover {
+  background: #0056b3;
+}
+
+.msgInput span {
+  display: flex;
+  align-items: center;
+}
+
+.chat {
+  flex-grow: 1;
+  max-height: 350px;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sent {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sent .message-card {
+  background-color: rgb(68, 144, 79);
+  color: #000000;
+  align-items: end;
+  border-radius: 12px 12px 0px 12px;
+}
+
+.message-card p {
+  margin: 0;
+  padding: 0;
+}
+
+/* Received Messages */
+.received {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.message-card {
+  padding: 2px 12px;
+  max-width: 70%;
+  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+}
+
+.message-card span {
+  color: #bdc2c8;
+  font-size: small;
+  margin: 0;
+  padding: 0;
+}
+.received .message-card {
+  background: #e9ecef; /* Gray for received messages */
+  color: #000000;
+  border-radius: 12px 12px 12px 0;
 }
 
 /* Global resets and base styles */
@@ -27,7 +236,8 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
   background-color: var(--forest-light);
   color: var(--text-primary);
   line-height: 1.5;
@@ -46,7 +256,11 @@ body {
   display: flex;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(135deg, var(--forest-light) 0%, var(--soft-lichen) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--forest-light) 0%,
+    var(--soft-lichen) 100%
+  );
   position: relative;
   padding: 16px;
   gap: 16px;
@@ -72,7 +286,11 @@ body {
 .create-events-btn {
   width: 100%;
   padding: 14px 18px;
-  background: linear-gradient(135deg, var(--ridge-moss) 0%, var(--pine-shadow) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ridge-moss) 0%,
+    var(--pine-shadow) 100%
+  );
   color: white;
   border: none;
   border-radius: 12px;
@@ -90,7 +308,11 @@ body {
 .create-events-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 24px rgba(90, 122, 107, 0.4);
-  background: linear-gradient(135deg, var(--pine-shadow) 0%, var(--ridge-moss) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--pine-shadow) 0%,
+    var(--ridge-moss) 100%
+  );
 }
 
 .create-events-btn:active {
@@ -101,10 +323,119 @@ body {
   font-size: 20px;
   font-weight: bold;
 }
+/* Create Business Button */
+.create-business-btn {
+  width: 100%;
+  padding: 14px 18px;
+  background: linear-gradient(
+    135deg,
+    var(--worn-trail) 0%,
+    var(--ridge-moss) 100%
+  );
+  color: var(--text-primary);
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  font-family: "Inter", -qpple-system, BlinkMacSystemFont, sans-serif;
+  transition: all 0.3s cubic-bazierc(0.4, 0, 0.2, 1);
+}
+.create-business-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(168, 184, 200, 0.4);
+  background: linear-gradient(
+    135deg,
+    var(--soft-lichen) 0%,
+    var(--glacial-drift) 100%
+  );
+}
+
+.create-business-btn:active {
+  transform: translateY(0);
+}
+
+/* User Message Popup */
+.user-message-popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  max-width: 400px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideInRight 0.3s ease-out;
+}
+
+.user-message-popup.error {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: rgb(159, 33, 33);
+}
+.user-message-popup.success {
+  background: rgb(245, 255, 245);
+  border: 1px solid #cfc;
+  color: rgb(23, 113, 23);
+}
+.user-message-popup.warning {
+  background: #ff3;
+  border: 1px solid #ffb;
+  color: #cc6;
+}
+.message-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.message-text {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.message-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message-close:hover {
+  opacity: 1;
+}
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 
 /* Network Section */
 .network-section {
-  background: linear-gradient(135deg, var(--soft-lichen) 0%, var(--glacial-drift) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--soft-lichen) 0%,
+    var(--glacial-drift) 100%
+  );
   border-radius: 12px;
   padding: 16px;
   border: 1px solid var(--border-light);
@@ -195,7 +526,7 @@ body {
 }
 
 .checkmark::after {
-  content: '✓';
+  content: "✓";
   position: absolute;
   top: -2px;
   left: 2px;
@@ -215,19 +546,19 @@ body {
 }
 
 .checkmark.personal {
-  background-color: var(--soft-lichen);
+  background-color: #10b981;
 }
 
 .checkmark.business {
-  background-color: var(--glacial-drift);
+  background-color: #3b82f6;
 }
 
 .checkmark.events {
-  background-color: var(--worn-trail);
+  background-color: #f59e0b;
 }
 
 .checkmark.drafts {
-  background-color: var(--text-muted);
+  background-color: #6366f1;
 }
 
 .calendar-name {
@@ -264,12 +595,20 @@ body {
 }
 
 .stat-card.total {
-  background: linear-gradient(135deg, var(--ridge-moss) 0%, var(--pine-shadow) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ridge-moss) 0%,
+    var(--pine-shadow) 100%
+  );
   color: white;
 }
 
 .stat-card.today {
-  background: linear-gradient(135deg, var(--worn-trail) 0%, var(--ridge-moss) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--worn-trail) 0%,
+    var(--ridge-moss) 100%
+  );
   color: white;
 }
 
@@ -419,45 +758,42 @@ body {
 
 /* Toast UI Calendar Customizations */
 .toastui-calendar {
-    font-family: 'Inter', sans-serif !important;
-    background: #f8faf8 !important;
-
+  font-family: "Inter", sans-serif !important;
+  background: #f8faf8 !important;
+}
+/* Calendar cells */
+.toastui-calendar td,
+.toastui-calendar-month td,
+.toastui-calendar [class*="month"] td {
+  border-right: 1px solid var(--border-light) !important;
+  border-bottom: 1px solid var(--border-light) !important;
 }
 
+/* Day headers with borders */
 .toastui-calendar-month-day-name {
-  color: var(--text-primary) !important;
-  font-weight: 500 !important;
-  background: #f8faf8 !important;
-  
-
-.toastui-calendar-month-date.toastui-calendar-month-date-today {
-  background: linear-gradient(135deg, var(--ridge-moss) 0%, var(--pine-shadow) 100%) !important;
-  color: white !important;
-  border-radius: 8px !important;
+  border-right: 1px solid var(--border-light) !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  background: #f8fafc !important;
+  font-weight: 600 !important;
 }
 
-.toastui-calendar-month .toastui-calendar-month-date {
-  background: #f8faf8 !important;
-  background-color: #f8faf8 !important;
-  border: 1px solid #f8f9fa !important;
-}
-
-.toastui-calendar-month .toastui-calendar-month-date:hover {
-  background: #f8faf8 !important;
-  
-}
-
-/* Weekend styling */
-.toastui-calendar-month .toastui-calendar-month-date.toastui-calendar-saturday,
-.toastui-calendar-month .toastui-calendar-month-date.toastui-calendar-sunday {
+/*Weekend cells */
+.toastui-calendar td.toastui-calendar-saturday,
+.toastui-calendar td.toastui-calendar-sunday {
   background: #fafbfc !important;
+  border-right: 1px solid var(--border-light) !important;
+  border-bottom: 1px solid var(--border-light) !important;
 }
 
-/* Calendar wrapper background */
-.calendar-wrapper {
-  background: #f8faf8 !important;
+/*Clean up last column*/
+.toastui-calendar td:last-child {
+  border-right: none !important;
 }
 
+/*Clean up last row*/
+.toastui-calendar tr:last-child td {
+  border-bottom: none !important;
+}
 /* Modal Styles */
 .modal-overlay {
   position: fixed;
@@ -566,7 +902,7 @@ body {
   border-radius: 8px;
   font-size: 14px;
   transition: border-color 0.2s ease;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .form-group input:focus,
@@ -660,7 +996,11 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--ridge-moss) 0%, var(--pine-shadow) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ridge-moss) 0%,
+    var(--pine-shadow) 100%
+  );
   color: white;
   border: none;
   padding: 12px 20px;
@@ -734,30 +1074,29 @@ body {
     padding: 8px;
     gap: 8px;
   }
-  
+
   .sidebar {
     width: 100%;
     height: auto;
     max-height: 300px;
     overflow-y: auto;
   }
-  
+
   .main-content {
     background: white !important;
   }
-  
+
   .calendar-controls {
     flex-direction: column;
     gap: 16px;
     align-items: stretch;
   }
-  
+
   .view-controls {
     justify-content: center;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-}
 }

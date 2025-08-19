@@ -1,38 +1,149 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { AppContext } from "../../AppContext";
 import "./ModalStyles.css";
 
+const roundToFiveMinutes = (date) => {
+  const rounded = new Date(date);
+  const minutes = rounded.getMinutes();
+  const remainder = minutes % 5;
+
+  if (remainder !== 0) {
+    rounded.setMinutes(minutes - remainder);
+  }
+
+  rounded.setSeconds(0);
+  rounded.setMilliseconds(0);
+  return rounded;
+
+};
+
 const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
+  const { businesses } = useContext(AppContext);
+
+  const [formError, setFormError] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     location: "",
     start: selectedDateTime
-      ? new Date(selectedDateTime.start).toISOString().slice(0, 16)
+      ? roundToFiveMinutes(new Date(selectedDateTime.start)).toISOString().slice(0, 16)
       : "",
     end: selectedDateTime
-      ? new Date(selectedDateTime.end).toISOString().slice(0, 16)
+      ? roundToFiveMinutes(new Date(selectedDateTime.end)).toISOString().slice(0, 16)
       : "",
     public: false,
     isEvent: false,
+    postAs: "personal",
   });
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+   
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
+  const validateForm = () => {
+    // Clear previous errors
+    setFormError("");
+
+    const startDate = new Date(formData.start);
+    const endDate = new Date(formData.end);
+
+    // Required field checks
+    if (!formData.title.trim()) {
+      setFormError("Event title is required.");
+      return false;
+    }
+
+    if (formData.isEvent && !formData.description.trim()) {
+      setFormError("Event description is required for public events.");
+      return false;
+    }
+
+    if (formData.isEvent && !formData.location.trim()) {
+      setFormError("Event location is required for public events.");
+      return false;
+    }
+
+    // Date validation
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      setFormError("Please enter valid start and end times.");
+      return false;
+    }
+
+    if (endDate <= startDate) {
+      setFormError("End time must be after start time.");
+      return false;
+    }
+
+    // Check if event is in the past
+    const now = new Date();
+    if (startDate < now && (now - startDate) > 5 * 60 * 1000) { // Allow 5 minute to be nice
+      setFormError("Cannot create events in the past.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onCreate({
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    const startDate = new Date(formData.start);
+    const endDate = new Date(formData.end);
+    const roundedStart = roundToFiveMinutes(startDate);
+    const roundedEnd = roundToFiveMinutes(endDate);
+     
+     onCreate({
       ...formData,
-      start: new Date(formData.start).toISOString(),
-      end: new Date(formData.end).toISOString(),
+      start: roundedStart.toISOString(),
+      end: roundedEnd.toISOString(),
       published: true, // Regular submit publishes event
     });
   };
+
+  const handleSaveAsDraft = () => {
+    // For drafts, we only need title and valid dates
+    setFormError("");
+
+    const startDate = new Date(formData.start);
+    const endDate = new Date(formData.end);
+    
+    if (!formData.title.trim()) {
+      setFormError("Event title is required.");
+      return;
+    }
+ 
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      setFormError("Please enter valid start and end times.");
+      return;
+    }
+
+    if (endDate <= startDate) {
+      setFormError("End time must be after start time.");
+      return;
+    }
+    
+    const roundedStart = roundToFiveMinutes(startDate);
+    const roundedEnd = roundToFiveMinutes(endDate);
+    
+    onCreate({
+      ...formData,
+      start: roundedStart.toISOString(),
+      end: roundedEnd.toISOString(),
+      published: false,
+    });
+  };
+
+
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -59,7 +170,7 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                   }
                 />
                 <span>Personal Calendar Item</span>
-                <small>Private reminder or personal task</small>
+                <small>   Private reminder or personal task</small>
               </label>
               <label className="radio-label">
                 <input
@@ -71,11 +182,27 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                   }
                 />
                 <span>Public Event</span>
-                <small>Others can discover and attend this event</small>
+                <small>   Others can discover and attend this event</small>
               </label>
             </div>
           </div>
-
+          {formData.isEvent && (
+            <div className="form-group">
+              <label className="form-section-title">Post as</label>
+              <select
+                name="postAs"
+                value={formData.postAs}
+                onChange={handleInputChange}
+              >
+                <option value="personal">Personal</option>
+                {businesses.map((biz) => (
+                  <option key={biz.id} value={biz.id}>
+                    {biz.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="form-group">
             <label>Title *</label>
             <input
@@ -83,7 +210,6 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
               name="title"
               value={formData.title}
               onChange={handleInputChange}
-              required
               placeholder={
                 formData.isEvent ? "Event title" : "Calendar item title"
               }
@@ -96,7 +222,6 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              required={formData.isEvent}
               rows={3}
               placeholder={
                 formData.isEvent
@@ -113,7 +238,6 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
               name="location"
               value={formData.location}
               onChange={handleInputChange}
-              required={formData.isEvent}
               placeholder={
                 formData.isEvent
                   ? "Event location (required for events)"
@@ -130,7 +254,8 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                 name="start"
                 value={formData.start}
                 onChange={handleInputChange}
-                required
+               
+                step="300"
               />
             </div>
 
@@ -141,9 +266,17 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                 name="end"
                 value={formData.end}
                 onChange={handleInputChange}
-                required
+                
+                step="300"
               />
             </div>
+          </div>
+
+          <div className="time-info-message">
+            <span className="info-icon">ℹ️</span>
+            <span className="info-text">
+              Times are automatically rounded to the nearest 5-minute interval.
+            </span>
           </div>
 
           {/* Privacy Settings */}
@@ -195,6 +328,14 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
             </div>
           </div>
 
+          {/* Error Message */}
+          {formError && (
+            <div className="form-error-message">
+              <span className="error-icon">⚠️</span>
+              <span className="error-text">{formError}</span>
+            </div>
+          )}
+
           <div className="modal-actions">
             <button type="button" onClick={onClose} className="btn-secondary">
               Cancel
@@ -204,14 +345,7 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={() => {
-                    onCreate({
-                      ...formData,
-                      start: new Date(formData.start).toISOString(),
-                      end: new Date(formData.end).toISOString(),
-                      published: false, // Save as draft
-                    });
-                  }}
+                  onClick={handleSaveAsDraft}
                 >
                   Save as Draft
                 </button>
@@ -231,4 +365,4 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
   );
 };
 
-export default CreateEventModal;
+export default CreateEventModal; 

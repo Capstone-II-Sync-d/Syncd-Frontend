@@ -4,10 +4,13 @@ import axios from "axios";
 import { API_URL } from "../../shared";
 import { AppContext } from "../../AppContext";
 import BusinessCard from "../Cards/BusinessCard";
+import { AppContext } from "../../AppContext";
 
 const UserProfile = () => {
   let { profileId } = useParams();
   profileId = Number(profileId);
+
+  const { socket, user, friends, setFriends, setUser } = useContext(AppContext);
 
   // -------------------- State --------------------
   // Profile info
@@ -25,8 +28,6 @@ const UserProfile = () => {
   const [followingBusinesses, setFollowingBusinesses] = useState([]);
   const [friendsAmount, setFriendsAmount] = useState(0);
   const [followingAmount, setFollowingAmount] = useState(0);
-
-  const { user, socket } = useContext(AppContext);
 
   // -------------------- Socket: live friends count --------------------
   useEffect(() => {
@@ -124,14 +125,16 @@ const UserProfile = () => {
     }
   }
 
-  // Fetch profile, friends, businesses, and following
+  // -------------------- Fetch profile, friends, businesses, and following --------------------
   useEffect(() => {
     const fetchProfileFriendshipAndFollowing = async () => {
       profileInfo: try {
         // Fetch profile info
         const res = await axios.get(
           `${API_URL}/api/profiles/user/${profileId}`,
-          { withCredentials: true }
+          {
+            withCredentials: true,
+          }
         );
         setFirstName(res.data.firstName || "");
         setLastName(res.data.lastName || "");
@@ -155,6 +158,7 @@ const UserProfile = () => {
           `${API_URL}/api/profiles/me/friends`,
           { withCredentials: true }
         );
+        console.log("Fetched friendships:", friendShipsOfViewer.data);
 
         const fShip = friendShipsOfViewer.data.find((fs) => {
           return String(fs.user.id) === String(profileId);
@@ -177,9 +181,12 @@ const UserProfile = () => {
           id: fShip.id,
           status: status,
         });
+
+        setFriends(friendShipsOfViewer.data.map((f) => f.user));
       } catch (error) {
         console.error("Failed to fetch friendship data", error);
         setFriendship(null);
+        setFriends([]);
       }
 
       businessesInfo: try {
@@ -217,8 +224,6 @@ const UserProfile = () => {
     setIsEditing(false);
   }, [user?.id, profileId]);
 
-  // -------------------- Logic --------------------
-  const isOwner = user && String(user.id) === String(profileId);
   // -------------------- Handle friend request actions --------------------
   const handleRequest = async (action) => {
     console.log(`Attempting to ${action} for friendship ${friendship?.id}`);
@@ -268,22 +273,46 @@ const UserProfile = () => {
     }
   };
 
+  // -------------------- Handle profile submit --------------------
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
+    console.log("Submitting profile update:", {
+      firstName,
+      lastName,
+      username,
+      email,
+      bio,
+    });
+
     try {
-      await axios.patch(
+      const response = await axios.patch(
         `${API_URL}/api/profiles/me`,
         { firstName, lastName, username, email, bio },
         { withCredentials: true }
       );
+      console.log("Profile update successful:", response.data);
+      setUser((prev) => ({
+        ...prev,
+        firstName,
+        lastName,
+        username,
+        email,
+        bio,
+      }));
       setIsEditing(false);
     } catch (error) {
-      console.error("Failed to update profile", error);
+      console.error(
+        "Failed to update profile:",
+        error.response?.data || error.message
+      );
+      alert("Failed to update profile. Please try again.");
     }
   };
 
-  // -------------------- Render helpers --------------------
+  // -------------------- Logic --------------------
+  const isOwner = user && String(user.id) === String(profileId);
 
+  // -------------------- Render helpers --------------------
   const renderEditForm = () => {
     const isFormValid = username.trim() && firstName.trim() && lastName.trim();
 
@@ -356,8 +385,18 @@ const UserProfile = () => {
     }
   };
 
+  const renderCalendarButton = () => {
+    if (isOwner || (friendship && friendship.status === "accepted")) {
+      return (
+        <Link to={`/user/${profileId}/calendar`} className="calendar-btn">
+          View Calendar
+        </Link>
+      );
+    }
+    return null;
+  };
+
   const renderFollowingCount = () => {
-    console.log("Count:", friendship);
     if (friendship?.status === "accepted" || isOwner) {
       return (
         <Link to={`/user/followingList/${profileId}`}>
@@ -381,9 +420,8 @@ const UserProfile = () => {
   const renderFriendRequestButton = () => {
     if (!user || isOwner) return null;
 
-    console.log("Friendship:", friendship);
+    console.log("Friendship state for button:", friendship);
 
-    // Button states
     if (!friendship) {
       return <button onClick={() => handleRequest("add")}>Add Friend</button>;
     }
@@ -412,7 +450,7 @@ const UserProfile = () => {
     return (
       <div className="profileCard">
         <div className="profileHeader">
-          <img src={profilePicture} className="profilePic" />
+          <img src={profilePicture} className="profilePic" alt="Profile" />
           <div>
             <h1>
               {firstName} {lastName}
@@ -443,7 +481,7 @@ const UserProfile = () => {
   return (
     <div className="profileCard">
       <div className="profileHeader">
-        <img src={profilePicture} className="profilePic" />
+        <img src={profilePicture} className="profilePic" alt="Profile" />
         <div>
           <h1>
             {firstName} {lastName}
@@ -466,6 +504,7 @@ const UserProfile = () => {
         {renderFollowingCount()}
       </div>
       {renderFriendRequestButton()}
+      {renderCalendarButton()}
       {renderBusinesses()}
     </div>
   );

@@ -107,6 +107,25 @@ const NotificationsTab = ({ notifRef }) => {
     };
   }, [notifications]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target)
+      ) {
+        setShow(false);
+      }
+    };
+
+    if (show) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    };
+  }, [show]);
+
   return (
     <div className="notification-container" ref={notifRef}>
       <button

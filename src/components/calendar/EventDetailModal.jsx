@@ -1,21 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { eventsAPI, calendarAPI } from "./utils/api";
 import "./ModalStyles.css";
+import { AppContext } from "../../AppContext";
+import axios from "axios";
+import { API_URL } from "../../shared";
+
+const toLocalDateString = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const offset = date.getTimezoneOffset() * 60000;
+  const localTime = new Date(date.getTime() - offset);
+  return localTime.toISOString().slice(0, 16);
+};
 
 const EventDetailModal = ({ event, onClose, onRefresh }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [formError, setFormError] = useState("");
   const [formData, setFormData] = useState({
     title: event.title || "",
     description: event.description || "",
     location: event.location || "",
-    start: new Date(event.start).toISOString().slice(0, 16),
-    end: new Date(event.end).toISOString().slice(0, 16),
+    start: toLocalDateString(event.start),
+    end: toLocalDateString(event.end),
+
     public: event.public || false,
   });
+
+  const { user } = useContext(AppContext);
 
   // Determine if this is an event (has event record)
   const isEvent = event.event !== undefined && event.event !== null;
   const isPublished = isEvent && event.event?.published;
+  const isOwner = user?.id === event.userId;
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -27,28 +43,63 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError("");
     try {
+      const startDate = new Date(formData.start);
+      const endDate = new Date(formData.end);
+
+      const roundToFiveMinutes = (date) => {
+        const rounded = new Date(date);
+        const minutes = rounded.getMinutes();
+        const remainder = minutes % 5;
+
+        if (remainder !== 0) {
+          rounded.setMinutes(minutes - remainder);
+        }
+
+        rounded.setSeconds(0);
+        rounded.setMilliseconds(0);
+        return rounded;
+      };
+
+      const roundedStart = roundToFiveMinutes(startDate);
+      const roundedEnd = roundToFiveMinutes(endDate);
+
       await calendarAPI.updateItem(event.id, {
         ...formData,
-        start: new Date(formData.start).toISOString(),
-        end: new Date(formData.end).toISOString(),
+        start: roundedStart.toISOString(),
+        end: roundedEnd.toISOString(),
       });
 
       await onRefresh();
       onClose();
     } catch (error) {
       console.error("Error updating event:", error);
+      setFormError("Failed to update event. Please try again.");
     }
   };
 
   const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete this event?")) {
+    if (
+      window.confirm("Are you sure you want to remove this from your calendar?")
+    ) {
       try {
-        await calendarAPI.deleteItem(event.id);
-        await onRefresh();
-        onClose();
+        if (user.id !== event.userId) {
+          if (isEvent) {
+            await axios.delete(
+              `${API_URL}/api/calendarItems/${event.event.id}/${user.id}`
+            );
+            await onRefresh();
+            onClose();
+          }
+        } else {
+          await calendarAPI.deleteItem(event?.id);
+          await onRefresh();
+          onClose();
+        }
       } catch (error) {
-        console.error("Error deleting event:", error);
+        console.error("Error removing from calendar:", error);
+        alert("Failed to remove item. Please try again.");
       }
     }
   };
@@ -63,6 +114,7 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
       onClose();
     } catch (error) {
       console.error("Error toggling publish status:", error);
+      setFormError("Failed to update publish status. Please try again.");
     }
   };
 
@@ -187,6 +239,14 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
               </div>
             </div>
 
+            {/* Error Message */}
+            {formError && (
+              <div className="form-error-message">
+                <span className="error-icon">⚠️</span>
+                <span className="error-text">{formError}</span>
+              </div>
+            )}
+
             <div className="modal-actions">
               <button
                 type="button"
@@ -244,21 +304,36 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
               </span>
             </div>
 
+            {/* Error Message */}
+            {formError && (
+              <div className="form-error-message">
+                <span className="error-icon">⚠️</span>
+                <span className="error-text">{formError}</span>
+              </div>
+            )}
+
             <div className="modal-actions">
               <button onClick={handleDelete} className="btn-danger">
                 Delete {isEvent ? "Event" : "Item"}
               </button>
-              {isEvent && (
-                <button onClick={handlePublishToggle} className="btn-secondary">
-                  {isPublished ? "Unpublish" : "Publish"} Event
+              {isEvent && isOwner && (
+                <div>
+                  <button
+                    onClick={handlePublishToggle}
+                    className="btn-secondary"
+                  >
+                    {isPublished ? "Unpublish" : "Publish"} Event
+                  </button>
+                </div>
+              )}
+              {isOwner && (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="btn-primary"
+                >
+                  Edit {isEvent ? "Event" : "Item"}
                 </button>
               )}
-              <button
-                onClick={() => setIsEditing(true)}
-                className="btn-primary"
-              >
-                Edit {isEvent ? "Event" : "Item"}
-              </button>
             </div>
           </div>
         )}
