@@ -25,45 +25,104 @@ const UserProfile = () => {
   const [followingBusinesses, setFollowingBusinesses] = useState([]);
   const [friendsAmount, setFriendsAmount] = useState(0);
   const [followingAmount, setFollowingAmount] = useState(0);
-  const [room, setRoom] = useState(0);
 
   const { user, socket } = useContext(AppContext);
 
   // -------------------- Socket: live friends count --------------------
   useEffect(() => {
-    if (!socket || !user?.id) return;
-    setRoom(profileId);
+    if (!user || !socket) return;
 
-    // Join profile room in userProfile namespace
+    console.log("Registering listeners in profile");
     socket.emit("join-profile-room", profileId);
 
-    // Handle reconnection
-    const handleReconnect = () => {
-      socket.emit("join-profile-room", profileId);
-    };
-    socket.on("connect", handleReconnect);
-
-    // Listen for friendship updates
-    socket.on("friendship-update", (data) => {
-      const usersInvolved = [data.user1, data.user2];
-      if (usersInvolved.includes(Number(user.id))) {
-        setFriendship(data.status === "none" ? null : data.friendship);
-        if (data.friendsCount !== undefined) {
-          setFriendsAmount(data.friendsCount);
-        }
-      }
-    });
-
-    // Listen for friend count updates
-    socket.on("friends/amount", setFriendsAmount);
+    socket.on("friend-gained", onFriendGained);
+    socket.on("friend-lost", onFriendLost);
+    socket.on("friend-request-received", onRequestReceived);
+    socket.on("friend-request-accepted", onRequestAccepted);
+    socket.on("friendship-deleted", onRequestDeleted);
+    socket.on("friend-request-success", onRequestSuccess);
 
     return () => {
-      socket.off("connect", handleReconnect);
-      socket.off("friendship-update");
-      socket.off("friends/amount");
-      // Don't disconnect - let parent component manage connection
-    };
-  }, [socket, profileId, user?.id]);
+      socket.off("friend-gained", onFriendGained);
+      socket.off("friend-lost", onFriendLost);
+      socket.off("friend-request-received", onRequestReceived);
+      socket.off("friend-request-accepted", onRequestAccepted);
+      socket.off("friendship-deleted", onRequestDeleted);
+      socket.off("friend-request-success", onRequestSuccess);
+    }
+  }, [user, socket]);
+
+  const onFriendGained = () => {
+    console.log("Gained friend");
+    setFriendsAmount(prev => prev + 1);
+  };
+
+  const onFriendLost = () => {
+    console.log("Lost friend");
+    setFriendsAmount(prev => prev - 1);
+  };
+  
+  const onRequestReceived = (notif) => {
+    console.log("Received request");
+    const usersInvolved = [notif.userId, notif.otherUser.id];
+    if (!usersInvolved.includes(user.id) ||
+        !usersInvolved.includes(profileId))
+      return;
+
+    setFriendship({
+      id: notif.friendshipId,
+      status: "pendingViewer",
+    });
+  };
+
+  const onRequestAccepted = (notif) => {
+    console.log("Request accepted");
+    const usersInvolved = [notif.userId, notif.otherUser.id];
+    if (!usersInvolved.includes(user.id) ||
+        !usersInvolved.includes(profileId))
+      return;
+
+    setFriendship({
+      id: notif.friendshipId,
+      status: "accepted",
+    });
+  };
+
+  const onRequestDeleted = (friendship) => {
+    console.log("Request deleted");
+    const usersInvolved = [friendship.user1, friendship.user2];
+    if (!usersInvolved.includes(user.id) ||
+        !usersInvolved.includes(profileId))
+      return;
+
+    setFriendship(null);
+  };
+
+  const onRequestSuccess = (info) => {
+    console.log("Request successful");
+    if (info.receiverId !== profileId)
+      return;
+
+    switch (info.action) {
+      case 'create':
+        setFriendship({
+          id: info.friendshipId,
+          status: "pendingProfileUser",
+        });
+        break;
+      case 'accept':
+        setFriendship({
+          id: info.friendshipId,
+          status: "accepted",
+        });
+        break;
+      case 'decline':
+      case 'cancel':
+      case 'remove':
+        setFriendship(null);
+        break;
+    }
+  }
 
   // Fetch profile, friends, businesses, and following
   useEffect(() => {
