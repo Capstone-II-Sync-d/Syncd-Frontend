@@ -38,6 +38,21 @@ const App = () => {
   const [socket, setSocket] = useState(null);
   const navigate = useNavigate();
 
+  const getBusinesses = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/profiles/me/businesses`,
+        {
+          withCredentials: true,
+        }
+      );
+      setBusinesses(response.data || []);
+    } catch (error) {
+      console.error("Error fetching businesses:", error);
+      setBusinesses([]);
+    }
+  };
+
   const appContext = useMemo(
     () => ({
       socket,
@@ -58,21 +73,6 @@ const App = () => {
       console.log(response.data.message);
     } catch (error) {
       console.error(error);
-    }
-  };
-
-  const getBusinesses = async () => {
-    try {
-      const response = await axios.get(
-        `${API_URL}/api/profiles/me/businesses`,
-        {
-          withCredentials: true,
-        }
-      );
-      setBusinesses(response.data || []);
-    } catch (error) {
-      console.error("Error fetching businesses:", error);
-      setBusinesses([]);
     }
   };
 
@@ -192,7 +192,7 @@ const App = () => {
             <Route
               path="/business/:businessId/calendar"
               element={
-                <BusinessCalendarView socket={businessSocket} user={user} />
+                <BusinessCalendarView socket={socket} user={user} />
               }
             />
 
