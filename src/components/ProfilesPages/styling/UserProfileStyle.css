@@ -1,0 +1,344 @@
+/* Import the unified design system */
+@import url("../../../styles/GlobalStyles.css");
+
+/* Global resets and base styles for profile page */
+.profileCard {
+  font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, var(--forest-light) 0%, var(--soft-lichen) 100%);
+  min-height: 100vh;
+  color: var(--text-primary);
+  line-height: 1.5;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Profile header section */
+.profileHeader {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 8px 32px var(--shadow);
+  width: 100%;
+  max-width: 600px;
+}
+
+.profilePic {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--soft-lichen);
+  box-shadow: 0 4px 16px var(--shadow);
+}
+
+.profileHeader h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.profileHeader .username {
+  font-size: 18px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Profile details section */
+.profileDetails {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px var(--shadow);
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  text-align: center;
+}
+
+.profileDetails p {
+  font-size: 16px;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.profileDetails strong {
+  color: var(--ridge-moss);
+  font-weight: 600;
+}
+
+/* Friends and following container */
+.friends-following-container {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+}
+
+/* Friends and following links */
+.friends\/following,
+.friends\/following a,
+.friends-following-container a {
+  text-decoration: none !important;
+  color: inherit;
+}
+
+.friends\/following {
+  background: linear-gradient(135deg, var(--soft-lichen) 0%, var(--glacial-drift) 100%);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  border: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 120px;
+}
+
+.friends\/following:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(168, 184, 200, 0.4);
+  background: linear-gradient(135deg, var(--glacial-drift) 0%, var(--soft-lichen) 100%);
+}
+
+.friends\/following p {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: var(--text-primary);
+}
+
+.friends\/following h5 {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Edit profile button */
+.editProfileBtn {
+  background: linear-gradient(135deg, var(--ridge-moss) 0%, var(--pine-shadow) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(90, 122, 107, 0.3);
+  width: 100%;
+  max-width: 600px;
+}
+
+.editProfileBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(90, 122, 107, 0.4);
+  background: linear-gradient(135deg, var(--pine-shadow) 0%, var(--ridge-moss) 100%);
+}
+
+/* Friend request buttons */
+.request-buttons {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Unified friend action button styling - high specificity to override other styles */
+button.friend-action-btn,
+.profileCard button.friend-action-btn {
+  padding: 16px 28px !important;
+  border: none !important;
+  border-radius: var(--radius-lg) !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all var(--transition-base) !important;
+  font-family: "Outfit", sans-serif !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  background: var(--gradient-button) !important;
+  color: white !important;
+  box-shadow: 0 6px 20px rgba(90, 122, 107, 0.4) !important;
+  width: 100% !important;
+  max-width: 600px !important;
+  height: 56px !important;
+  line-height: 24px !important;
+  flex: none !important;
+  min-width: auto !important;
+}
+
+button.friend-action-btn:hover,
+.profileCard button.friend-action-btn:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 10px 32px rgba(90, 122, 107, 0.5) !important;
+  background: linear-gradient(135deg, var(--pine-shadow) 0%, var(--ridge-moss) 100%) !important;
+}
+
+.request-buttons button,
+.profileCard > button:not(.editProfileBtn),
+.calendar-btn {
+  flex: 1;
+  padding: 16px 28px;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-family: "Outfit", sans-serif;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.request-buttons button:first-child,
+.profileCard > button:not(.editProfileBtn) {
+  background: var(--gradient-button);
+  color: white;
+  box-shadow: 0 6px 20px rgba(90, 122, 107, 0.4);
+}
+
+.request-buttons button:first-child:hover,
+.profileCard > button:not(.editProfileBtn):hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 32px rgba(90, 122, 107, 0.5);
+  background: linear-gradient(135deg, var(--pine-shadow) 0%, var(--ridge-moss) 100%);
+}
+
+.request-buttons button:last-child {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  backdrop-filter: blur(10px);
+}
+
+.request-buttons button:last-child:hover {
+  background: white;
+  color: var(--text-primary);
+  border-color: var(--soft-lichen);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px var(--shadow-strong);
+}
+
+/* View Calendar Button */
+.calendar-btn {
+  background: linear-gradient(135deg, var(--glacial-drift) 0%, var(--soft-lichen) 100%);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 6px 20px rgba(168, 184, 200, 0.3);
+  margin-top: 12px;
+}
+
+.calendar-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 32px rgba(168, 184, 200, 0.4);
+  background: linear-gradient(135deg, var(--soft-lichen) 0%, var(--glacial-drift) 100%);
+  border-color: var(--ridge-moss);
+}
+
+/* Businesses section */
+.businesses-list {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px var(--shadow);
+  width: 100%;
+  max-width: 600px;
+}
+
+.businesses-list h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profileCard {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .profileHeader {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .profileHeader h1 {
+    font-size: 24px;
+  }
+
+  .profilePic {
+    width: 100px;
+    height: 100px;
+  }
+
+  .request-buttons {
+    flex-direction: column;
+  }
+
+  .profileCard form {
+    padding: 24px;
+  }
+
+  .friends-following-container {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .profileCard {
+    padding: 12px;
+  }
+
+  .profileHeader,
+  .profileDetails,
+  .businesses-list,
+  .profileCard form {
+    padding: 16px;
+  }
+
+  .profileHeader h1 {
+    font-size: 20px;
+  }
+
+  .profilePic {
+    width: 80px;
+    height: 80px;
+  }
+}

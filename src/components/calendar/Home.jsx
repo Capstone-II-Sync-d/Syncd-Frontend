@@ -719,7 +719,7 @@ const Home = () => {
           <Calendar
             key={calendarKey}
             ref={calendarRef}
-            height="600px"
+            height="100%"
             events={events}
             {...calendarOptions}
             view={currentView}
@@ -770,9 +770,20 @@ const Home = () => {
       {/* |   FRIENDS LIST POPUP                                     | */}
       {/* |-----------------------------------------------------------| */}
       {showConversation && (
-        <div className="friends-list">
+        <div className="messaging-friends-list">
+          {/* |--- Header -----------------------------------------| */}
+          <div className="messaging-header">
+            <h3>Messages</h3>
+            <button 
+              className="close-messaging"
+              onClick={() => setShowConversation(false)}
+            >
+              ×
+            </button>
+          </div>
+          
           {/* |--- Search Bar -----------------------------------------| */}
-          <div className="search">
+          <div className="messaging-search">
             <input
               type="text"
               id="search-bar"
@@ -783,12 +794,12 @@ const Home = () => {
           </div>
 
           {/* |--- Friend Cards ---------------------------------------| */}
-          <div className="friend-cards">
+          <div className="messaging-friend-cards">
             {filteredFriends.length === 0 ? (
               friends.length === 0 ? (
-                <p className="no-results">You have no friends yet</p>
+                <p className="messaging-no-results">You have no friends yet</p>
               ) : (
-                <p className="no-results">No friends match your search</p>
+                <p className="messaging-no-results">No friends match your search</p>
               )
             ) : (
               filteredFriends.map((friend) => (

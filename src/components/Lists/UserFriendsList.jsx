@@ -3,6 +3,7 @@ import { useNavigate, Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../../shared";
 import UserCard from "../Cards/UserCard";
+import "./styling/FriendsListStyle.css";
 
 const UserFriendsList = ({ socket, user }) => {
   // -------------------- State --------------------

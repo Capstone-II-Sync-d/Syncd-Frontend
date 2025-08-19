@@ -75,7 +75,7 @@ const Signup = ({ setUser }) => {
       setIsLoading(false);
     }
 
-    navigate("/main");
+    navigate("/");
   };
 
   const handleChange = (e) => {

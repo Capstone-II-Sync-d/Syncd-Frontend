@@ -8,7 +8,7 @@ const BusinessCard = ({ business }) => {
   return (
     <Link to={`/business/profile/${business.id}`} className="business-card">
       <div className="header">
-        <img src={business.icon} className="icon" />
+        <img src={business.pictureUrl || business.icon} className="icon" alt={business.name} />
         <h2>{business.name}</h2>
       </div>
       <div className="info">
