@@ -132,81 +132,151 @@ const Explore = () => {
     filterEvents();
   }, [viewPastEvents]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return (
+      <div className="explore-container">
+        <div className="explore-loading">
+          <div className="explore-spinner"></div>
+          Discovering amazing content...
+        </div>
+      </div>
+    );
+  }
+
+  const getViewCounts = () => {
+    switch (view) {
+      case "Users":
+        return filteredUsers.length;
+      case "Events":
+        return filteredEvents.length;
+      case "Businesses":
+        return filteredBusinesses.length;
+      default:
+        return 0;
+    }
+  };
+
+  const getViewEmoji = () => {
+    switch (view) {
+      case "Users":
+        return "👥";
+      case "Events":
+        return "🎉";
+      case "Businesses":
+        return "🏢";
+      default:
+        return "🔍";
+    }
+  };
+
+  const renderEmptyState = () => (
+    <div className="explore-empty">
+      <div className="explore-empty-icon">{getViewEmoji()}</div>
+      <div className="explore-empty-title">
+        No {view.toLowerCase()} found
+      </div>
+      <div className="explore-empty-text">
+        {query 
+          ? `Try adjusting your search terms or filters`
+          : `Be the first to discover something amazing!`
+        }
+      </div>
+    </div>
+  );
 
   return (
     <div className="explore-container">
-      <div className="sidebar">
-        <div className="header">
-          <h2>Explore</h2>
-        </div>
-        <div className="selectors">
-          <h3
-            className={`selector ${view === "Users" ? "active" : ""}`}
-            onClick={() => {
-              setView("Users");
-            }}
-          >
-            {" "}
-            Users
-          </h3>
-          <h3
-            className={`selector ${view === "Events" ? "active" : ""}`}
-            onClick={() => {
-              setView("Events");
-            }}
-          >
-            {" "}
-            Events
-          </h3>
-          <h3
-            className={`selector ${view === "Businesses" ? "active" : ""}`}
-            onClick={() => {
-              setView("Businesses");
-            }}
-          >
-            {" "}
-            Businesses
-          </h3>
-        </div>
-
-        <div className="header">
-          <h2>Search</h2>
-        </div>
-        <div className="search">
-          <input
-            type="text"
-            id="search-bar"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-            }}
-          />
-        </div>
-
-        <div className="header">
-          <h2>Filter</h2>
-        </div>
-        <div className="filter">
-          {view === "Events" && (
-            <div className="filter-option">
-              <input
-                type="checkbox"
-                id="view-past"
-                value={viewPastEvents}
-                onChange={() => {
-                  setViewPastEvents(!viewPastEvents);
-                }}
-              />
-              <label htmlFor="view-past"> View Past Events</label>
+      <div className="explore-content">
+        {/* Sidebar */}
+        <div className="explore-sidebar">
+          {/* Navigation */}
+          <div className="explore-nav-card">
+            <h2 className="explore-nav-title">Discover</h2>
+            <div className="explore-tabs">
+              <div
+                className={`explore-tab ${view === "Users" ? "active" : ""}`}
+                onClick={() => setView("Users")}
+              >
+                👥 Users
+              </div>
+              <div
+                className={`explore-tab ${view === "Events" ? "active" : ""}`}
+                onClick={() => setView("Events")}
+              >
+                🎉 Events
+              </div>
+              <div
+                className={`explore-tab ${view === "Businesses" ? "active" : ""}`}
+                onClick={() => setView("Businesses")}
+              >
+                🏢 Businesses
+              </div>
             </div>
-          )}
-        </div>
-      </div>
+          </div>
 
-      <div className="content">
-        <div className={`explore-list ${view === "Users" ? "user-list" : ""}`}>
-          {renderList()}
+          {/* Search */}
+          <div className="explore-search-section">
+            <h3 className="search-title">Search</h3>
+            <div className="search-container">
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                className="search-input"
+                placeholder={`Search ${view.toLowerCase()}...`}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Filters */}
+          <div className="explore-filter-section">
+            <h3 className="filter-title">Filters</h3>
+            <div className="filter-options">
+              {view === "Events" && (
+                <div className="filter-option">
+                  <input
+                    type="checkbox"
+                    id="view-past"
+                    checked={viewPastEvents}
+                    onChange={() => setViewPastEvents(!viewPastEvents)}
+                  />
+                  <label htmlFor="view-past">Include Past Events</label>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="explore-main">
+          {/* Hero Section */}
+          <div className="explore-hero">
+            <h1 className="explore-hero-title">
+              Explore {view}
+            </h1>
+            <p className="explore-hero-subtitle">
+              {view === "Users" && "Connect with amazing people in your community"}
+              {view === "Events" && "Discover exciting events happening around you"}
+              {view === "Businesses" && "Find local businesses and services you'll love"}
+            </p>
+          </div>
+
+          {/* Content Grid */}
+          <div className="explore-content-grid">
+            <div className="explore-grid-header">
+              <h2 className="explore-grid-title">
+                {view} {query && `matching "${query}"`}
+              </h2>
+              <div className="explore-count">
+                {getViewCounts()} {view.toLowerCase()}
+              </div>
+            </div>
+
+            <div className={`explore-grid ${view.toLowerCase()}`}>
+              {getViewCounts() === 0 ? renderEmptyState() : renderList()}
+            </div>
+          </div>
         </div>
       </div>
     </div>

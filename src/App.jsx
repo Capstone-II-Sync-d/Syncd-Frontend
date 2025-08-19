@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import axios from "axios";
-// import "./AppStyles.css";
+import "./styles/GlobalStyles.css";
 import NavBar from "./components/NavBar";
 import {
   BrowserRouter as Router,
@@ -25,6 +25,8 @@ import FollowersList from "./components/Lists/BusinessFollowersList";
 import BusinessProfile from "./components/ProfilesPages/BusinessProfile";
 import MyBusinessesList from "./components/Lists/MyBusinessesList";
 import UserCalendarView from "./components/calendar/UserCalendarView";
+import Settings from "./components/Settings";
+import Landing from "./components/Landing";
 
 const socket = io(SOCKETS_URL, {
   withCredentials: NODE_ENV === "production",
@@ -164,6 +166,10 @@ const App = () => {
         <NavBar user={user} onLogout={handleLogout} />
         <div className="app">
           <Routes>
+            <Route 
+              path="/" 
+              element={user ? <Home user={user} /> : <Landing />} 
+            />
             <Route
               path="/login"
               element={<Login setUser={setUser} socket={socket} />}
@@ -198,6 +204,7 @@ const App = () => {
               path="/user/myBusinesses/"
               element={<MyBusinessesList user={user} />}
             />
+            <Route path="/settings" element={<Settings />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
