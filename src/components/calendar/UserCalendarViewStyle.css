@@ -45,8 +45,8 @@
   backdrop-filter: blur(20px);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  margin: 80px auto var(--space-lg);
+  padding: var(--space-md);
+  margin: 20px auto var(--space-lg);
   box-shadow: 0 8px 32px var(--shadow);
   max-width: 1200px;
 }
@@ -393,7 +393,7 @@
   .calendar-controls {
     flex-direction: column;
     gap: var(--space-lg);
-    margin: 60px auto var(--space-lg);
+    margin: 20px auto var(--space-lg);
     padding: var(--space-lg);
   }
 

@@ -305,6 +305,7 @@
   padding: var(--space-sm) var(--space-md);
   box-shadow: 0 4px 16px var(--shadow);
   flex-shrink: 0;
+  width: 100%;
 }
 
 /* Date navigation */
