@@ -24,17 +24,19 @@ import EventDetailModal from "./EventDetailModal";
 import CreateBusinessModal from "./CreateBusinessModal";
 
 const roundToFiveMinutes = (date) => {
-  const rounded  = new Date(date);
+  const rounded = new Date(date);
   const minutes = rounded.getMinutes();
   const remainder = minutes % 5;
-  
+
   if (remainder !== 0) {
     rounded.setMinutes(minutes - remainder);
   }
   rounded.setSeconds(0);
   rounded.setMilliseconds(0);
 
-  console.log(`Rounded ${date.toLocaleTimeString()}) to ${rounded.toLocaleTimeString()}`);
+  console.log(
+    `Rounded ${date.toLocaleTimeString()}) to ${rounded.toLocaleTimeString()}`
+  );
   return rounded;
 };
 
@@ -47,12 +49,17 @@ const Home = () => {
   const [currentView, setCurrentView] = useState("month"); // month/week/day
   const [currentDate, setCurrentDate] = useState(new Date());
   const [calendarKey, setCalendarKey] = useState(0); // force calendar rerender
-  const { socket, user, friends, setFriends, setUser, businesses, getBusinesses } = useContext(AppContext);
-
+  const {
+    socket,
+    user,
+    friends,
+    setFriends,
+    setUser,
+    businesses,
+    getBusinesses,
+  } = useContext(AppContext);
 
   // Calendar visibility toggles (personal, business, events, drafts)
-
-
 
   const [calendarVisibility, setCalendarVisibility] = useState({
     personal: true,
@@ -119,7 +126,10 @@ const Home = () => {
       console.error("Error fetching friends:", error);
       setFriends([]);
       setFilteredFriends([]);
-      showUserMessagePopup("Failed to load your friends list. Some messaging features may not work.", "warning");
+      showUserMessagePopup(
+        "Failed to load your friends list. Some messaging features may not work.",
+        "warning"
+      );
     }
   };
 
@@ -164,7 +174,10 @@ const Home = () => {
       setUser(userData.user);
     } catch (err) {
       console.error("Error fetching user:", err);
-      showUserMessagePopup("Failed to load your profile. Please refresh the page to try again.", "error");
+      showUserMessagePopup(
+        "Failed to load your profile. Please refresh the page to try again.",
+        "error"
+      );
     }
   };
 
@@ -180,7 +193,10 @@ const Home = () => {
     } catch (err) {
       setError("Error loading calendar data");
       console.error("Error fetching calendar items:", err);
-      showUserMessagePopup("Failed to load your calendar events. Please refresh the page to try again.", "error");
+      showUserMessagePopup(
+        "Failed to load your calendar events. Please refresh the page to try again.",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -214,7 +230,10 @@ const Home = () => {
       }
     } catch (error) {
       console.error("Error changing calendar view:", error);
-      showUserMessagePopup("Failed to change calendar view. Please try refreshing the page.", "error");
+      showUserMessagePopup(
+        "Failed to change calendar view. Please try refreshing the page.",
+        "error"
+      );
       // Revert to previous view on error
       setCurrentView(currentView);
     }
@@ -228,7 +247,10 @@ const Home = () => {
       }
     } catch (error) {
       console.error("Error navigating to today:", error);
-      showUserMessagePopup("Failed to navigate to today. Please try refreshing the page.", "error");
+      showUserMessagePopup(
+        "Failed to navigate to today. Please try refreshing the page.",
+        "error"
+      );
     }
   };
 
@@ -241,7 +263,10 @@ const Home = () => {
       setCurrentDate(calendar.getDate().toDate());
     } catch (error) {
       console.error("Error navigating calendar:", error);
-      showUserMessagePopup("Failed to navigate calendar. Please try refreshing the page.", "error");
+      showUserMessagePopup(
+        "Failed to navigate calendar. Please try refreshing the page.",
+        "error"
+      );
     }
   };
 
@@ -250,29 +275,38 @@ const Home = () => {
       const originalEvent = calendarItems.find(
         (item) => item.id.toString() === eventInfo.event.id
       );
-      
+
       if (!originalEvent) {
-        showUserMessagePopup("Event not found. Please refresh the page and try again.", "error");
+        showUserMessagePopup(
+          "Event not found. Please refresh the page and try again.",
+          "error"
+        );
         return;
       }
-      
+
       setSelectedEvent(originalEvent);
       setShowEventModal(true);
     } catch (error) {
       console.error("Error opening event:", error);
-      showUserMessagePopup("Failed to open event details. Please try again.", "error");
+      showUserMessagePopup(
+        "Failed to open event details. Please try again.",
+        "error"
+      );
     }
   };
 
   const handleSelectDateTime = (selectionInfo) => {
     try {
       console.log("Date/time selected:", selectionInfo);
-      
+
       if (!selectionInfo.start || !selectionInfo.end) {
-        showUserMessagePopup("Invalid time selection. Please try selecting a different time.", "error");
+        showUserMessagePopup(
+          "Invalid time selection. Please try selecting a different time.",
+          "error"
+        );
         return;
       }
-      
+
       setSelectedDateTime({
         start: roundToFiveMinutes(selectionInfo.start),
         end: roundToFiveMinutes(selectionInfo.end),
@@ -280,7 +314,10 @@ const Home = () => {
       setShowCreateModal(true);
     } catch (error) {
       console.error("Error selecting date/time:", error);
-      showUserMessagePopup("Failed to select time slot. Please try again.", "error");
+      showUserMessagePopup(
+        "Failed to select time slot. Please try again.",
+        "error"
+      );
     }
   };
 
@@ -318,16 +355,16 @@ const Home = () => {
       setShowCreateModal(false);
       setSelectedDateTime(null);
       showUserMessagePopup(
-        eventData.isEvent 
-          ? "Event created successfully!" 
-          : "Calendar item created successfully!", 
+        eventData.isEvent
+          ? "Event created successfully!"
+          : "Calendar item created successfully!",
         "success"
       );
     } catch (error) {
       console.error("Error creating event:", error);
       showUserMessagePopup(
-        eventData.isEvent 
-          ? "Failed to create event. Please check your input and try again." 
+        eventData.isEvent
+          ? "Failed to create event. Please check your input and try again."
           : "Failed to create calendar item. Please check your input and try again.",
         "error"
       );
@@ -359,10 +396,16 @@ const Home = () => {
       if (getBusinesses) {
         await getBusinesses();
       }
-      showUserMessagePopup("Business created successfully! You can now post events from your business.", "success");
+      showUserMessagePopup(
+        "Business created successfully! You can now post events from your business.",
+        "success"
+      );
     } catch (error) {
       console.error("Error creating business:", error);
-      showUserMessagePopup("Failed to create business. Please check your input and try again.", "error");
+      showUserMessagePopup(
+        "Failed to create business. Please check your input and try again.",
+        "error"
+      );
     }
   };
 
@@ -447,7 +490,10 @@ const Home = () => {
       }
     } catch (error) {
       console.error("Error rendering calendar events:", error);
-      showUserMessagePopup("Failed to display calendar events. Please refresh the page.", "error");
+      showUserMessagePopup(
+        "Failed to display calendar events. Please refresh the page.",
+        "error"
+      );
     }
   }, [events, calendarVisibility]);
 
@@ -478,7 +524,7 @@ const Home = () => {
         <div className={`user-message-popup ${userMessageType}`}>
           <div className="message-content">
             <span className="message-text">{userMessage}</span>
-            <button 
+            <button
               className="message-close"
               onClick={() => setShowUserMessage(false)}
             >
@@ -497,7 +543,10 @@ const Home = () => {
         </button>
 
         {/* Create Business Button */}
-        <button className="create-business-btn" onClick={handleCreateBusinessClick}>
+        <button
+          className="create-business-btn"
+          onClick={handleCreateBusinessClick}
+        >
           <span className="plus-icon">+</span>
           Create Business
         </button>

@@ -180,6 +180,14 @@ const BusinessProfile = ({ socket, user }) => {
     </Link>
   );
 
+  const renderCalendarButton = () => {
+    return (
+      <Link to={`/business/${businessId}/calendar`} className="calendar-btn">
+        View Calendar
+      </Link>
+    );
+  };
+
   const renderFollowButton = () => {
     if (!followLoading) {
       if (isFollowing) {
@@ -225,6 +233,7 @@ const BusinessProfile = ({ socket, user }) => {
             <strong>Email:</strong> {email}
           </p>
           {renderFollowersCount()}
+          {renderCalendarButton()}
           {bio && (
             <p>
               <strong>Bio:</strong> {bio}
@@ -260,6 +269,7 @@ const BusinessProfile = ({ socket, user }) => {
           </p>
         )}
         {renderFollowersCount()}
+        {renderCalendarButton()}
       </div>
       {renderFollowButton()}
     </div>
