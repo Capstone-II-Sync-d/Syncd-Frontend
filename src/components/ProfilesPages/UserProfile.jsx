@@ -204,56 +204,51 @@ const UserProfile = () => {
   // -------------------- Logic --------------------
   const isOwner = user && String(user.id) === String(profileId);
   // -------------------- Handle friend request actions --------------------
-  const handleRequest = async (actionType = "add") => {
-    const oldFriendship = friendship;
-    try {
-      let action = actionType;
+  const handleRequest = async (action) => {
+    console.log(`Attempting to ${action} for friendship ${friendship?.id}`);
 
-      if (!friendship) {
-        // Prepare new pending request
-        const [user1, user2] =
-          user.id < profileId ? [user.id, profileId] : [profileId, user.id];
-        const newStatus = user.id < profileId ? "pending1" : "pending2";
+    switch (action) {
+      case "add":
+        if (friendship)
+          return console.error("Cannot send user friend request, relationship already exists");
 
-        setFriendship({
-          user1,
-          user2,
-          status: newStatus,
-          user: { id: user.id },
+        socket.emit("friend-request", {
+          receiverId: profileId,
+          friendshipId: 0,
+          action: "create",
         });
-        action = "add";
-      } else if (friendship.status.startsWith("pending")) {
-        const isViewerReceiver =
-          (friendship.user1 === user.id && friendship.status === "pending1") ||
-          (friendship.user2 === user.id && friendship.status === "pending2");
+        break;
+      case "accept":
+      case "decline":
+        if (friendship?.status !== "pendingViewer")
+          return console.error("Cannot respond to friend request, it is not for you");
 
-        if (isViewerReceiver) {
-          if (actionType === "accept") {
-            setFriendship({ ...friendship, status: "accepted" });
-            action = "accept";
-          } else if (actionType === "decline") {
-            setFriendship(null);
-            action = "decline";
-          }
-        } else {
-          setFriendship(null);
-          action = "cancel";
-        }
-      } else if (friendship.status === "accepted") {
-        setFriendship(null);
-        action = "unfriend";
-      }
+        socket.emit("friend-request", {
+          receiverId: profileId,
+          friendshipId: friendship.id,
+          action: action,
+        });
+        break;
+      case "cancel":
+        if (friendship?.status !== "pendingProfileUser")
+          return console.error("Cannot cancel friend request, it is for you");
 
-      // Emit to server - will broadcast to all in profile room
-      socket.emit("friend-request", {
-        profileId,
-        viewerId: user.id,
-        action,
-      });
-    } catch (err) {
-      console.error("Request failed", err);
-      // Revert on error
-      setFriendship(oldFriendship);
+        socket.emit("friend-request", {
+          receiverId: profileId,
+          friendshipId: friendship.id,
+          action: action,
+        });
+        break;
+      case "unfriend":
+        if (friendship?.status !== "accepted")
+          return console.error("Cannot unfriend user, you are not already friends");
+
+        socket.emit("friend-request", {
+          receiverId: profileId,
+          friendshipId: friendship.id,
+          action: "remove",
+        });
+        break;
     }
   };
 
@@ -351,16 +346,16 @@ const UserProfile = () => {
       return (
         <Link to={`/user/followingList/${profileId}`}>
           <div className="friends/following">
-            <p>{followingAmount}</p>
             <h5>Following</h5>
+            <p>{followingAmount}</p>
           </div>
         </Link>
       );
     } else {
       return (
         <div className="friends/following">
-          <p>{followingAmount}</p>
           <h5>Following</h5>
+          <p>{followingAmount}</p>
         </div>
       );
     }
@@ -377,28 +372,22 @@ const UserProfile = () => {
       return <button onClick={() => handleRequest("add")}>Add Friend</button>;
     }
 
-    if (friendship.status.startsWith("pending")) {
-      const isReceiver =
-        (friendship.user1 === user.id && friendship.status === "pending1") ||
-        (friendship.user2 === user.id && friendship.status === "pending2");
-
-      if (isReceiver) {
+    switch (friendship.status) {
+      case "pendingViewer":
         return (
           <div className="request-buttons">
             <button onClick={() => handleRequest("accept")}>Accept</button>
             <button onClick={() => handleRequest("decline")}>Decline</button>
           </div>
         );
-      }
-      return (
-        <button onClick={() => handleRequest("cancel")}>Cancel Request</button>
-      );
-    }
-
-    if (friendship.status === "accepted") {
-      return (
-        <button onClick={() => handleRequest("unfriend")}>Unfriend</button>
-      );
+      case "pendingProfileUser":
+        return (
+          <button onClick={() => handleRequest("cancel")}>Cancel Request</button>
+        );
+      case "accepted":
+        return (
+          <button onClick={() => handleRequest("unfriend")}>Unfriend</button>
+        );
     }
   };
 
