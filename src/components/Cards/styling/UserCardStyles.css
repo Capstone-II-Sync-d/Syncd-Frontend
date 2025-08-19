@@ -1,17 +1,153 @@
+/* Import the unified design system */
+@import url("../../../styles/GlobalStyles.css");
+
+/* Color Palette Variables */
+:root {
+  --soft-lichen: #c8d3c5;
+  --glacial-drift: #a8b8c8;
+  --forest-light: #e8e8d8;
+  --ridge-moss: #7a8a6b;
+  --worn-trail: #c8b5a0;
+  --pine-shadow: #5a7a6b;
+
+  /* Additional supporting colors */
+  --white: #ffffff;
+  --text-primary: #2d3d2a;
+  --text-secondary: #5a6b57;
+  --text-muted: #8a9b87;
+  --border-light: #d8e3d5;
+  --shadow: rgba(90, 122, 107, 0.15);
+}
+
 .user-card {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  gap: 0.5rem;
-  background-color: lightblue;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  padding-right: 1rem;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 16px 20px;
   text-decoration: none;
-  color: black;
+  color: var(--text-primary);
+  font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px var(--shadow);
+  margin-bottom: 12px;
+  max-width: 600px;
+  width: 100%;
+}
+
+.user-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(90, 122, 107, 0.25);
+  border-color: var(--soft-lichen);
+  text-decoration: none;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(232, 240, 216, 0.8) 100%);
 }
 
 .user-card img {
-  height: 40px;
-  width: 40px;
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--soft-lichen);
+  box-shadow: 0 2px 8px var(--shadow);
+  flex-shrink: 0;
+}
+
+.user-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
+}
+
+/* Add some variety with nth-child colors similar to business cards */
+.user-card:nth-child(odd) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(200, 211, 197, 0.7) 100%);
+  border-color: rgba(200, 211, 197, 0.6);
+}
+
+.user-card:nth-child(even) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(168, 184, 200, 0.6) 100%);
+  border-color: rgba(168, 184, 200, 0.5);
+}
+
+.user-card:nth-child(3n) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(122, 138, 107, 0.25) 100%);
+  border-color: rgba(122, 138, 107, 0.4);
+}
+
+.user-card:nth-child(4n) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(90, 122, 107, 0.2) 100%);
+  border-color: rgba(90, 122, 107, 0.3);
+}
+
+.user-card:nth-child(5n) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(200, 181, 160, 0.5) 100%);
+  border-color: rgba(200, 181, 160, 0.4);
+}
+
+/* Enhanced hover states for each variant */
+.user-card:nth-child(odd):hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(200, 211, 197, 0.85) 100%);
+  border-color: var(--soft-lichen);
+}
+
+.user-card:nth-child(even):hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(168, 184, 200, 0.8) 100%);
+  border-color: var(--glacial-drift);
+}
+
+.user-card:nth-child(3n):hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(122, 138, 107, 0.35) 100%);
+  border-color: var(--ridge-moss);
+}
+
+.user-card:nth-child(4n):hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(90, 122, 107, 0.3) 100%);
+  border-color: var(--pine-shadow);
+}
+
+.user-card:nth-child(5n):hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(200, 181, 160, 0.7) 100%);
+  border-color: var(--worn-trail);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .user-card {
+    padding: 14px 16px;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .user-card img {
+    height: 50px;
+    width: 50px;
+  }
+
+  .user-card h3 {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-card {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .user-card img {
+    height: 45px;
+    width: 45px;
+  }
+
+  .user-card h3 {
+    font-size: 15px;
+  }
 }
