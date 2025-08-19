@@ -74,6 +74,19 @@ const NotificationsTab = ({ notifRef }) => {
     updateFriendshipNotification(info.friendshipId, info.status);
   };
 
+  const onFriendshipDeleted = (info) => {
+    const index = notifications.findIndex((notif) => (
+      notif.friendshipId === info.friendshipId
+    ));
+    if (index < 0)
+      return;
+
+    setNotifications([
+      ...(index > 0 ? notifications.slice(0, index) : []),
+      ...(index < notifications.length - 1 ? notifications.slice(index + 1) : []),
+    ])
+  };
+
   useEffect(() => {
     if (!socket)
       return;
@@ -81,12 +94,14 @@ const NotificationsTab = ({ notifRef }) => {
     console.log(`Notifications listening`);
     socket.on("friend-request-received", onRequestReceived);
     socket.on("friend-request-accepted", onAcceptedRequest);
+    socket.on("friendship-deleted", onFriendshipDeleted);
     socket.on("friend-request-success", onRequestSuccess);
     socket.on("friendship-error", onRequestFailed);
     
     return () => {
       socket.off("friend-request-received", onRequestReceived);
       socket.off("friend-request-accepted", onAcceptedRequest);
+      socket.off("friendship-deleted", onFriendshipDeleted);
       socket.off("friend-request-success", onRequestSuccess);
       socket.off("friendship-error", onRequestFailed);
     };
