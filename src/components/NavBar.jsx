@@ -33,7 +33,7 @@ const NavBar = ({ user, onLogout }) => {
     <nav className="navbar">
       {/* Left side - Brand */}
       <div className="nav-brand">
-        <Link to="/" className="brand-link">
+        <Link to={user ? "/main" : "/"} className="brand-link">
           <span className="brand-name">Sync'd</span>
         </Link>
       </div>
