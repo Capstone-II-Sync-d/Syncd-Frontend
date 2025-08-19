@@ -78,7 +78,7 @@ const Notification = ({ notification }) => {
         setMessage("Blank notification");
         return;
       case 'request':
-        setShowButtons(notification.status && notification.status !== "accepted");
+        setShowButtons(notification.status.includes("pending"));
         setMessage(generateRequestMessage());
         return;
     }
