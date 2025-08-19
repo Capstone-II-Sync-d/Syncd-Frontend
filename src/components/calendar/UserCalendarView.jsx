@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Calendar from "@toast-ui/react-calendar";
 import "@toast-ui/calendar/dist/toastui-calendar.min.css";
 import axios from "axios";
@@ -8,7 +8,7 @@ import {
   transformCalendarData,
   formatCurrentDate,
   getCalendarOptions,
-} from "./utils/calendarUtils"; // Adjust path from Home.jsx utils
+} from "./utils/calendarUtils";
 
 const UserCalendarView = () => {
   const { id } = useParams();
@@ -21,6 +21,19 @@ const UserCalendarView = () => {
   const [currentView, setCurrentView] = useState("month");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState(null);
+
+  // User feedback message states
+  const [userMessage, setUserMessage] = useState("");
+  const [userMessageType, setUserMessageType] = useState("error"); // error, success, warning
+  const [showUserMessage, setShowUserMessage] = useState(false);
+
+  // Helper function to show popup
+  const showUserMessagePopup = (message, type = "error") => {
+    setUserMessage(message);
+    setUserMessageType(type);
+    setShowUserMessage(true);
+    setTimeout(() => setShowUserMessage(false), 5000); // auto hide after 5s
+  };
 
   const calendarRef = useRef(null);
 
@@ -96,7 +109,6 @@ const UserCalendarView = () => {
       location: selectedEvent.location,
       start: selectedEvent.raw.start,
       end: selectedEvent.raw.end,
-      isAllDay: selectedEvent.isAllday,
       calendarId: selectedEvent.calendarId,
       visibility: "private",
     };
@@ -104,11 +116,14 @@ const UserCalendarView = () => {
       await axios.post(`${API_URL}/api/calendarItems/user/add-event`, payload, {
         withCredentials: true,
       });
-      alert("Event added to your calendar!");
+      showUserMessagePopup(
+        "Event successfully added to your calendar!",
+        "success"
+      );
       setSelectedEvent(null);
     } catch (err) {
       console.error("Error adding event to calendar:", err);
-      alert("Failed to add event to your calendar. Please try again.");
+      showUserMessagePopup("Failed to add event. Please try again.", "error");
     }
   };
 
@@ -127,6 +142,20 @@ const UserCalendarView = () => {
 
   return (
     <div className="calendar-view-container">
+      {showUserMessage && (
+        <div className={`user-message-popup ${userMessageType}`}>
+          <div className="message-content">
+            <span className="message-text">{userMessage}</span>
+            <button
+              className="message-close"
+              onClick={() => setShowUserMessage(false)}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       <button
         className="back-btn"
         onClick={() => {
@@ -194,8 +223,7 @@ const UserCalendarView = () => {
               {new Date(selectedEvent.end).toLocaleString()}
             </p>
             <p>
-              <strong>Details:</strong>
-              {selectedEvent.body}
+              <strong>Details:</strong> {selectedEvent.body}
             </p>
             <p>
               <strong>All Day:</strong> {selectedEvent.isAllDay ? "Yes" : "No"}

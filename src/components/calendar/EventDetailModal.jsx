@@ -6,12 +6,12 @@ import axios from "axios";
 import { API_URL } from "../../shared";
 
 const toLocalDateString = (dateString) => {
-  if(!dateString) return "";
+  if (!dateString) return "";
   const date = new Date(dateString);
   const offset = date.getTimezoneOffset() * 60000;
   const localTime = new Date(date.getTime() - offset);
   return localTime.toISOString().slice(0, 16);
-}
+};
 
 const EventDetailModal = ({ event, onClose, onRefresh }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -22,8 +22,7 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
     location: event.location || "",
     start: toLocalDateString(event.start),
     end: toLocalDateString(event.end),
-    
-    
+
     public: event.public || false,
   });
 
@@ -61,7 +60,7 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
         rounded.setSeconds(0);
         rounded.setMilliseconds(0);
         return rounded;
-      }
+      };
 
       const roundedStart = roundToFiveMinutes(startDate);
       const roundedEnd = roundToFiveMinutes(endDate);
@@ -317,7 +316,7 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
               <button onClick={handleDelete} className="btn-danger">
                 Delete {isEvent ? "Event" : "Item"}
               </button>
-              {isEvent && (
+              {isEvent && isOwner && (
                 <div>
                   <button
                     onClick={handlePublishToggle}
