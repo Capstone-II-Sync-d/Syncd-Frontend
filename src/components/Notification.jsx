@@ -3,10 +3,11 @@ import React, { useContext, useEffect, useState } from "react";
 import { API_URL } from "../shared";
 import { AppContext } from "../AppContext";
 
-const Notification = ({ notification, onHover }) => {
+const Notification = ({ notification }) => {
   const [message, setMessage] = useState("");
+  const [read, setRead] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
-  const { user, socket } = useContext(AppContext);
+  const { user, socket, notifications, setNotifications } = useContext(AppContext);
 
   if (!user || !notification)
     return;
@@ -44,9 +45,34 @@ const Notification = ({ notification, onHover }) => {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
+
+  const markAsRead = async () => {
+    if (read)
+      return;
+
+    setRead(true);
+    notification.read = true;
+    try {
+      const response = await axios.patch(`${API_URL}/api/notifications/read/${notification.id}`, {}, {
+        withCredentials: true,
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error(`Error saving read state for notification: ${error}`);
+      setRead(false);
+      notification.read = false;
+    }
+    const index = notifications.findIndex((n) => (n.id === notification.id));
+    setNotifications([
+      ...(index > 0 ? notifications.slice(0, index) : []),
+      notification,
+      ...(index < notifications.length - 1 ? notifications.slice(index + 1) : []),
+    ]);
+  };
 
   useEffect(() => {
+    setRead(notification.read);
     switch (notification.type) {
       case 'blank':
         setMessage("Blank notification");
@@ -61,7 +87,7 @@ const Notification = ({ notification, onHover }) => {
   return (
     <div 
       className={`notification-item ${notification.read ? '' : 'unread'}`}
-      onMouseEnter={() => {onHover(notification)}}
+      onMouseEnter={markAsRead}
     >
       <div className="notification-message">
         {message}
