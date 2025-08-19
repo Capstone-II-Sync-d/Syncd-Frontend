@@ -127,7 +127,7 @@ const UserProfile = () => {
   // Fetch profile, friends, businesses, and following
   useEffect(() => {
     const fetchProfileFriendshipAndFollowing = async () => {
-      try {
+      profileInfo: try {
         // Fetch profile info
         const res = await axios.get(
           `${API_URL}/api/profiles/user/${profileId}`,
@@ -143,7 +143,7 @@ const UserProfile = () => {
         console.error("Failed to fetch user profile information", error);
       }
 
-      try {
+      friendshipInfo: try {
         // Fetch friends count and relationship status
         const friendsOfProfile = await axios.get(
           `${API_URL}/api/profiles/user/${profileId}/friends`,
@@ -156,17 +156,33 @@ const UserProfile = () => {
           { withCredentials: true }
         );
 
-        const friendshipStatus = friendShipsOfViewer.data.find((friendship) => {
-          return String(friendship.user.id) === String(profileId);
+        const fShip = friendShipsOfViewer.data.find((fs) => {
+          return String(fs.user.id) === String(profileId);
         });
 
-        setFriendship(friendshipStatus || null);
+        if (!fShip) {
+          setFriendship(null);
+          break friendshipInfo;
+        }
+        
+        console.log("fShip", fShip);
+        let status = fShip.status;
+        if ((fShip.status === "pending1" && fShip.user1.id === user.id) ||
+              (fShip.status === "pending2" && fShip.user2.id === user.id))
+          status = "pendingViewer";
+        else if ((fShip.status === "pending1" && fShip.user1.id !== user.id) ||
+                  (fShip.status === "pending2" && fShip.user2.id !== user.id))
+          status = "pendingProfileUser";
+        setFriendship({
+          id: fShip.id,
+          status: status,
+        });
       } catch (error) {
         console.error("Failed to fetch friendship data", error);
         setFriendship(null);
       }
 
-      try {
+      businessesInfo: try {
         // Fetch businesses owned by this profile
         const businessesRes = await axios.get(
           `${API_URL}/api/profiles/user/${profileId}/businesses`,
@@ -178,7 +194,7 @@ const UserProfile = () => {
         setBusinesses([]);
       }
 
-      try {
+      followingInfo: try {
         // Fetch businesses user is following
         const followingRes = await axios.get(
           `${API_URL}/api/profiles/user/${profileId}/following`,
