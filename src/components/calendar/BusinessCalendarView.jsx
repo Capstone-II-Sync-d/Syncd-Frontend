@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Calendar from "@toast-ui/react-calendar";
 import "@toast-ui/calendar/dist/toastui-calendar.min.css";
 import axios from "axios";
@@ -10,8 +10,8 @@ import {
   getCalendarOptions,
 } from "./utils/calendarUtils";
 
-const UserCalendarView = () => {
-  const { id } = useParams();
+const BusinessCalendarView = () => {
+  const { businessId } = useParams();
   const nav = useNavigate();
 
   const [calendarItems, setCalendarItems] = useState([]);
@@ -27,14 +27,6 @@ const UserCalendarView = () => {
   const [userMessageType, setUserMessageType] = useState("error"); // error, success, warning
   const [showUserMessage, setShowUserMessage] = useState(false);
 
-  // Helper function to show popup
-  const showUserMessagePopup = (message, type = "error") => {
-    setUserMessage(message);
-    setUserMessageType(type);
-    setShowUserMessage(true);
-    setTimeout(() => setShowUserMessage(false), 5000); // auto hide after 5s
-  };
-
   const calendarRef = useRef(null);
 
   // Fetch public calendar items (personal and events) for the user
@@ -42,7 +34,7 @@ const UserCalendarView = () => {
     const fetchItems = async () => {
       try {
         const response = await axios.get(
-          `${API_URL}/api/calendarItems/user/${id}`,
+          `${API_URL}/api/calendarItems/business/${businessId}/public`,
           {
             withCredentials: true,
           }
@@ -51,8 +43,8 @@ const UserCalendarView = () => {
         setCalendarItems(response.data || []);
         setEvents(
           transformCalendarData(response.data || [], {
-            personal: true,
-            business: false,
+            personal: false,
+            business: true,
             events: true,
             drafts: false,
           })
@@ -65,7 +57,7 @@ const UserCalendarView = () => {
       }
     };
     fetchItems();
-  }, [id]);
+  }, [businessId]);
 
   const handleViewChange = (view) => {
     setCurrentView(view);
@@ -79,6 +71,14 @@ const UserCalendarView = () => {
     if (calendarRef.current) {
       calendarRef.current.getInstance().today();
     }
+  };
+
+  // Helper function to show popup
+  const showUserMessagePopup = (message, type = "error") => {
+    setUserMessage(message);
+    setUserMessageType(type);
+    setShowUserMessage(true);
+    setTimeout(() => setShowUserMessage(false), 5000); // auto hide after 5s
   };
 
   const handleNavigation = (direction) => {
@@ -102,20 +102,18 @@ const UserCalendarView = () => {
     if (!selectedEvent) return;
     console.log("Adding event:", selectedEvent);
 
+    console.log("This is the selected Event", selectedEvent);
     const payload = {
       sourceEventId: Number(selectedEvent.id),
-      title: selectedEvent.title,
-      description: selectedEvent.body,
-      location: selectedEvent.location,
-      start: selectedEvent.raw.start,
-      end: selectedEvent.raw.end,
-      calendarId: selectedEvent.calendarId,
-      visibility: "private",
     };
     try {
-      await axios.post(`${API_URL}/api/calendarItems/user/add-event`, payload, {
-        withCredentials: true,
-      });
+      await axios.post(
+        `${API_URL}/api/calendarItems/business/attending`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
       showUserMessagePopup(
         "Event successfully added to your calendar!",
         "success"
@@ -246,4 +244,4 @@ const UserCalendarView = () => {
   );
 };
 
-export default UserCalendarView;
+export default BusinessCalendarView;
