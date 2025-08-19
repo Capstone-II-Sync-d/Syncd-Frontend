@@ -46,20 +46,6 @@ const App = () => {
   const [businesses, setBusinesses] = useState([]);
   const navigate = useNavigate();
 
-  const appContext = useMemo(
-    () => ({
-      socket,
-      user,
-      setUser,
-      notifications,
-      setNotifications,
-      friends,
-      setFriends,
-      businesses,
-    }),
-    [user, notifications, businesses]
-  );
-
   const getNotifications = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/notifications/me`, {
@@ -86,6 +72,22 @@ const App = () => {
       setBusinesses([]);
     }
   };
+
+  const appContext = useMemo(
+    () => ({
+      socket,
+      user,
+      setUser,
+      notifications,
+      setNotifications,
+      friends,
+      setFriends,
+      businesses,
+      setBusinesses,
+      getBusinesses,
+    }),
+    [user, notifications, businesses]
+  );
 
   useEffect(() => {
     if (user) {

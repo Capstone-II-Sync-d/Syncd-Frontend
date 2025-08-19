@@ -51,15 +51,15 @@ export const getEventColor = (item) => {
 
   switch (calendarId) {
     case "personal":
-      return COLORS.SOFT_LICHEN; // Soft sage green for personal items
+      return "#10b981"; // Green
     case "business":
-      return COLORS.GLACIAL_DRIFT; // Cool blue-gray for business
+      return "#3b82f6"; // Blue
     case "events":
-      return COLORS.WORN_TRAIL; // Warm beige for public events
+      return "#f59e0b"; // Orange
     case "drafts":
-      return COLORS.TEXT_MUTED; // Muted gray for drafts
+      return "#6366f1"; // Purple
     default:
-      return COLORS.TEXT_MUTED;
+      return "#6366f1";
   }
 };
 
@@ -169,34 +169,30 @@ export const getCalendarOptions = () => ({
     {
       id: "personal",
       name: "Personal",
-      backgroundColor: COLORS.SOFT_LICHEN,
-      borderColor: COLORS.RIDGE_MOSS,
-      dragBackgroundColor: COLORS.SOFT_LICHEN,
-      color: "#FFFFFF",
+      backgroundColor: "#10b981",
+      borderColor: "#10b981",
+      dragBackgroundColor: "#10b981",
     },
     {
       id: "business",
       name: "Business",
-      backgroundColor: COLORS.GLACIAL_DRIFT,
-      borderColor: COLORS.PINE_SHADOW,
-      dragBackgroundColor: COLORS.GLACIAL_DRIFT,
-      color: "#FFFFFF",
+      backgroundColor: "#3b82f6",
+      borderColor: "#3b82f6",
+      dragBackgroundColor: "#3b82f6",
     },
     {
       id: "events",
       name: "Events",
-      backgroundColor: COLORS.WORN_TRAIL,
-      borderColor: COLORS.RIDGE_MOSS,
-      dragBackgroundColor: COLORS.WORN_TRAIL,
-      color: "#FFFFFF",
+      backgroundColor: "#f59e0b",
+      borderColor: "#f59e0b",
+      dragBackgroundColor: "#f59e0b",
     },
     {
       id: "drafts",
       name: "Drafts",
-      backgroundColor: COLORS.TEXT_MUTED,
-      borderColor: COLORS.TEXT_MUTED,
-      dragBackgroundColor: COLORS.TEXT_MUTED,
-      color: "#FFFFFF",
+      backgroundColor: "#6366f1",
+      borderColor: "#6366f1",
+      dragBackgroundColor: "#6366f1",
     },
   ],
   week: {
@@ -204,6 +200,10 @@ export const getCalendarOptions = () => ({
     dayNames: ["S", "M", "T", "W", "T", "F", "S"],
     hourStart: 0,
     hourEnd: 24,
+    timeGrid: {
+      timeIntervalHeight: 20,
+      timeInterval: 5,
+    },
   },
   month: {
     startDayOfWeek: 0,
