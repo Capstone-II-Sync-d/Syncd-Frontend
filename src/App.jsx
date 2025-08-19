@@ -29,37 +29,14 @@ import Settings from "./components/Settings";
 import Landing from "./components/Landing";
 import BusinessCalendarView from "./components/calendar/BusinessCalendarView";
 
-const socket = io(SOCKETS_URL, {
-  withCredentials: NODE_ENV === "production",
-});
-
-const userSocket = io(`${SOCKETS_URL}/userProfile`, {
-  withCredentials: NODE_ENV === "production",
-});
-
-const businessSocket = io(`${SOCKETS_URL}/businessProfile`, {
-  withCredentials: NODE_ENV === "production",
-});
-
 const App = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [friends, setFriends] = useState([]);
   const [businesses, setBusinesses] = useState([]);
+  const [socket, setSocket] = useState(null);
   const navigate = useNavigate();
-
-  const getNotifications = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/notifications/me`, {
-        withCredentials: true,
-      });
-      setNotifications(response.data.notifications);
-      console.log(response.data.message);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const getBusinesses = async () => {
     try {
@@ -79,27 +56,44 @@ const App = () => {
   const appContext = useMemo(
     () => ({
       socket,
-      user,
-      setUser,
-      notifications,
-      setNotifications,
-      friends,
-      setFriends,
-      businesses,
-      setBusinesses,
-      getBusinesses,
+      user, setUser,
+      notifications, setNotifications,
+      friends, setFriends,
+      businesses, setBusinesses, getBusinesses,
     }),
-    [user, notifications, businesses]
+    [socket, user, notifications, friends, businesses]
   );
+
+  const getNotifications = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/notifications/me`, {
+        withCredentials: true,
+      });
+      setNotifications(response.data.notifications);
+      console.log(response.data.message);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     if (user) {
       getNotifications();
       getBusinesses();
+      setSocket(io(SOCKETS_URL, {
+      withCredentials: true,
+    }));
+    } else {
+      setNotifications([]);
+      setBusinesses([]);
+      setSocket(null);
     }
   }, [user]);
 
   useEffect(() => {
+    if (!socket)
+      return;
+
     socket.on("connect", () => {
       console.log("🔗 Connected to socket");
     });
@@ -108,14 +102,7 @@ const App = () => {
     return () => {
       socket.off("connect");
     };
-  }, []);
-
-  // Emit userConnected when user changes and socket is connected
-  useEffect(() => {
-    if (socket && user?.id && socket.connected) {
-      socket.emit("userConnected", { id: user.id });
-    }
-  }, [socket, user]);
+  }, [socket]);
 
   const checkAuth = async () => {
     try {
@@ -129,6 +116,7 @@ const App = () => {
     } catch (error) {
       console.log("Not authenticated: ", error.message);
       setUser(null);
+      setNotifications([]);
       setBusinesses([]);
     } finally {
       setLoading(false);
@@ -182,7 +170,7 @@ const App = () => {
 
             <Route
               path="/user/profile/:profileId"
-              element={<UserProfile socket={userSocket} user={user} />}
+              element={<UserProfile socket={socket} user={user} />}
             />
 
             <Route
@@ -199,12 +187,12 @@ const App = () => {
             />
             <Route
               path="/business/profile/:businessId"
-              element={<BusinessProfile socket={businessSocket} user={user} />}
+              element={<BusinessProfile socket={socket} user={user} />}
             />
             <Route
               path="/business/:businessId/calendar"
               element={
-                <BusinessCalendarView socket={businessSocket} user={user} />
+                <BusinessCalendarView socket={socket} user={user} />
               }
             />
 
