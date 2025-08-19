@@ -103,7 +103,7 @@ const NotificationsTab = ({ notifRef }) => {
                           .slice(0, 5)
                           .map((notification) => (
               <Notification
-                key={`${notification.id}: ${notification.status}`}
+                key={`${notification.id}|${notification.status}|${notification.read}`}
                 notification={notification}
               />
             ))}
