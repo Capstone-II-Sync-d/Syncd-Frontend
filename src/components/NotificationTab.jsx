@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../AppContext";
+import { API_URL } from "../shared";
 import Notification from "./Notification";
+import axios from "axios";
 
 const NotificationsTab = ({ notifRef }) => {
   const [show, setShow] = useState(false);
@@ -24,11 +26,11 @@ const NotificationsTab = ({ notifRef }) => {
       }
     };
 
-    if (show) {
+    if (show)
       document.addEventListener("mousedown", handleClickOutside);
-    }
+
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [show]);
 
@@ -41,6 +43,28 @@ const NotificationsTab = ({ notifRef }) => {
     
     const notif = notifications[index];
     notif.status = newStatus;
+    setNotifications([
+      ...(index > 0 ? notifications.slice(0, index) : []),
+      notif,
+      ...(index < length - 1 ? notifications.slice(index) : []),
+    ]);
+  }
+
+  const markAsRead = async (notif) => {
+    if (notif.read)
+      return;
+
+    notif.read = true;
+    try {
+      const response = await axios.patch(`${API_URL}/api/notifications/read/${notif.id}`, {}, {
+        withCredentials: true,
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error(`Error saving read state for notification: ${error}`);
+      notif.read = false;
+    }
+    const index = notifications.findIndex((n) => (n.id === notif.id));
     setNotifications([
       ...(index > 0 ? notifications.slice(0, index) : []),
       notif,
@@ -105,6 +129,7 @@ const NotificationsTab = ({ notifRef }) => {
               <Notification
                 key={`${notification.id}|${notification.status}|${notification.read}`}
                 notification={notification}
+                onHover={markAsRead}
               />
             ))}
           </div>

@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { API_URL } from "../shared";
 import { AppContext } from "../AppContext";
 
-const Notification = ({ notification }) => {
+const Notification = ({ notification, onHover }) => {
   const [message, setMessage] = useState("");
   const [showButtons, setShowButtons] = useState(false);
   const { user, socket } = useContext(AppContext);
@@ -61,6 +61,7 @@ const Notification = ({ notification }) => {
   return (
     <div 
       className={`notification-item ${notification.read ? '' : 'unread'}`}
+      onMouseEnter={() => {onHover(notification)}}
     >
       <div className="notification-message">
         {message}
