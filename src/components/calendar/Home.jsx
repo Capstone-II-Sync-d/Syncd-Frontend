@@ -719,7 +719,7 @@ const Home = () => {
           <Calendar
             key={calendarKey}
             ref={calendarRef}
-            height="600px"
+            height="100%"
             events={events}
             {...calendarOptions}
             view={currentView}
