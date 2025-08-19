@@ -1,0 +1,188 @@
+/* Import font */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+/* Color Palette Variables */
+:root {
+  --soft-lichen: #c8d3c5;
+  --glacial-drift: #a8b8c8;
+  --forest-light: #e8e8d8;
+  --ridge-moss: #7a8a6b;
+  --worn-trail: #c8b5a0;
+  --pine-shadow: #5a7a6b;
+
+  /* Additional supporting colors */
+  --white: #ffffff;
+  --text-primary: #2d3d2a;
+  --text-secondary: #5a6b57;
+  --text-muted: #8a9b87;
+  --border-light: #d8e3d5;
+  --shadow: rgba(90, 122, 107, 0.15);
+}
+
+/* Main container for followers list */
+.followers-list {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, var(--forest-light) 0%, var(--soft-lichen) 100%);
+  min-height: 100vh;
+  color: var(--text-primary);
+  line-height: 1.5;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Header section */
+.followers-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px var(--shadow);
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.followers-header h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+
+/* Search section */
+.search {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px var(--shadow);
+  width: 100%;
+  max-width: 600px;
+}
+
+.search input {
+  width: 100%;
+  padding: 16px 20px;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: "Inter", sans-serif;
+  transition: border-color 0.2s ease;
+  background: white;
+  color: var(--text-primary);
+}
+
+.search input:focus {
+  outline: none;
+  border-color: var(--ridge-moss);
+  box-shadow: 0 0 0 3px rgba(122, 138, 107, 0.1);
+}
+
+.search input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Follower cards container */
+.follower-cards {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* No results message */
+.no-results {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-style: italic;
+  box-shadow: 0 4px 16px var(--shadow);
+  width: 100%;
+  max-width: 600px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.no-results::before {
+  content: "🔍";
+  font-size: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .followers-list {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .followers-header {
+    padding: 20px;
+  }
+
+  .followers-header h3 {
+    font-size: 20px;
+  }
+
+  .search {
+    padding: 20px;
+  }
+
+  .search input {
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+
+  .no-results {
+    padding: 24px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .followers-list {
+    padding: 12px;
+  }
+
+  .followers-header {
+    padding: 16px;
+  }
+
+  .followers-header h3 {
+    font-size: 18px;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .search {
+    padding: 16px;
+  }
+
+  .search input {
+    padding: 12px 14px;
+  }
+
+  .no-results {
+    padding: 20px;
+    flex-direction: column;
+  }
+}

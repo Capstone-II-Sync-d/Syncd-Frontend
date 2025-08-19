@@ -29,6 +29,12 @@ const EventCard = ({ event }) => {
         <strong>Hosted By: </strong>
         {event.business ? event.business : event.creatorUsername}
       </p>
+      {event.location && (
+        <p className="location">
+          <strong>Location: </strong>
+          {event.location}
+        </p>
+      )}
       {startDate === endDate ? (
         <div className="date">
           <p>
