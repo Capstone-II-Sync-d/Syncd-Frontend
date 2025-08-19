@@ -46,7 +46,7 @@ const NotificationsTab = ({ notifRef }) => {
     setNotifications([
       ...(index > 0 ? notifications.slice(0, index) : []),
       notif,
-      ...(index < length - 1 ? notifications.slice(index) : []),
+      ...(index < notifications.length - 1 ? notifications.slice(index) : []),
     ]);
   }
 
@@ -68,7 +68,7 @@ const NotificationsTab = ({ notifRef }) => {
     setNotifications([
       ...(index > 0 ? notifications.slice(0, index) : []),
       notif,
-      ...(index < length - 1 ? notifications.slice(index) : []),
+      ...(index < notifications.length - 1 ? notifications.slice(index) : []),
     ]);
   }
 
