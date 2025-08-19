@@ -47,7 +47,6 @@ const Login = ({ socket, setUser }) => {
 
       setUser(response.data.user);
       navigate("/main");
-      socket.emit("connected", response.data.user.id);
     } catch (error) {
       if (error.response?.data?.error) {
         setErrors({ general: error.response.data.error });
