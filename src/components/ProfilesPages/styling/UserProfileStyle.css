@@ -165,6 +165,39 @@
   max-width: 600px;
 }
 
+/* Unified friend action button styling - high specificity to override other styles */
+button.friend-action-btn,
+.profileCard button.friend-action-btn {
+  padding: 16px 28px !important;
+  border: none !important;
+  border-radius: var(--radius-lg) !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all var(--transition-base) !important;
+  font-family: "Outfit", sans-serif !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  background: var(--gradient-button) !important;
+  color: white !important;
+  box-shadow: 0 6px 20px rgba(90, 122, 107, 0.4) !important;
+  width: 100% !important;
+  max-width: 600px !important;
+  height: 56px !important;
+  line-height: 24px !important;
+  flex: none !important;
+  min-width: auto !important;
+}
+
+button.friend-action-btn:hover,
+.profileCard button.friend-action-btn:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 10px 32px rgba(90, 122, 107, 0.5) !important;
+  background: linear-gradient(135deg, var(--pine-shadow) 0%, var(--ridge-moss) 100%) !important;
+}
+
 .request-buttons button,
 .profileCard > button:not(.editProfileBtn),
 .calendar-btn {
