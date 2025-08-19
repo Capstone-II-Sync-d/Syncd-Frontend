@@ -356,7 +356,7 @@ const BusinessProfile = ({ socket, user }) => {
             <strong>Bio:</strong> {bio}
           </p>
         )}
-        {renderFollowersCount()}
+        
         {renderCalendarButton()}
       </div>
       {renderFollowButton()}
