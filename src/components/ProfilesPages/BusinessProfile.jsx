@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../../shared";
+import "./styling/BusinessProfileStyle.css";
+import "../SettingsStyles.css";
 
 const BusinessProfile = ({ socket, user }) => {
   let { businessId } = useParams();
@@ -16,6 +18,9 @@ const BusinessProfile = ({ socket, user }) => {
   const [pictureUrl, setPictureUrl] = useState("");
   const [owner, setOwner] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  // Message handling
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
 
   // Follow info
   const [isFollowing, setIsFollowing] = useState(false);
@@ -116,15 +121,29 @@ const BusinessProfile = ({ socket, user }) => {
 
   const handleBusinessSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setMessageType("");
+    
     try {
       const res = await axios.patch(
         `${API_URL}/api/profiles/business/${businessId}`,
         { name, email, bio, category, pictureUrl },
         { withCredentials: true }
       );
+      // Navigate back to business view with success message
       setIsEditing(false);
+      setMessage("Business updated successfully!");
+      setMessageType("success");
+      
+      // Clear message after 5 seconds
+      setTimeout(() => {
+        setMessage("");
+        setMessageType("");
+      }, 5000);
     } catch (error) {
       console.error("Failed to update business", error);
+      setMessage(error.response?.data?.message || "Failed to update business. Please try again.");
+      setMessageType("error");
     }
   };
 
@@ -133,41 +152,104 @@ const BusinessProfile = ({ socket, user }) => {
     const isFormValid = name.trim() && email.trim() && category.trim();
 
     return (
-      <form onSubmit={handleBusinessSubmit}>
-        <input
-          name="name"
-          placeholder="Business Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <input
-          name="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          name="bio"
-          placeholder="Bio"
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-        />
-        <input
-          name="category"
-          placeholder="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        />
-        <input
-          name="pictureUrl"
-          placeholder="Picture URL"
-          value={pictureUrl}
-          onChange={(e) => setPictureUrl(e.target.value)}
-        />
-        <button type="submit" disabled={!isFormValid}>
-          Save Business
-        </button>
-      </form>
+      <div className="settings-container">
+        <div className="settings-content">
+          <div className="settings-header">
+            <h1 className="settings-title">Edit Business</h1>
+            <p className="settings-subtitle">Update your business information</p>
+          </div>
+          
+          <div className="settings-section">
+            {message && (
+              <div className={`message ${messageType}`}>
+                {message}
+              </div>
+            )}
+            
+            <form onSubmit={handleBusinessSubmit}>
+              <div className="form-group">
+                <label htmlFor="name">Business Name</label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="Enter business name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">Email Address</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter business email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="category">Category</label>
+                <input
+                  id="category"
+                  name="category"
+                  type="text"
+                  placeholder="Enter business category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="bio">Description</label>
+                <textarea
+                  id="bio"
+                  name="bio"
+                  placeholder="Describe your business"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows="4"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="pictureUrl">Picture URL</label>
+                <input
+                  id="pictureUrl"
+                  name="pictureUrl"
+                  type="url"
+                  placeholder="Enter image URL for your business"
+                  value={pictureUrl}
+                  onChange={(e) => setPictureUrl(e.target.value)}
+                />
+              </div>
+
+              <div className="button-group">
+                <button type="submit" className="btn btn-primary" disabled={!isFormValid}>
+                  Save Business
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => {
+                    setIsEditing(false);
+                    setMessage("");
+                    setMessageType("");
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     );
   };
 
@@ -213,6 +295,11 @@ const BusinessProfile = ({ socket, user }) => {
     if (isEditing) return renderEditForm();
     return (
       <div className="profileCard">
+        {message && (
+          <div className={`message ${messageType} popup-message`}>
+            {message}
+          </div>
+        )}
         <div className="profileHeader">
           <img src={pictureUrl} className="profilePic" alt={name} />
           <div>
@@ -254,12 +341,12 @@ const BusinessProfile = ({ socket, user }) => {
             <strong>Email:</strong> {email}
           </p>
         )}
+        {renderFollowersCount()}
         {bio && (
           <p>
             <strong>Bio:</strong> {bio}
           </p>
         )}
-        {renderFollowersCount()}
       </div>
       {renderFollowButton()}
     </div>

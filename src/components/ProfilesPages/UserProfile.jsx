@@ -5,6 +5,8 @@ import axios from "axios";
 import { API_URL } from "../../shared";
 import BusinessCard from "../Cards/BusinessCard";
 import { AppContext } from "../../AppContext";
+import "./styling/UserProfileStyle.css";
+import "../SettingsStyles.css";
 
 const UserProfile = () => {
   let { profileId } = useParams();
@@ -21,6 +23,10 @@ const UserProfile = () => {
   const [bio, setBio] = useState("");
   const [profilePicture, setProfilePicture] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  // Message handling
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
+  const navigate = useNavigate();
   // Friends/business info
   const [friendship, setFriendship] = useState(null);
   const [friendLoading, setFriendLoading] = useState(true);
@@ -320,6 +326,9 @@ const UserProfile = () => {
   // -------------------- Handle profile submit --------------------
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setMessageType("");
+    
     console.log("Submitting profile update:", {
       firstName,
       lastName,
@@ -343,13 +352,23 @@ const UserProfile = () => {
         email,
         bio,
       }));
+      // Navigate back to profile view with success message
       setIsEditing(false);
+      setMessage("Profile updated successfully!");
+      setMessageType("success");
+      
+      // Clear message after 5 seconds
+      setTimeout(() => {
+        setMessage("");
+        setMessageType("");
+      }, 5000);
     } catch (error) {
       console.error(
         "Failed to update profile:",
         error.response?.data || error.message
       );
-      alert("Failed to update profile. Please try again.");
+      setMessage(error.response?.data?.message || "Failed to update profile. Please try again.");
+      setMessageType("error");
     }
   };
 
@@ -361,41 +380,104 @@ const UserProfile = () => {
     const isFormValid = username.trim() && firstName.trim() && lastName.trim();
 
     return (
-      <form onSubmit={handleProfileSubmit}>
-        <input
-          name="username"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          name="firstName"
-          placeholder="First Name"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
-        <input
-          name="lastName"
-          placeholder="Last Name"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
-        <input
-          name="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          name="bio"
-          placeholder="Bio"
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-        />
-        <button type="submit" disabled={!isFormValid}>
-          Save Profile
-        </button>
-      </form>
+      <div className="settings-container">
+        <div className="settings-content">
+          <div className="settings-header">
+            <h1 className="settings-title">Edit Profile</h1>
+            <p className="settings-subtitle">Update your personal information</p>
+          </div>
+          
+          <div className="settings-section">
+            {message && (
+              <div className={`message ${messageType}`}>
+                {message}
+              </div>
+            )}
+            
+            <form onSubmit={handleProfileSubmit}>
+              <div className="form-group">
+                <label htmlFor="username">Username</label>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="firstName">First Name</label>
+                <input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  placeholder="Enter your first name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="lastName">Last Name</label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  placeholder="Enter your last name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">Email Address</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="bio">Bio</label>
+                <input
+                  id="bio"
+                  name="bio"
+                  type="text"
+                  placeholder="Tell us about yourself"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                />
+              </div>
+
+              <div className="button-group">
+                <button type="submit" className="btn btn-primary" disabled={!isFormValid}>
+                  Save Profile
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => {
+                    setIsEditing(false);
+                    setMessage("");
+                    setMessageType("");
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     );
   };
 
@@ -501,6 +583,30 @@ const UserProfile = () => {
     if (isEditing) return renderEditForm();
     return (
       <div className="profileCard">
+        {message && (
+          <div className={`message ${messageType}`} style={{
+            position: 'fixed',
+            top: '100px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 1000,
+            padding: '16px 24px',
+            borderRadius: '12px',
+            textAlign: 'center',
+            fontWeight: '600',
+            fontSize: '16px',
+            background: messageType === 'success' ? 'rgba(16, 185, 129, 0.95)' : 'rgba(239, 68, 68, 0.95)',
+            color: 'white',
+            border: `2px solid ${messageType === 'success' ? '#10b981' : '#ef4444'}`,
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+            animation: 'slideDown 0.4s ease-out',
+            minWidth: '300px',
+            maxWidth: '500px'
+          }}>
+            {message}
+          </div>
+        )}
         <div className="profileHeader">
           <img src={profilePicture} className="profilePic" alt="Profile" />
           <div>
@@ -514,8 +620,10 @@ const UserProfile = () => {
           <p>
             <strong>Email:</strong> {email}
           </p>
-          {renderFriendsCount()}
-          {renderFollowingCount()}
+          <div className="friends-following-container">
+            {renderFriendsCount()}
+            {renderFollowingCount()}
+          </div>
           {bio && (
             <p>
               <strong>Bio:</strong> {bio}
@@ -552,8 +660,10 @@ const UserProfile = () => {
             <strong>Bio:</strong> {bio}
           </p>
         )}
-        {renderFriendsCount()}
-        {renderFollowingCount()}
+        <div className="friends-following-container">
+          {renderFriendsCount()}
+          {renderFollowingCount()}
+        </div>
       </div>
       {renderFriendRequestButton()}
       {renderCalendarButton()}
