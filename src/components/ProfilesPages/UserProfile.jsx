@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axios from "axios";
-
 import { API_URL } from "../../shared";
+import { AppContext } from "../../AppContext";
 import BusinessCard from "../Cards/BusinessCard";
 
-const UserProfile = ({ socket, user }) => {
+const UserProfile = () => {
   let { profileId } = useParams();
   profileId = Number(profileId);
 
@@ -26,6 +26,8 @@ const UserProfile = ({ socket, user }) => {
   const [friendsAmount, setFriendsAmount] = useState(0);
   const [followingAmount, setFollowingAmount] = useState(0);
   const [room, setRoom] = useState(0);
+
+  const { user, socket } = useContext(AppContext);
 
   // -------------------- Socket: live friends count --------------------
   useEffect(() => {
