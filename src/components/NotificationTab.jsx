@@ -10,24 +10,20 @@ const NotificationsTab = ({ notifRef }) => {
   const { socket, notifications, setNotifications } = useContext(AppContext);
 
   useEffect(() => {
-    setUnreadCount(notifications.filter((n) => (
-      n.type !== 'blank' && !n.read
-    )).length);
+    setUnreadCount(
+      notifications.filter((n) => n.type !== "blank" && !n.read).length
+    );
   }, [notifications]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        notifRef.current &&
-        !notifRef.current.contains(event.target)
-      ) {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
         setShow(false);
       }
     };
 
-    if (show)
-      document.addEventListener("mousedown", handleClickOutside);
+    if (show) document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -35,33 +31,28 @@ const NotificationsTab = ({ notifRef }) => {
   }, [show]);
 
   const updateFriendshipNotification = (friendshipId, newStatus) => {
-    const index = notifications.findIndex((notification) => (
-      notification.friendshipId === friendshipId
-    ));
-    if (index < 0)
-      return;
-    
+    const index = notifications.findIndex(
+      (notification) => notification.friendshipId === friendshipId
+    );
+    if (index < 0) return;
+
     const notif = notifications[index];
     notif.status = newStatus;
     setNotifications([
       ...(index > 0 ? notifications.slice(0, index) : []),
       notif,
-      ...(index < notifications.length - 1 ? notifications.slice(index + 1) : []),
+      ...(index < notifications.length - 1
+        ? notifications.slice(index + 1)
+        : []),
     ]);
   };
 
   const onRequestReceived = (notif) => {
-    setNotifications(prev => [
-      notif,
-      ...prev,
-    ])
+    setNotifications((prev) => [notif, ...prev]);
   };
 
   const onAcceptedRequest = (notif) => {
-    setNotifications((prev) => ([
-      notif,
-      ...prev,
-    ]));
+    setNotifications((prev) => [notif, ...prev]);
   };
 
   const onRequestSuccess = (info) => {
@@ -75,21 +66,21 @@ const NotificationsTab = ({ notifRef }) => {
   };
 
   const onFriendshipDeleted = (info) => {
-    const index = notifications.findIndex((notif) => (
-      notif.friendshipId === info.friendshipId
-    ));
-    if (index < 0)
-      return;
+    const index = notifications.findIndex(
+      (notif) => notif.friendshipId === info.friendshipId
+    );
+    if (index < 0) return;
 
     setNotifications([
       ...(index > 0 ? notifications.slice(0, index) : []),
-      ...(index < notifications.length - 1 ? notifications.slice(index + 1) : []),
-    ])
+      ...(index < notifications.length - 1
+        ? notifications.slice(index + 1)
+        : []),
+    ]);
   };
 
   useEffect(() => {
-    if (!socket)
-      return;
+    if (!socket) return;
 
     console.log(`Notifications listening`);
     socket.on("friend-request-received", onRequestReceived);
@@ -97,23 +88,31 @@ const NotificationsTab = ({ notifRef }) => {
     socket.on("friendship-deleted", onFriendshipDeleted);
     socket.on("friend-request-success", onRequestSuccess);
     socket.on("friendship-error", onRequestFailed);
-    
+
+    // ---------------- Event notifications ----------------
+    socket.on("event-invite-received", (notif) => {
+      setNotifications((prev) => [notif, ...prev]);
+    });
+
+    socket.on("event-response-received", (notif) => {
+      setNotifications((prev) => [notif, ...prev]);
+    });
+
     return () => {
       socket.off("friend-request-received", onRequestReceived);
       socket.off("friend-request-accepted", onAcceptedRequest);
       socket.off("friendship-deleted", onFriendshipDeleted);
       socket.off("friend-request-success", onRequestSuccess);
       socket.off("friendship-error", onRequestFailed);
+      socket.off("event-invite-received");
+      socket.off("event-response-received");
     };
   }, [notifications]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        notifRef.current &&
-        !notifRef.current.contains(event.target)
-      ) {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
         setShow(false);
       }
     };
@@ -122,7 +121,7 @@ const NotificationsTab = ({ notifRef }) => {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [show]);
 
@@ -144,14 +143,15 @@ const NotificationsTab = ({ notifRef }) => {
             <h3>Notifications</h3>
           </div>
           <div className="notification-list">
-            {notifications.filter((notif) => (notif.type !== "blank"))
-                          .slice(0, 5)
-                          .map((notification) => (
-              <Notification
-                key={`${notification.id}|${notification.status}`}
-                notification={notification}
-              />
-            ))}
+            {notifications
+              .filter((notif) => notif.type !== "blank")
+              .slice(0, 5)
+              .map((notification) => (
+                <Notification
+                  key={`${notification.id}|${notification.status}`}
+                  notification={notification}
+                />
+              ))}
           </div>
           <div className="notification-footer">
             <button className="view-all-btn">View All</button>
