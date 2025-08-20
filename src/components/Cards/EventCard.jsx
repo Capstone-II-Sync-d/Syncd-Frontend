@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
+import { API_URL } from "../../shared";
 import "../Cards/styling/EventCardStyles.css";
 
 const EventCard = ({ event }) => {
-  if (!event) return;
+  const [userMessage, setUserMessage] = useState("");
+  const [userMessageType, setUserMessageType] = useState("error");
+  const [showUserMessage, setShowUserMessage] = useState(false);
+
+  if (!event) return null;
 
   const start = new Date(event.startTime);
   const startDate = start.toLocaleDateString();
@@ -21,8 +27,56 @@ const EventCard = ({ event }) => {
     end.getHours() > 11 ? "pm" : "am"
   }`;
 
+  // Helper function to show popup message
+  const showUserMessagePopup = (message, type = "error") => {
+    setUserMessage(message);
+    setUserMessageType(type);
+    setShowUserMessage(true);
+    setTimeout(() => setShowUserMessage(false), 5000);
+  };
+
+  const handleAddEvent = async () => {
+    try {
+      let response;
+      if (event.business) {
+        // Business event: Use /business/attending endpoint
+        const payload = {
+          sourceEventId: Number(event.calendarItemId),
+        };
+        response = await axios.post(
+          `${API_URL}/api/calendarItems/business/attending`,
+          payload,
+          { withCredentials: true }
+        );
+      }
+      showUserMessagePopup(
+        "Event successfully added to your calendar!",
+        "success"
+      );
+    } catch (err) {
+      console.error("Error adding event to calendar:", err);
+      showUserMessagePopup(
+        err.response?.data?.error || "Failed to add event. Please try again.",
+        "error"
+      );
+    }
+  };
+
   return (
     <div className="event-card">
+      {showUserMessage && (
+        <div className={`user-message-popup ${userMessageType}`}>
+          <div className="message-content">
+            <span className="message-text">{userMessage}</span>
+            <button
+              className="message-close"
+              onClick={() => setShowUserMessage(false)}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
       <h3 className="event-title">{event.title}</h3>
       <p className="description">{event.description}</p>
       <p className="hostname">
@@ -60,6 +114,9 @@ const EventCard = ({ event }) => {
           </p>
         </div>
       )}
+      <button className="event-btn add-event-btn" onClick={handleAddEvent}>
+        Add to Calendar
+      </button>
     </div>
   );
 };
