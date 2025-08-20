@@ -176,11 +176,11 @@ const UserProfile = () => {
         
         console.log("fShip", fShip);
         let status = fShip.status;
-        if ((fShip.status === "pending1" && fShip.user1.id === user.id) ||
-              (fShip.status === "pending2" && fShip.user2.id === user.id))
+        if ((fShip.status === "pending1" && fShip.user1 === user.id) ||
+              (fShip.status === "pending2" && fShip.user2 === user.id))
           status = "pendingViewer";
-        else if ((fShip.status === "pending1" && fShip.user1.id !== user.id) ||
-                  (fShip.status === "pending2" && fShip.user2.id !== user.id))
+        else if ((fShip.status === "pending1" && fShip.user1 !== user.id) ||
+                  (fShip.status === "pending2" && fShip.user2 !== user.id))
           status = "pendingProfileUser";
         setFriendship({
           id: fShip.id,
