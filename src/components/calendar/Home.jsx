@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../AppContext";
 import Calendar from "@toast-ui/react-calendar";
 import "@toast-ui/calendar/dist/toastui-calendar.min.css";
@@ -41,6 +42,9 @@ const roundToFiveMinutes = (date) => {
 };
 
 const Home = () => {
+  // -------------------- NAVIGATION --------------------
+  const navigate = useNavigate();
+
   // -------------------- STATE VARIABLES --------------------
   const [calendarItems, setCalendarItems] = useState([]); // raw calendar items
   const [events, setEvents] = useState([]); // transformed calendar events for TOAST UI
@@ -111,6 +115,31 @@ const Home = () => {
     setTimeout(() => {
       setShowUserMessage(false);
     }, 5000);
+  };
+
+  // -------------------- NETWORK NAVIGATION --------------------
+  const handleFriendsClick = () => {
+    if (!user) {
+      showUserMessagePopup("Please log in to view your friends.", "warning");
+      return;
+    }
+    navigate(`/user/friendsList/${user.id}`);
+  };
+
+  const handleBusinessesClick = () => {
+    if (!user) {
+      showUserMessagePopup("Please log in to view your businesses.", "warning");
+      return;
+    }
+    navigate(`/user/myBusinesses/`);
+  };
+
+  const handleFollowingClick = () => {
+    if (!user) {
+      showUserMessagePopup("Please log in to view who you're following.", "warning");
+      return;
+    }
+    navigate(`/user/followingList/${user.id}`);
   };
 
   // -------------------- FRIENDS API --------------------
@@ -554,13 +583,21 @@ const Home = () => {
         {/* My Network Section */}
         <div className="network-section">
           <div className="network-header">
-            <span className="network-icon">👥</span>
             <span className="network-title">My Network</span>
           </div>
-          <div className="network-stats">
-            <span>3 Friends • 1 Businesses</span>
-            <br />
-            <span>Following 3</span>
+          <div className="network-buttons">
+            <button className="network-btn friends-btn" onClick={handleFriendsClick}>
+              <span className="network-count">{friends?.length || 0}</span>
+              <span className="network-label">Friends</span>
+            </button>
+            <button className="network-btn businesses-btn" onClick={handleBusinessesClick}>
+              <span className="network-count">{businesses?.length || 0}</span>
+              <span className="network-label">Businesses</span>
+            </button>
+            <button className="network-btn following-btn" onClick={handleFollowingClick}>
+              <span className="network-count">3</span>
+              <span className="network-label">Following</span>
+            </button>
           </div>
         </div>
 
@@ -823,65 +860,72 @@ const Home = () => {
       {/* |-----------------------------------------------------------| */}
       {showMessage && (
         <div className="messagePopup">
-          <div className="messagePopupHeader">
-            <img src={userClicked.profilePicture} />
-            <span>{userClicked.username}</span>
-          </div>
-          <button
-            className="backButton"
-            onClick={() => {
-              if (socket && room) {
-                socket.emit("leave-message-room", room);
-                console.log(`🚪 Left room: ${room}`);
-              }
-              setShowMessage(false);
-              setRoom(null);
-              setUserClicked(null);
-              setAllMessages([]);
-            }}
-          >
-            Back
-          </button>
-          <div className="chat">
-            {allMessages.length === 0 ? (
-              <p className="no-messages">No messages yet</p>
-            ) : (
-              allMessages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={msg.senderId === user.id ? "sent" : "received"}
-                >
-                  <MessageCard message={msg} user={user} />
-                </div>
-              ))
-            )}
-            <div ref={chatEndRef} />
-          </div>
-          <div className="msgInput">
-            <input
-              type="text"
-              id="textInput"
-              placeholder="Aa"
-              value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && input.trim() !== "") {
-                  handleMessageSend(input);
-                  setInput("");
+          <div className="messagePopup-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <img src={userClicked.profilePicture} alt={userClicked.username} />
+              <h3>{userClicked.username}</h3>
+            </div>
+            <button
+              className="close-messaging"
+              onClick={() => {
+                if (socket && room) {
+                  socket.emit("leave-message-room", room);
+                  console.log(`🚪 Left room: ${room}`);
                 }
+                setShowMessage(false);
+                setRoom(null);
+                setUserClicked(null);
+                setAllMessages([]);
               }}
-            />
-            <span>
-              <button
-                onClick={() => {
-                  handleMessageSend(input);
+            >
+              ×
+            </button>
+          </div>
+          <div className="chat">
+            <div className="chat-messages">
+              {allMessages.length === 0 ? (
+                <p className="no-messages">No messages yet</p>
+              ) : (
+                allMessages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={msg.senderId === user.id ? "sent" : "received"}
+                  >
+                    <MessageCard message={msg} user={user} />
+                  </div>
+                ))
+              )}
+              <div ref={chatEndRef} />
+            </div>
+            <div className="message-input-container">
+              <input
+                type="text"
+                className="message-input"
+                placeholder="Type a message..."
+                value={input}
+                onChange={(e) => {
+                  setInput(e.target.value);
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && input.trim() !== "") {
+                    handleMessageSend(input);
+                    setInput("");
+                  }
+                }}
+              />
+              <button
+                className="send-button"
+                onClick={() => {
+                  if (input.trim() !== "") {
+                    handleMessageSend(input);
+                    setInput("");
+                  }
+                }}
+                disabled={input.trim() === ""}
               >
-                Send
+                ➤
               </button>
-            </span>
+            </div>
           </div>
         </div>
       )}

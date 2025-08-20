@@ -33,28 +33,52 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border-light);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 8px 32px var(--shadow);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 12px 40px var(--shadow);
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.friends-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(200, 211, 197, 0.1) 0%, 
+    rgba(168, 184, 200, 0.1) 50%, 
+    rgba(122, 138, 107, 0.1) 100%);
+  z-index: -1;
 }
 
 .friends-header h3 {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0;
+  margin: 0 0 8px 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .friends-header h3::before {
   content: "👥";
-  font-size: 20px;
+  font-size: 24px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.friends-header .subtitle {
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
 }
 
 /* Search section */
@@ -62,29 +86,33 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border-light);
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: 20px;
+  padding: 28px;
   box-shadow: 0 8px 32px var(--shadow);
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
+  position: relative;
 }
+
 
 .search input {
   width: 100%;
-  padding: 16px 20px;
+  padding: 18px 24px;
   border: 1px solid var(--border-light);
-  border-radius: 12px;
+  border-radius: 16px;
   font-size: 16px;
   font-family: "Outfit", sans-serif;
-  transition: border-color 0.2s ease;
+  transition: all 0.3s ease;
   background: white;
   color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .search input:focus {
   outline: none;
   border-color: var(--ridge-moss);
-  box-shadow: 0 0 0 3px rgba(122, 138, 107, 0.1);
+  box-shadow: 0 0 0 3px rgba(122, 138, 107, 0.1), 0 4px 16px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
 }
 
 .search input::placeholder {
@@ -94,11 +122,12 @@
 /* Friend cards container */
 .friend-cards {
   width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
+  max-width: 800px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+  align-items: start;
+  justify-items: center;
 }
 
 /* No results message */
@@ -106,25 +135,39 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border-light);
-  border-radius: 16px;
-  padding: 32px;
+  border-radius: 20px;
+  padding: 40px;
   text-align: center;
   color: var(--text-secondary);
-  font-size: 16px;
-  font-style: italic;
+  font-size: 18px;
+  font-weight: 500;
   box-shadow: 0 4px 16px var(--shadow);
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   margin: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
 }
 
 .no-results::before {
-  content: "😔";
-  font-size: 20px;
+  content: "👥";
+  font-size: 48px;
+  opacity: 0.3;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.no-results::after {
+  content: '✨ Start building your network!';
+  font-size: 14px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 8px;
 }
 
 /* Add a beautiful floating animation for friend cards */

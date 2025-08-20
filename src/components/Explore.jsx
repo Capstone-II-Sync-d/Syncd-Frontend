@@ -137,7 +137,7 @@ const Explore = () => {
       <div className="explore-container">
         <div className="explore-loading">
           <div className="explore-spinner"></div>
-          Discovering amazing content...
+          Loading...
         </div>
       </div>
     );

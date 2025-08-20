@@ -21,16 +21,82 @@
 
 /* Main container for my businesses page */
 .following-businesses-list {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: linear-gradient(135deg, var(--forest-light) 0%, var(--soft-lichen) 100%);
   min-height: 100vh;
   color: var(--text-primary);
   line-height: 1.5;
   padding: 32px;
+  padding-top: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   gap: 24px;
+  width: 100vw;
+  box-sizing: border-box;
+  margin: 0;
+  margin-left: calc(-50vw + 50%);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  overflow-y: auto;
+}
+
+/* Header section for businesses */
+.businesses-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 12px 40px var(--shadow);
+  width: 100%;
+  max-width: 800px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.businesses-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(122, 138, 107, 0.1) 0%, 
+    rgba(90, 122, 107, 0.1) 50%, 
+    rgba(200, 181, 160, 0.1) 100%);
+  z-index: -1;
+}
+
+.businesses-header h3 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.businesses-header h3::before {
+  content: "🏢";
+  font-size: 24px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.businesses-header .subtitle {
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
 }
 
 /* Search section */
@@ -38,29 +104,33 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border-light);
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: 20px;
+  padding: 28px;
   box-shadow: 0 8px 32px var(--shadow);
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
+  position: relative;
 }
+
 
 .search input {
   width: 100%;
-  padding: 16px 20px;
+  padding: 18px 24px;
   border: 1px solid var(--border-light);
-  border-radius: 12px;
+  border-radius: 16px;
   font-size: 16px;
-  font-family: "Inter", sans-serif;
-  transition: border-color 0.2s ease;
+  font-family: "Outfit", sans-serif;
+  transition: all 0.3s ease;
   background: white;
   color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .search input:focus {
   outline: none;
   border-color: var(--ridge-moss);
-  box-shadow: 0 0 0 3px rgba(122, 138, 107, 0.1);
+  box-shadow: 0 0 0 3px rgba(122, 138, 107, 0.1), 0 4px 16px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
 }
 
 .search input::placeholder {
@@ -70,11 +140,12 @@
 /* Business cards container */
 .business-cards {
   width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
+  max-width: 800px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+  align-items: start;
+  justify-items: center;
 }
 
 /* No results message */
@@ -82,16 +153,59 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border-light);
-  border-radius: 16px;
-  padding: 32px;
+  border-radius: 20px;
+  padding: 40px;
   text-align: center;
   color: var(--text-secondary);
-  font-size: 16px;
-  font-style: italic;
+  font-size: 18px;
+  font-weight: 500;
   box-shadow: 0 4px 16px var(--shadow);
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.no-results::before {
+  content: "🏢";
+  font-size: 48px;
+  opacity: 0.3;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.no-results::after {
+  content: '🚀 Create your first business!';
+  font-size: 14px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 8px;
+}
+
+/* Add animation for business cards */
+.business-cards .business-card {
+  animation: fadeInUp 0.3s ease forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.business-cards .business-card:nth-child(1) { animation-delay: 0.1s; }
+.business-cards .business-card:nth-child(2) { animation-delay: 0.2s; }
+.business-cards .business-card:nth-child(3) { animation-delay: 0.3s; }
+.business-cards .business-card:nth-child(4) { animation-delay: 0.4s; }
+.business-cards .business-card:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive Design */
