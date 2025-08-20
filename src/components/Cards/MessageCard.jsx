@@ -1,6 +1,4 @@
 import React from "react";
-import "../Cards/styling/UserCardStyles.css";
-import { Link } from "react-router-dom";
 
 const MessageCard = ({ message, user }) => {
   return (

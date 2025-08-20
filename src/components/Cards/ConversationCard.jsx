@@ -8,6 +8,7 @@ const Conversation = ({
   setShowMessage,
   setRoom,
   joinMessageRoom,
+  setShowConversation,
 }) => {
   const { user } = useContext(AppContext);
 
@@ -21,6 +22,7 @@ const Conversation = ({
     setRoom(roomName);
     joinMessageRoom(roomName, user, friend);
     setShowMessage(true);
+    setShowConversation(false); // Close the friends list when opening a chat
   };
 
   return (
