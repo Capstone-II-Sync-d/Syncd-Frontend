@@ -350,12 +350,12 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                   Save as Draft
                 </button>
                 <button type="submit" className="btn-primary">
-                  Publish Event
+                  Create
                 </button>
               </>
             ) : (
               <button type="submit" className="btn-primary">
-                Create Calendar Item
+                Create
               </button>
             )}
           </div>
