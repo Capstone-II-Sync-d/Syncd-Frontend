@@ -56,6 +56,32 @@ const MyBusinessesList = ({ user }) => {
   // -------------------- Render --------------------
   return (
     <div className="following-businesses-list">
+      {/* Header with Business Count */}
+      <div className="businesses-header">
+        <h3>
+          My Businesses
+          {businesses.length > 0 && (
+            <span style={{ 
+              background: 'var(--ridge-moss)', 
+              color: 'white', 
+              borderRadius: '20px', 
+              padding: '4px 12px', 
+              fontSize: '16px',
+              fontWeight: '600',
+              marginLeft: '8px'
+            }}>
+              {businesses.length}
+            </span>
+          )}
+        </h3>
+        <p className="subtitle">
+          {businesses.length === 0 
+            ? "Start your entrepreneurial journey by creating your first business" 
+            : `You manage ${businesses.length} business${businesses.length === 1 ? '' : 'es'}`
+          }
+        </p>
+      </div>
+
       {/* Search Bar */}
       <div className="search">
         <input

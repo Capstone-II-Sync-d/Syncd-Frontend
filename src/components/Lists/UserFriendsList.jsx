@@ -187,12 +187,38 @@ const UserFriendsList = ({ socket, user }) => {
   // -------------------- Render --------------------
   return (
     <div className="friends-list">
+      {/* Header with Friends Count */}
+      <div className="friends-header">
+        <h3>
+          My Friends
+          {friends.length > 0 && (
+            <span style={{ 
+              background: 'var(--ridge-moss)', 
+              color: 'white', 
+              borderRadius: '20px', 
+              padding: '4px 12px', 
+              fontSize: '16px',
+              fontWeight: '600',
+              marginLeft: '8px'
+            }}>
+              {friends.length}
+            </span>
+          )}
+        </h3>
+        <p className="subtitle">
+          {friends.length === 0 
+            ? "Connect with people and build your network" 
+            : `You have ${friends.length} friend${friends.length === 1 ? '' : 's'} in your network`
+          }
+        </p>
+      </div>
+
       {/* Search Bar */}
       <div className="search">
         <input
           type="text"
           id="search-bar"
-          placeholder="Search friends..."
+          placeholder="Search your friends..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
