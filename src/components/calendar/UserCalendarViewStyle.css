@@ -1,8 +1,9 @@
+/* User Calendar View - Specific styles only */
 /* Import global styles */
 @import url("../../styles/GlobalStyles.css");
 
 /* Main container for user calendar view */
-.calendar-view-container {
+.user-calendar-container {
   font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--gradient-primary);
   min-height: 100vh;
@@ -12,452 +13,37 @@
   position: relative;
 }
 
-/* Back button styling */
-.back-btn {
-  position: absolute;
-  top: var(--space-lg);
-  left: var(--space-lg);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-md) var(--space-lg);
-  font-family: "Outfit", sans-serif;
-  font-weight: 500;
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 16px var(--shadow);
-}
-
-.back-btn:hover {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 6px 24px var(--shadow-strong);
-  transform: translateY(-2px);
-}
-
-/* Calendar controls section */
-.calendar-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-md);
-  margin: 20px auto var(--space-lg);
-  box-shadow: 0 8px 32px var(--shadow);
-  max-width: 1200px;
-}
-
-/* Date navigation */
-.date-navigation {
-  display: flex;
-  align-items: center;
-  gap: var(--space-lg);
-}
-
-.nav-btn {
-  background: var(--gradient-button);
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 16px var(--shadow);
-}
-
-.nav-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px var(--shadow-strong);
-}
-
-.current-date {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-  min-width: 200px;
-  text-align: center;
-}
-
-/* View controls */
-.view-controls {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-}
-
-.today-btn {
+/* Back button styling - now inline with controls */
+.user-back-btn {
   background: var(--gradient-button-alt);
-  border: none;
-  border-radius: var(--radius-md);
-  padding: var(--space-md) var(--space-lg);
-  font-family: "Outfit", sans-serif;
-  font-weight: 500;
   color: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 16px var(--shadow);
-}
-
-.today-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px var(--shadow-strong);
-}
-
-.view-buttons {
-  display: flex;
-  gap: var(--space-xs);
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs);
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.view-btn {
-  background: transparent;
   border: none;
   border-radius: var(--radius-sm);
-  padding: var(--space-md) var(--space-lg);
+  padding: 8px 16px;
   font-family: "Outfit", sans-serif;
-  font-weight: 500;
-  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-}
-
-.view-btn.active {
-  background: var(--gradient-button);
-  color: white;
   box-shadow: 0 2px 8px var(--shadow);
+  margin-right: 8px;
 }
 
-.view-btn:hover:not(.active) {
-  background: rgba(122, 138, 107, 0.1);
-  color: var(--text-primary);
-}
-
-/* Calendar wrapper */
-.calendar-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  box-shadow: 0 8px 32px var(--shadow);
-  overflow: hidden;
-}
-
-/* Toast UI Calendar customization */
-.calendar-wrapper .toastui-calendar {
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
-/* Custom calendar header styling */
-.calendar-wrapper .toastui-calendar-month-header,
-.calendar-wrapper .toastui-calendar-week-header {
-  background: var(--gradient-card);
-  color: var(--text-primary);
-  font-family: "Outfit", sans-serif;
-  font-weight: 600;
-}
-
-/* Calendar event styling */
-.calendar-wrapper .toastui-calendar-event {
-  border-radius: var(--radius-sm);
-  font-family: "Outfit", sans-serif;
-  font-weight: 500;
-}
-
-/* Event popup modal */
-.event-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.event-popup-content {
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(30px);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 16px 64px var(--shadow-strong);
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from { 
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to { 
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.event-popup-content h3 {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 var(--space-lg) 0;
-  border-bottom: 2px solid var(--border-light);
-  padding-bottom: var(--space-md);
-}
-
-.event-popup-content p {
-  margin: var(--space-md) 0;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-.event-popup-content strong {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-/* Popup buttons */
-.popup-buttons {
-  display: flex;
-  gap: var(--space-md);
-  justify-content: flex-end;
-  margin-top: var(--space-xl);
-  padding-top: var(--space-lg);
-  border-top: 1px solid var(--border-light);
-}
-
-.add-event-btn {
+.user-back-btn:hover {
   background: var(--gradient-button);
-  border: none;
-  border-radius: var(--radius-md);
-  padding: var(--space-md) var(--space-xl);
-  font-family: "Outfit", sans-serif;
-  font-weight: 600;
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 16px var(--shadow);
-}
-
-.add-event-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px var(--shadow-strong);
-}
-
-.cancel-btn {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: var(--space-md) var(--space-xl);
-  font-family: "Outfit", sans-serif;
-  font-weight: 500;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.cancel-btn:hover {
-  background: rgba(255, 255, 255, 1);
-  color: var(--text-primary);
+  box-shadow: 0 4px 16px var(--shadow-strong);
   transform: translateY(-1px);
 }
 
-/* User message popup */
-.user-message-popup {
-  position: fixed;
-  top: var(--space-lg);
-  right: var(--space-lg);
-  z-index: 1001;
-  min-width: 300px;
-  border-radius: var(--radius-md);
-  box-shadow: 0 8px 32px var(--shadow-strong);
-  animation: slideInRight 0.3s ease;
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.user-message-popup.success {
-  background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
-  color: white;
-}
-
-.user-message-popup.error {
-  background: linear-gradient(135deg, var(--error) 0%, #dc2626 100%);
-  color: white;
-}
-
-.user-message-popup.warning {
-  background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
-  color: white;
-}
-
-.message-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-lg);
-  gap: var(--space-md);
-}
-
-.message-text {
-  font-family: "Outfit", sans-serif;
-  font-weight: 500;
+/* User-specific calendar wrapper */
+.user-calendar-wrapper {
   flex: 1;
-}
-
-.message-close {
-  background: none;
-  border: none;
-  color: inherit;
-  font-size: 20px;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: background-color 0.2s ease;
-}
-
-.message-close:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-/* Loading and error states */
-.calendar-view-container > div:first-child {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  font-size: 18px;
-  color: var(--text-secondary);
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
-  margin: 80px auto;
-  max-width: 600px;
-  padding: var(--space-xl);
+  padding: var(--space-lg);
   box-shadow: 0 8px 32px var(--shadow);
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .calendar-view-container {
-    padding: var(--space-md);
-  }
-
-  .calendar-controls {
-    flex-direction: column;
-    gap: var(--space-lg);
-    margin: 20px auto var(--space-lg);
-    padding: var(--space-lg);
-  }
-
-  .date-navigation {
-    order: 2;
-  }
-
-  .view-controls {
-    order: 1;
-    flex-direction: column;
-    gap: var(--space-md);
-  }
-
-  .view-buttons {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .current-date {
-    font-size: 20px;
-    min-width: auto;
-  }
-
-  .back-btn {
-    position: static;
-    margin-bottom: var(--space-lg);
-    width: 100%;
-    text-align: center;
-  }
-
-  .event-popup-content {
-    padding: var(--space-lg);
-    margin: var(--space-md);
-  }
-
-  .popup-buttons {
-    flex-direction: column;
-  }
-
-  .user-message-popup {
-    top: var(--space-md);
-    right: var(--space-md);
-    left: var(--space-md);
-    min-width: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .calendar-wrapper {
-    padding: var(--space-md);
-  }
-
-  .view-btn {
-    padding: var(--space-sm) var(--space-md);
-    font-size: 14px;
-  }
-
-  .nav-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
-  }
-
-  .current-date {
-    font-size: 18px;
-  }
+  overflow: hidden;
+  margin-top: var(--space-md);
 }

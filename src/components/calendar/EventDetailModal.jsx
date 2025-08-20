@@ -317,14 +317,12 @@ const EventDetailModal = ({ event, onClose, onRefresh }) => {
                 Delete {isEvent ? "Event" : "Item"}
               </button>
               {isEvent && isOwner && (
-                <div>
-                  <button
-                    onClick={handlePublishToggle}
-                    className="btn-secondary"
-                  >
-                    {isPublished ? "Unpublish" : "Publish"} Event
-                  </button>
-                </div>
+                <button
+                  onClick={handlePublishToggle}
+                  className="btn-secondary"
+                >
+                  {isPublished ? "Unpublish" : "Publish"} Event
+                </button>
               )}
               {isOwner && (
                 <button
