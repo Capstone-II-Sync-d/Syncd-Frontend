@@ -1,6 +1,9 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { AppContext } from "../../AppContext";
 import "./ModalStyles.css";
+import axios from "axios";
+import { API_URL } from "../../shared";
+import { eventsAPI, calendarAPI } from "./utils/api";
 
 const roundToFiveMinutes = (date) => {
   const rounded = new Date(date);
@@ -14,11 +17,10 @@ const roundToFiveMinutes = (date) => {
   rounded.setSeconds(0);
   rounded.setMilliseconds(0);
   return rounded;
-
 };
 
 const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
-  const { businesses } = useContext(AppContext);
+  const { businesses, friends, user, socket } = useContext(AppContext);
 
   const [formError, setFormError] = useState("");
   const [formData, setFormData] = useState({
@@ -26,23 +28,81 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
     description: "",
     location: "",
     start: selectedDateTime
-      ? roundToFiveMinutes(new Date(selectedDateTime.start)).toISOString().slice(0, 16)
+      ? roundToFiveMinutes(new Date(selectedDateTime.start))
+          .toISOString()
+          .slice(0, 16)
       : "",
     end: selectedDateTime
-      ? roundToFiveMinutes(new Date(selectedDateTime.end)).toISOString().slice(0, 16)
+      ? roundToFiveMinutes(new Date(selectedDateTime.end))
+          .toISOString()
+          .slice(0, 16)
       : "",
     public: false,
     isEvent: false,
     postAs: "personal",
+    invitedUsers: [],
+    notifyAllFollowers: false,
+    inviteAllFriends: false,
   });
+  const [followers, setFollowers] = useState([]);
+
+  useEffect(() => {
+    const fetchFollowers = async (businessId) => {
+      try {
+        console.log(`Fetching followers for business ID: ${businessId}`);
+        const response = await axios.get(
+          `${API_URL}/api/profiles/business/${businessId}/followers`,
+          { withCredentials: true }
+        );
+        const followerData = response.data
+          .map((f) => f.user)
+          .filter((user) => user && user.id && user.username);
+        console.log("Fetched followers:", followerData);
+        setFollowers(followerData);
+      } catch (error) {
+        console.error("Error fetching followers:", error);
+        setFollowers([]);
+      }
+    };
+
+    if (formData.postAs !== "personal" && formData.isEvent) {
+      fetchFollowers(formData.postAs);
+    } else {
+      setFollowers([]);
+    }
+  }, [formData.postAs, formData.isEvent]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-   
 
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleInviteChange = (userId, checked) => {
+    setFormData((prev) => {
+      const invitedUsers = checked
+        ? [...prev.invitedUsers, userId]
+        : prev.invitedUsers.filter((id) => id !== userId);
+      return { ...prev, invitedUsers };
+    });
+  };
+
+  const handleNotifyAllFollowers = (checked) => {
+    setFormData((prev) => ({
+      ...prev,
+      notifyAllFollowers: checked,
+      invitedUsers: checked ? [] : prev.invitedUsers, // Clear specific invites if notifying all
+    }));
+  };
+
+  const handleInviteAllFriends = (checked) => {
+    setFormData((prev) => ({
+      ...prev,
+      inviteAllFriends: checked,
+      invitedUsers: checked ? [] : prev.invitedUsers, // Clear specific invites if inviting all
     }));
   };
 
@@ -82,17 +142,17 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
 
     // Check if event is in the past
     const now = new Date();
-    if (startDate < now && (now - startDate) > 5 * 60 * 1000) { // Allow 5 minute to be nice
+    if (startDate < now && now - startDate > 5 * 60 * 1000) {
+      // Allow 5 minute to be nice
       setFormError("Cannot create events in the past.");
       return false;
     }
 
     return true;
   };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -101,13 +161,82 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
     const endDate = new Date(formData.end);
     const roundedStart = roundToFiveMinutes(startDate);
     const roundedEnd = roundToFiveMinutes(endDate);
-     
-     onCreate({
-      ...formData,
+
+    const eventData = {
+      title: formData.title,
+      description: formData.description,
+      location: formData.location,
       start: roundedStart.toISOString(),
       end: roundedEnd.toISOString(),
-      published: true, // Regular submit publishes event
-    });
+      public: formData.public,
+      businessId:
+        formData.postAs !== "personal" ? Number(formData.postAs) : null,
+      published: true,
+    };
+
+    try {
+      const createdEvent = await eventsAPI.createEvent(eventData);
+
+      if (formData.isEvent) {
+        if (!socket) {
+          setFormError("Cannot send invitations: No socket connection.");
+          return;
+        }
+
+        // Determine invitees based on event type
+        let invitees = [];
+        const eventType =
+          formData.postAs === "personal" ? "personal" : "business";
+
+        if (eventType === "personal") {
+          invitees = formData.inviteAllFriends
+            ? friends.map((f) => f.user.id)
+            : formData.invitedUsers;
+        } else {
+          invitees = formData.notifyAllFollowers
+            ? followers.map((f) => f.id)
+            : formData.invitedUsers;
+        }
+
+        if (invitees.length === 0) {
+          setFormError("No invitees selected for the event.");
+          return;
+        }
+
+        if (!createdEvent.id || !user.id || !user.username || !formData.title) {
+          setFormError("Missing required event or user data.");
+          return;
+        }
+
+        socket.emit(
+          "event-invite",
+          {
+            eventId: createdEvent.id,
+            invitees,
+            inviterId: user.id,
+            inviterName: user.username,
+            eventTitle: formData.title,
+            eventType, // Explicitly indicate personal or business event
+            businessId:
+              formData.postAs !== "personal" ? Number(formData.postAs) : null,
+            startTime: formData.start, // Added for richer notifications
+            location: formData.location, // Added for richer notifications
+          },
+          (response) => {
+            if (response?.error) {
+              console.error("Failed to send event invite:", response.error);
+              setFormError(`Failed to send invitations: ${response.error}`);
+            }
+          }
+        );
+      }
+
+      onCreate(createdEvent);
+      onClose();
+    } catch (error) {
+      console.error("Error creating event:", error);
+      setFormError(error.message || "Failed to create event.");
+    }
   };
 
   const handleSaveAsDraft = () => {
@@ -116,12 +245,12 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
 
     const startDate = new Date(formData.start);
     const endDate = new Date(formData.end);
-    
+
     if (!formData.title.trim()) {
       setFormError("Event title is required.");
       return;
     }
- 
+
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       setFormError("Please enter valid start and end times.");
       return;
@@ -131,10 +260,10 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
       setFormError("End time must be after start time.");
       return;
     }
-    
+
     const roundedStart = roundToFiveMinutes(startDate);
     const roundedEnd = roundToFiveMinutes(endDate);
-    
+
     onCreate({
       ...formData,
       start: roundedStart.toISOString(),
@@ -142,8 +271,6 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
       published: false,
     });
   };
-
-
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -170,7 +297,7 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                   }
                 />
                 <span>Personal Calendar Item</span>
-                <small>   Private reminder or personal task</small>
+                <small> Private reminder or personal task</small>
               </label>
               <label className="radio-label">
                 <input
@@ -182,7 +309,7 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                   }
                 />
                 <span>Public Event</span>
-                <small>   Others can discover and attend this event</small>
+                <small> Others can discover and attend this event</small>
               </label>
             </div>
           </div>
@@ -254,7 +381,6 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                 name="start"
                 value={formData.start}
                 onChange={handleInputChange}
-               
                 step="300"
               />
             </div>
@@ -266,7 +392,6 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
                 name="end"
                 value={formData.end}
                 onChange={handleInputChange}
-                
                 step="300"
               />
             </div>
@@ -327,6 +452,100 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
               </label>
             </div>
           </div>
+          {formData.isEvent && (
+            <div className="form-group">
+              <label className="form-section-title">Invite</label>
+              {formData.postAs === "personal" ? (
+                <>
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.inviteAllFriends}
+                      onChange={(e) => handleInviteAllFriends(e.target.checked)}
+                    />
+                    Invite all friends
+                  </label>
+                  {!formData.inviteAllFriends && (
+                    <>
+                      <p>Select friends to invite:</p>
+                      {friends.length === 0 ? (
+                        <p>No friends available to invite.</p>
+                      ) : (
+                        <div className="invite-list">
+                          {friends.map((friend) => (
+                            <label
+                              key={friend.user.id}
+                              className="checkbox-label"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={formData.invitedUsers.includes(
+                                  friend.user.id
+                                )}
+                                onChange={(e) =>
+                                  handleInviteChange(
+                                    friend.user.id,
+                                    e.target.checked
+                                  )
+                                }
+                              />
+                              {friend.user.username} ({friend.user.firstName}{" "}
+                              {friend.user.lastName})
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.notifyAllFollowers}
+                      onChange={(e) =>
+                        handleNotifyAllFollowers(e.target.checked)
+                      }
+                    />
+                    Notify all followers
+                  </label>
+                  {!formData.notifyAllFollowers && (
+                    <>
+                      <p>Select followers to invite:</p>
+                      {followers.length === 0 ? (
+                        <p>No followers available to invite.</p>
+                      ) : (
+                        <div className="invite-list">
+                          {followers.map((follower, index) => (
+                            <label
+                              key={follower.id || `follower-${index}`}
+                              className="checkbox-label"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={formData.invitedUsers.includes(
+                                  follower.id
+                                )}
+                                onChange={(e) =>
+                                  handleInviteChange(
+                                    follower.id,
+                                    e.target.checked
+                                  )
+                                }
+                              />
+                              {follower.username} ({follower.firstName}{" "}
+                              {follower.lastName})
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
           {/* Error Message */}
           {formError && (
@@ -365,4 +584,4 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
   );
 };
 
-export default CreateEventModal; 
+export default CreateEventModal;
