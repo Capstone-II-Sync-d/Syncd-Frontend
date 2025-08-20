@@ -140,7 +140,7 @@ const BusinessCalendarView = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="calendar-view-container">
+    <div className="business-calendar-container">
       {showUserMessage && (
         <div className={`user-message-popup ${userMessageType}`}>
           <div className="message-content">
@@ -155,14 +155,6 @@ const BusinessCalendarView = () => {
         </div>
       )}
 
-      <button
-        className="back-btn"
-        onClick={() => {
-          nav("/main");
-        }}
-      >
-        Back to Calendar
-      </button>
       <div className="calendar-controls">
         <div className="date-navigation">
           <button className="nav-btn" onClick={() => handleNavigation("prev")}>
@@ -174,6 +166,14 @@ const BusinessCalendarView = () => {
           </button>
         </div>
         <div className="view-controls">
+          <button
+            className="business-back-btn"
+            onClick={() => {
+              nav("/main");
+            }}
+          >
+            ← Back
+          </button>
           <button className="today-btn" onClick={handleTodayClick}>
             Today
           </button>
@@ -199,7 +199,7 @@ const BusinessCalendarView = () => {
           </div>
         </div>
       </div>
-      <div className="calendar-wrapper">
+      <div className="business-calendar-wrapper">
         <Calendar
           ref={calendarRef}
           height="600px"

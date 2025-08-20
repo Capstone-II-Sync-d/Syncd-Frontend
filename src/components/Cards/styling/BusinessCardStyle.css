@@ -32,8 +32,10 @@
   box-shadow: 0 4px 16px var(--shadow);
   font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(232, 240, 216, 0.85) 100%);
-  max-width: 600px;
+  max-width: 380px;
   width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
 /* Different green shades for each card */
@@ -109,6 +111,14 @@
   object-fit: cover;
   border: 2px solid var(--soft-lichen);
   box-shadow: 0 2px 8px var(--shadow);
+  flex-shrink: 0;
+}
+
+.business-card .business-title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .business-card .header h2 {
@@ -117,6 +127,30 @@
   color: var(--text-primary);
   margin: 0;
   line-height: 1.3;
+}
+
+.business-card .category {
+  background: var(--glacial-drift);
+  color: var(--text-primary);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  align-self: flex-start;
+}
+
+.business-card .business-indicator {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 24px;
+  opacity: 0.3;
+  transition: all 0.3s ease;
+}
+
+.business-card:hover .business-indicator {
+  opacity: 0.7;
+  transform: scale(1.1);
 }
 
 .business-card .info {
