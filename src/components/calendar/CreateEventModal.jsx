@@ -150,7 +150,7 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
 
     return true;
   };
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -162,81 +162,12 @@ const CreateEventModal = ({ selectedDateTime, onClose, onCreate }) => {
     const roundedStart = roundToFiveMinutes(startDate);
     const roundedEnd = roundToFiveMinutes(endDate);
 
-    const eventData = {
-      title: formData.title,
-      description: formData.description,
-      location: formData.location,
+    onCreate({
+      ...formData,
       start: roundedStart.toISOString(),
       end: roundedEnd.toISOString(),
-      public: formData.public,
-      businessId:
-        formData.postAs !== "personal" ? Number(formData.postAs) : null,
-      published: true,
-    };
-
-    try {
-      const createdEvent = await eventsAPI.createEvent(eventData);
-
-      if (formData.isEvent) {
-        if (!socket) {
-          setFormError("Cannot send invitations: No socket connection.");
-          return;
-        }
-
-        // Determine invitees based on event type
-        let invitees = [];
-        const eventType =
-          formData.postAs === "personal" ? "personal" : "business";
-
-        if (eventType === "personal") {
-          invitees = formData.inviteAllFriends
-            ? friends.map((f) => f.user.id)
-            : formData.invitedUsers;
-        } else {
-          invitees = formData.notifyAllFollowers
-            ? followers.map((f) => f.id)
-            : formData.invitedUsers;
-        }
-
-        if (invitees.length === 0) {
-          setFormError("No invitees selected for the event.");
-          return;
-        }
-
-        if (!createdEvent.id || !user.id || !user.username || !formData.title) {
-          setFormError("Missing required event or user data.");
-          return;
-        }
-
-        socket.emit(
-          "event-invite",
-          {
-            eventId: createdEvent.id,
-            invitees,
-            inviterId: user.id,
-            inviterName: user.username,
-            eventTitle: formData.title,
-            eventType, // Explicitly indicate personal or business event
-            businessId:
-              formData.postAs !== "personal" ? Number(formData.postAs) : null,
-            startTime: formData.start, // Added for richer notifications
-            location: formData.location, // Added for richer notifications
-          },
-          (response) => {
-            if (response?.error) {
-              console.error("Failed to send event invite:", response.error);
-              setFormError(`Failed to send invitations: ${response.error}`);
-            }
-          }
-        );
-      }
-
-      onCreate(createdEvent);
-      onClose();
-    } catch (error) {
-      console.error("Error creating event:", error);
-      setFormError(error.message || "Failed to create event.");
-    }
+      published: true, // Regular submit publishes event
+    });
   };
 
   const handleSaveAsDraft = () => {
