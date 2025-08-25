@@ -187,7 +187,7 @@ button.friend-action-btn,
   max-width: 600px !important;
   height: 56px !important;
   line-height: 24px !important;
-  flex: none !important;
+  flex: 0 1 auto !important;
   min-width: auto !important;
 }
 
