@@ -10,6 +10,10 @@ const NavBar = ({ user, onLogout }) => {
   const profileRef = useRef(null);
   const notifRef = useRef(null);
 
+  useEffect(() => {
+    setShowProfileDropdown(false);
+  }, [user]);
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
