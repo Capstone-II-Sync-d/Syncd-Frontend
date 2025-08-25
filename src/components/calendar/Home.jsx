@@ -848,6 +848,7 @@ const Home = () => {
                   setShowMessage={setShowMessage}
                   showMessage={showMessage}
                   joinMessageRoom={joinMessageRoom}
+                  setShowConversation={setShowConversation}
                 />
               ))
             )}
